@@ -1,6 +1,3 @@
-Warning: truncated output (original token count: 10758)
-Total output lines: 1225
-
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
@@ -624,7 +621,87 @@ async function fetchPrintsByOracleIdsOrEmpty(
     const batch = oracleIds.slice(offset, offset + 20);
     try {
       const page = await fetchPrintsByOracleIds(batch, undefined, undefined, locale);
- …758 tokens truncated…umber.toLowerCase(),
+      for (const [oracleId, cards] of page) {
+        results.set(oracleId, [...(results.get(oracleId) ?? []), ...cards]);
+      }
+    } catch (error) {
+      if (!(error instanceof Error && /HTTP 404\b/.test(error.message))) throw error;
+    }
+  }
+  return results;
+}
+
+function localizedDetailsFromCard(
+  card: ScryfallCard,
+  locale: ScryfallLanguage,
+): LocalizedCardDetails {
+  const usePrintedFields = locale !== "en";
+  return {
+    name: (usePrintedFields ? card.printed_name : undefined) ?? card.name,
+    typeLine: (usePrintedFields ? card.printed_type_line : undefined) ?? card.type_line,
+    text: (usePrintedFields ? card.printed_text : undefined) ?? card.oracle_text ?? "",
+    imageUris: card.image_uris,
+    faces: card.card_faces?.map((face) => ({
+      name: (usePrintedFields ? face.printed_name : undefined) ?? face.name,
+      typeLine: (usePrintedFields ? face.printed_type_line : undefined) ?? face.type_line ?? "",
+      text: (usePrintedFields ? face.printed_text : undefined) ?? face.oracle_text ?? "",
+      imageUris: face.image_uris,
+    })),
+  };
+}
+
+async function fetchLocalizedCardDetails(
+  lookups: LocalizedCardLookup[],
+  locale: ScryfallLanguage,
+): Promise<Map<string, LocalizedCardDetails | null>> {
+  const unique = [
+    ...new Map(
+      lookups.map((lookup) => [
+        localizedCardDetailsKey(locale, lookup.setCode, lookup.collectorNumber),
+        lookup,
+      ]),
+    ).values(),
+  ];
+  const result = new Map<string, LocalizedCardDetails | null>();
+  const missing: LocalizedCardLookup[] = [];
+  const pending: Promise<void>[] = [];
+
+  for (const lookup of unique) {
+    const key = localizedCardDetailsKey(locale, lookup.setCode, lookup.collectorNumber);
+    if (localizedCardDetailsCache.has(locale, lookup.setCode, lookup.collectorNumber)) {
+      result.set(
+        key,
+        localizedCardDetailsCache.get(locale, lookup.setCode, lookup.collectorNumber) ?? null,
+      );
+      continue;
+    }
+    const existing = pendingLocalizedCardDetails.get(key);
+    if (existing) {
+      pending.push(existing.then((details) => void result.set(key, details)));
+    } else {
+      missing.push(lookup);
+    }
+  }
+
+  if (missing.length > 0) {
+    const request = (async () => {
+      const withoutOracleId = missing.filter((lookup) => !lookup.oracleId);
+      const exactCards = withoutOracleId.length
+        ? await fetchCardCollection(
+            withoutOracleId.map((lookup) => ({
+              name: lookup.name ?? "",
+              setCode: lookup.setCode,
+              collectorNumber: lookup.collectorNumber,
+            })),
+          )
+        : new Map<string, ScryfallCard>();
+      const resolved = await Promise.all(
+        missing.map(async (lookup) => {
+          if (lookup.oracleId) return { lookup, oracleId: lookup.oracleId };
+          const card = [...exactCards.values()].find(
+            (candidate) =>
+              candidate.set.toLowerCase() === lookup.setCode.toLowerCase() &&
+              candidate.collector_number.toLowerCase() === lookup.collectorNumber.toLowerCase(),
           );
           if (!card) throw new Error("Unable to resolve localized card printing");
           return { lookup, oracleId: card.oracle_id };
