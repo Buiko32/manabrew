@@ -56,6 +56,8 @@ function normalizeGameView(
     commandZone: cardsOf(player.id, "command"),
     library: cardsOf(player.id, "library"),
     libraryCount: zoneOf(player.id, "library")?.count ?? 0,
+    attractionsCount: zoneOf(player.id, "attractions")?.count ?? 0,
+    junkyard: cardsOf(player.id, "junkyard"),
     poison: player.counters.poison ?? 0,
     energyCounters: player.counters.energy ?? 0,
     radiationCounters: player.counters.radiation ?? 0,
@@ -176,5 +178,13 @@ export function applyPrompt(
     console.log(`[prompt:${source}] ${prompt.input.type}`, JSON.stringify(prompt, null, 2));
   }
   notePromptArrived(prompt.input.type);
-  route({ displayEvents: [], gameView: null, prompt }, `${source}: ${prompt.input.type}`, set, get);
+  const normalized = prompt.sourceCard
+    ? { ...prompt, sourceCard: { ...GAME_CARD_DEFAULTS, ...prompt.sourceCard } }
+    : prompt;
+  route(
+    { displayEvents: [], gameView: null, prompt: normalized },
+    `${source}: ${prompt.input.type}`,
+    set,
+    get,
+  );
 }
