@@ -35,7 +35,7 @@ describe("localized card preview identity", () => {
     });
 
     expect(preview.identity.name).toBe("Fulmine");
-    expect(preview.identity.id).toBe("deck-print-7");
+    expect(preview.id).toBe("deck-print-7");
     expect(preview.identity.setCode).toBe("lea");
     expect(preview.identity.cardNumber).toBe("161");
     expect(preview.text).toContain("danni");
