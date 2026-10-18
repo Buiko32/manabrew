@@ -1,5 +1,6 @@
 import type { StepKind } from "@/protocol";
 import { scryfallAssetUrl } from "@/lib/scryfallAssets";
+import type { InGameCardPreviewSize } from "@/stores/usePreferencesStore";
 /** The single UI-side list of turn steps, ordered to match the engine's turn
  *  structure. Ids are protocol `StepKind` values — never restate them elsewhere. */
 export const PHASES: readonly {
@@ -215,6 +216,11 @@ export const GAME_CARD_SIZES = {
   },
   preview: PREVIEW_CARD_SIZE,
 } as const;
+export const IN_GAME_CARD_PREVIEW_SCALES = {
+  small: 0.75,
+  medium: 1,
+  large: 1.25,
+} as const satisfies Record<InGameCardPreviewSize, number>;
 export const CARD_W = GAME_CARD_SIZES.battlefield.width;
 export const CARD_H = GAME_CARD_SIZES.battlefield.height;
 export const CARD_GAP = 8;
@@ -228,9 +234,10 @@ export const PROMPT_MODAL_VIEWPORT_MARGIN = 16;
 export const PROMPT_MODAL_MAX_HEIGHT_CLASS = "max-h-[calc(100dvh-16px)]";
 export const PROMPT_MODAL_HEIGHT_CLASS = "h-[calc(100dvh-16px)]";
 /** Corner radius at CARD_W scale — renderers drawing at other sizes must scale
- *  it proportionally (radius = size * CARD_RADIUS / CARD_W) to match the
- *  printed card corner. */
-export const CARD_RADIUS = 6;
+ *  it proportionally (radius = size * CARD_RADIUS / CARD_W). Keep the ratio in
+ *  sync with card-glint's MODERN_CORNER_RADIUS, the corner it paints on modern
+ *  frames, so Realistic and Manabrew faces share one corner. */
+export const CARD_RADIUS = CARD_W * 0.045;
 export const COMBAT_STAGE_OPPONENT_SHIFT = 100;
 export const RING_ABILITIES: readonly string[] = [
   "Your Ring-bearer is legendary and can't be blocked by creatures with greater power.",

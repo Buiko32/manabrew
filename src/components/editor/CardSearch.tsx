@@ -31,8 +31,9 @@ import { deckCardToPreviewDto, scryfallToSearchResult } from "@/lib/scryfall.uti
 import { shouldLocalizeScryfallSearchResults } from "@/lib/scryfallSearch";
 import { manaSymbolUrl } from "@/api/scryfall";
 import { ScryfallImg } from "@/components/ScryfallImg";
+import { GeneratedCardImage } from "@/components/game/GeneratedCardImage";
 import { HoverCardPreview } from "@/components/game/HoverCardPreview";
-import { useCardPreview } from "@/hooks/useCardPreview";
+import { useCardPreview, type CardPreviewController } from "@/hooks/useCardPreview";
 import type { ManaCode } from "@/types/scryfall";
 const COLOR_FILTERS = [
   {
@@ -795,12 +796,7 @@ function DraggableCardRow({
       )}
     >
       <div className="w-8 h-8 shrink-0 rounded overflow-hidden bg-muted">
-        <ScryfallImg
-          src={card.uris.small}
-          alt=""
-          className="w-full h-full object-cover object-top"
-          draggable={false}
-        />
+        <GeneratedCardImage deckCard={card} className="h-full w-full" />
       </div>
 
       <div className="flex-1 min-w-0">
@@ -844,7 +840,7 @@ interface CardSearchProps {
   initialSet?: string;
   onSetChange?: (code: string) => void;
   onClose?: () => void;
-  previewController?: ReturnType<typeof useCardPreview>;
+  previewController?: CardPreviewController;
   /** Shared rail slot — when provided, the hover preview portals into it
    *  (pinned). When absent, the search panel renders no preview of its own. */
   previewSlot?: HTMLElement | null;
@@ -865,7 +861,7 @@ export function CardSearch({
   const addToMain = useDeckStore((s) => s.addToMain);
   const locale = useScryfallStore((s) => s.locale);
   const addCard = (card: DeckCard) => {
-    addToMain({ ...card, identity: { ...card.identity, id: crypto.randomUUID() } });
+    addToMain(card);
     toast.success(`Added ${card.identity.name}`);
   };
   const [text, setText] = useState("");
@@ -1528,4 +1524,3 @@ export function CardSearch({
     </div>
   );
 }
-

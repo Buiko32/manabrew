@@ -1,5 +1,23 @@
 # Changelog
 
+## [3.57.0](https://github.com/witchesofthehill/manabrew/compare/v3.56.1...v3.57.0) (2026-10-18)
+
+### Features
+
+* **ui:** manabrew card view !!! ([#1059](https://github.com/witchesofthehill/manabrew/issues/1059)) ([00de939](https://github.com/witchesofthehill/manabrew/commit/00de939a14cf6acf9ca2d1d7e7811cdb69091b19))
+
+## [3.56.1](https://github.com/witchesofthehill/manabrew/compare/v3.56.0...v3.56.1) (2026-10-17)
+
+### Fixes
+
+* **ui:** restore touch scrolling and search in choice prompts ([#1052](https://github.com/witchesofthehill/manabrew/issues/1052)) ([688d6a6](https://github.com/witchesofthehill/manabrew/commit/688d6a6b1a30769c0e0dda0ce9dad0c78007616d))
+
+## [3.56.0](https://github.com/witchesofthehill/manabrew/compare/v3.55.4...v3.56.0) (2026-10-16)
+
+### Features
+
+* **limited:** add shared pixi workspace and multiplayer matches ([#1029](https://github.com/witchesofthehill/manabrew/issues/1029)) ([b3128f3](https://github.com/witchesofthehill/manabrew/commit/b3128f3b03a8f3d4b1cf517a639b2c44912f6923))
+
 ## [3.55.4](https://github.com/witchesofthehill/manabrew/compare/v3.55.3...v3.55.4) (2026-10-14)
 
 ### Fixes

@@ -44,8 +44,10 @@ import {
 } from "@/lib/forgeWasm";
 import { FORGE_START_TIMEOUT_MESSAGE, withForgeStartTimeout } from "@/game/forgeWasmValidation";
 import { getPlatform } from "@/platform";
+import { peek as peekGauntletMatch, clear as clearGauntletMatch } from "@/lib/gauntletReturn";
 import { applyPrompt } from "./gameStore.constants";
 import { DEFAULT_STARTING_LIFE, useServerStore } from "./useServerStore";
+import { useMultiplayerLimitedStore } from "./useMultiplayerLimitedStore";
 import { isTauriForgeRoomAvailable } from "./useForgeRoomAvailabilityStore";
 import { usePreferencesStore } from "./usePreferencesStore";
 import type { ClientCardDto, ClientGameView, GameState } from "./gameStore.types";
@@ -53,6 +55,7 @@ import type { Prompt, PromptOutput } from "@/protocol";
 import type { Deck, DeckCard } from "@/protocol/deck";
 import type { EngineKind } from "@/types/server";
 import { GAME_CARD_DEFAULTS } from "@/lib/gameCard";
+import { normalizeCardCosmetics } from "@/lib/cardCosmetics";
 import type { GameRuntime, ManualTabletopApi } from "@/game";
 import { withResolvedDeckName } from "@/lib/deckName";
 export type { GameConfig, GameState, DisplayEvent, DeferredSnapshot } from "./gameStore.types";
@@ -80,6 +83,7 @@ function manualZoneCard(card: DeckCard, playerId: string, zoneId: string): Clien
       isToken: false,
     },
     foil: identity.foil ?? false,
+    cosmetics: normalizeCardCosmetics(identity.cosmetics),
     controllerId: playerId,
     ownerId: playerId,
     zoneId,
@@ -529,6 +533,7 @@ export const useGameStore = create<GameState>()(
             isHost: localIsHost,
             myPlayerSlot: `player-${enginePlayerIndex}`,
             ironsmithDeckError: null,
+            engineCrash: null,
             gameView: null,
             currentPrompt: null,
             gameLog: [],
@@ -544,6 +549,12 @@ export const useGameStore = create<GameState>()(
             cardPrefetchProgress: null,
             gameDecks,
           });
+          const limited = useMultiplayerLimitedStore.getState();
+          if (limited.matchReturn && limited.matchReturn.roomId === server.currentRoom?.room_id) {
+            useMultiplayerLimitedStore.setState({
+              matchReturn: { ...limited.matchReturn, started: true },
+            });
+          }
           const runtime =
             engine === "Ironsmith" ? selectGameRuntime("ironsmith") : resetSelectedGameRuntime();
           set({ debugInfo: "Starting engine..." });
@@ -670,6 +681,7 @@ export const useGameStore = create<GameState>()(
         clearActiveGameSession();
         const runtime = getSelectedGameRuntime();
         const wasMultiplayer = get().isMultiplayer;
+        if (peekGauntletMatch() && !get().gameView?.gameOver) await clearGauntletMatch();
         // Before the state is cleared: how the engine performed. A game the
         // relay knows about is reported to it; anything else goes to the hub.
         // Never throws, never blocks the teardown.
@@ -721,7 +733,7 @@ export const useGameStore = create<GameState>()(
           });
           return Promise.race([promise, timeout]).finally(clearTimer);
         };
-        if (wasMultiplayer) {
+        if (wasMultiplayer && !useMultiplayerLimitedStore.getState().matchReturn) {
           try {
             await withTimeout(useServerStore.getState().leaveRoom(), "leaveRoom()");
           } catch (e) {
