@@ -42,8 +42,7 @@ import type {
   BoardOverlayCommandPreviewSpec,
   BoardOverlayPreviewSpec,
 } from "@/pixi/BoardOverlayCanvas";
-import { DesktopBoardOverlayCanvas } from "@/pixi/DesktopBoardOverlayCanvas";
-import { MobileBoardOverlayCanvas } from "@/pixi/MobileBoardOverlayCanvas";
+import { CardPreviewOverlayCanvas } from "@/pixi/CardPreviewOverlayCanvas";
 import { buildArrowSpecs } from "@/components/game/arrowSpecs";
 import { getDisplayedManaAbilities } from "@/components/game/manaUtils";
 import { PlayModePicker } from "@/components/game/PlayModePicker";
@@ -53,11 +52,11 @@ import { useHandScale } from "@/hooks/useHandScale";
 import { useFlashQueue } from "@/hooks/useFlashQueue";
 import { useHandDrag, type HandDragStart } from "@/hooks/useHandDrag";
 import { useCardPreview } from "@/hooks/useCardPreview";
-import type { PreviewPointerInput } from "@/lib/cardPreview";
+import { useGamePreviewFlip } from "@/hooks/useGamePreviewFlip";
+import type { PreviewFlipOptions, PreviewPointerInput } from "@/lib/cardPreview";
 import { MODAL_OPEN_EVENT, topModal } from "@/lib/modalStack";
 import { useMulliganSelection } from "@/hooks/useMulliganSelection";
 import { HoverCardPreview } from "@/components/game/HoverCardPreview";
-import { useIsMobileGame } from "@/hooks/useBreakpoints";
 import { usePromptEffects } from "@/hooks/usePromptEffects";
 import { useCombatState } from "@/hooks/useCombatState";
 import { useGameEventListeners } from "@/hooks/useGameEventListeners";
@@ -69,9 +68,11 @@ import { buildCombatRows } from "@/components/game/combatRows";
 import { readableTextColor, withAlpha } from "@/themes/gameTheme";
 import { useTheme } from "@/hooks/useTheme";
 import { boardBackgroundDarken, boardBackgroundUrl } from "@/pixi/board/boardBackgrounds";
-import { Navigate, useLocation, useNavigate } from "react-router-dom";
-import { useLimitedStore } from "@/stores/useLimitedStore";
-import { peek as peekGauntletMatch, tryConsumeGauntletMatch } from "@/lib/gauntletReturn";
+import { Navigate, useLocation } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { useLimitedGameReturn } from "@/hooks/useLimitedGameReturn";
+import { peek as peekGauntletMatch } from "@/lib/gauntletReturn";
+import { peekLimitedMatchReturn } from "@/game/limitedSession";
 import { intentIsHostile, intentPrefersArrow } from "@/types/promptType";
 import type { PromptType } from "@/protocol";
 import { declareAttackersOutput } from "@/components/prompts/internal/playerActions";
@@ -101,14 +102,9 @@ import { peekCard, useScryfallStore } from "@/stores/useScryfallStore";
 import { scryfallToSampleGameCard } from "@/lib/sampleGameCard";
 import { haptic } from "@/lib/haptics";
 import type { GameRuntime, ManualTabletopApi } from "@/game";
-const EMPTY_PREVIEW_STACK: StackSpec = {
-  cards: [],
-  flash: null,
-  showPreStackFlash: false,
-  collapsed: true,
-};
-const NO_PREVIEW_ACTION = () => undefined;
 const HOVER_ALLOWED_PROMPTS = new Set<PromptType>([
+  "mulligan",
+  "mulliganPutBack",
   "chooseAction",
   "chooseAttackers",
   "chooseBlockers",
@@ -175,11 +171,7 @@ function buildDebugKeywordCard(
       : null;
   const face = info?.card_faces?.[1];
   if (info && face) {
-    const selected = scryfallToSampleGameCard({
-      ...info,
-      ...face,
-      type_line: face.type_line ?? info.type_line,
-    });
+    const selected = scryfallToSampleGameCard(info, { isTransformed: true });
     base.types = selected.types;
     base.subtypes = selected.subtypes;
     base.supertypes = selected.supertypes;
@@ -315,6 +307,7 @@ export default function Game({ exitTo }: GameProps = {}) {
   const flashDurationMs = usePreferencesStore((s) => s.flashDurationMs);
   const zonePanelOrder = usePreferencesStore((s) => s.zonePanelOrder);
   const inGameCardPreviewStyle = usePreferencesStore((s) => s.inGameCardPreviewStyle);
+  const handCardStyle = usePreferencesStore((s) => s.handCardStyle);
   const cardPreviewMode = usePreferencesStore((s) => s.cardPreviewMode);
   const roomTableStyle = useServerStore((s) => s.currentRoom?.table_style);
   const boardBackgroundId = usePreferencesStore((s) => s.boardBackgroundId);
@@ -323,7 +316,6 @@ export default function Game({ exitTo }: GameProps = {}) {
   const backgroundDarken = boardBackgroundDarken(backgroundId);
   const preloadCardImages = usePreferencesStore((s) => s.preloadCardImages);
   const vScale = useHandScale();
-  const isMobileGame = useIsMobileGame();
   const themeColors = useTheme().gameTheme;
   const location = useLocation();
   const devExtraOpponents =
@@ -530,7 +522,12 @@ export default function Game({ exitTo }: GameProps = {}) {
           actionId: a.id,
         },
       ]);
-      arr.push(...displayed.map((ab) => toAbilityOption(ab, ab.actionId)));
+      arr.push(
+        ...displayed.map((ab) => ({
+          ...toAbilityOption(ab, ab.actionId),
+          abilityText: a.description,
+        })),
+      );
       map.set(a.cardId, arr);
     }
     return map;
@@ -1811,6 +1808,10 @@ export default function Game({ exitTo }: GameProps = {}) {
     () => setCommandPreviewSequence(commandPreviewCards),
     [commandPreviewCards, setCommandPreviewSequence],
   );
+  const singleCommandPreviewCard =
+    commandZonePreview.phase !== "hidden" && commandPreviewCards.length === 1
+      ? commandPreviewCards[0]!
+      : null;
 
   const previewCardId = preview.hoveredCard?.id ?? null;
   const livePreviewCard = useMemo(() => {
@@ -1821,26 +1822,18 @@ export default function Game({ exitTo }: GameProps = {}) {
       (preview.hoveredCard ? { ...preview.hoveredCard, zoneId: "prompt" } : null)
     );
   }, [preview.hoveredCard, previewCardId, stackCardsBySourceId, visibleCardsById]);
+  const previewFaceCard = singleCommandPreviewCard ?? livePreviewCard;
   const [previewFaceOverride, setPreviewFaceOverride] = useState<{
     cardId: string;
     showBackFace: boolean;
   } | null>(null);
   useEffect(() => {
     setPreviewFaceOverride(null);
-  }, [previewCardId]);
+  }, [previewCardId, singleCommandPreviewCard?.id]);
   const previewShowBackFace =
-    previewFaceOverride && previewFaceOverride.cardId === livePreviewCard?.id
+    previewFaceOverride && previewFaceOverride.cardId === previewFaceCard?.id
       ? previewFaceOverride.showBackFace
-      : (livePreviewCard?.isTransformed ?? false);
-  const handleFlipPreview = () => {
-    if (!livePreviewCard) return;
-    const showBackFace = !previewShowBackFace;
-    setPreviewFaceOverride(
-      showBackFace === livePreviewCard.isTransformed
-        ? null
-        : { cardId: livePreviewCard.id, showBackFace },
-    );
-  };
+      : (previewFaceCard?.isTransformed ?? false);
   const hoveredCardActions = useMemo(
     () => (livePreviewCard ? getCardActions(livePreviewCard) : []),
     [getCardActions, livePreviewCard],
@@ -2047,7 +2040,9 @@ export default function Game({ exitTo }: GameProps = {}) {
     !abilityPickerState &&
     commandZonePreview.phase !== "hidden";
   const previewSuppressed =
-    !preview.isSticky && !!promptType && !HOVER_ALLOWED_PROMPTS.has(promptType);
+    !(showCommandZonePreview ? commandZonePreview.isSticky : preview.isSticky) &&
+    !!promptType &&
+    !HOVER_ALLOWED_PROMPTS.has(promptType);
   const externalPreviewActive =
     !previewSuppressed &&
     ((showInGamePreview && preview.phase === "open") ||
@@ -2059,14 +2054,56 @@ export default function Game({ exitTo }: GameProps = {}) {
     preview.phase === "open" &&
     livePreviewCard != null &&
     previewViewSwitchCardIdRef.current === livePreviewCard.id;
-  const togglePreviewView = useCallback(() => {
-    if (!livePreviewCard && !commandPreviewSource) return;
+  const previewFlipIdentity = showCommandZonePreview
+    ? commandPreviewCards.map((card) => card.id).join(":")
+    : (livePreviewCard?.id ?? null);
+  const previewPresentation = `${inGameCardPreviewStyle}:${previewFlipIdentity}:${previewShowBackFace}`;
+  const previewFlip = useGamePreviewFlip(
+    previewFlipIdentity,
+    externalPreviewActive,
+    previewPresentation,
+  );
+  const requestedPreview = useRef({
+    style: inGameCardPreviewStyle,
+    showBackFace: previewShowBackFace,
+  });
+  useEffect(() => {
+    requestedPreview.current = {
+      style: inGameCardPreviewStyle,
+      showBackFace: previewShowBackFace,
+    };
+  }, [previewFlipIdentity, inGameCardPreviewStyle, previewShowBackFace, externalPreviewActive]);
+  const currentPreviewFaceCard = useRef(previewFaceCard);
+  currentPreviewFaceCard.current = previewFaceCard;
+  const requestPreviewPresentation = () => {
+    if (!previewFlipIdentity) return;
+    const target = { ...requestedPreview.current };
     if (livePreviewCard) previewViewSwitchCardIdRef.current = livePreviewCard.id;
-    const preferences = usePreferencesStore.getState();
-    preferences.setInGameCardPreviewStyle(
-      preferences.inGameCardPreviewStyle === "printed" ? "rules" : "printed",
-    );
-  }, [commandPreviewSource, livePreviewCard]);
+    previewFlip.request(`${target.style}:${previewFlipIdentity}:${target.showBackFace}`, () => {
+      usePreferencesStore.getState().setInGameCardPreviewStyle(target.style);
+      const card = currentPreviewFaceCard.current;
+      if (card) {
+        setPreviewFaceOverride(
+          target.showBackFace === card.isTransformed
+            ? null
+            : { cardId: card.id, showBackFace: target.showBackFace },
+        );
+      }
+    });
+  };
+  const togglePreviewView = () => {
+    if (!livePreviewCard && !commandPreviewSource) return;
+    requestedPreview.current.style =
+      requestedPreview.current.style === "printed" ? "rules" : "printed";
+    requestPreviewPresentation();
+  };
+  const handleFlipPreview = (options?: PreviewFlipOptions) => {
+    if (!previewFaceCard) return;
+    if (singleCommandPreviewCard) commandZonePreview.flipCard(options);
+    else preview.flipCard(options);
+    requestedPreview.current.showBackFace = !requestedPreview.current.showBackFace;
+    requestPreviewPresentation();
+  };
   useKeybindings(
     externalPreviewActive
       ? {
@@ -2080,26 +2117,31 @@ export default function Game({ exitTo }: GameProps = {}) {
   );
   useEffect(() => {
     if (!gameView?.gameOver && activePrompt?.input.type !== "gameOver") return;
-    if (peekGauntletMatch()) return;
+    if (peekGauntletMatch() || peekLimitedMatchReturn()) return;
     const timer = setTimeout(() => endGame(), 3000);
     return () => clearTimeout(timer);
   }, [gameView?.gameOver, activePrompt?.input.type, endGame]);
-  const navigate = useNavigate();
-  useEffect(() => {
-    if (!gameView?.gameOver) return;
-    const pending = tryConsumeGauntletMatch();
-    if (!pending) return;
-    const humanWon = gameView.winnerId != null && gameView.winnerId === myPlayerSlot;
-    void (async () => {
-      await useLimitedStore
-        .getState()
-        .recordGauntletOutcome(pending.gauntletId, humanWon, true, humanWon)
-        .catch(() => undefined);
-      await endGame();
-      navigate(`/gauntlet/${pending.gauntletId}`);
-    })();
-  }, [gameView?.gameOver, gameView?.winnerId, myPlayerSlot, navigate, endGame]);
-  if (!isGameActive) return <Navigate to={exitTo ?? "/lobby"} replace />;
+  const limitedReturn = useLimitedGameReturn({
+    gameOver: (gameView?.gameOver ?? false) || activePrompt?.input.type === "gameOver",
+    winnerId: gameView?.winnerId ?? null,
+    playerSlot: myPlayerSlot,
+    endGame,
+  });
+  if (!isGameActive)
+    return <Navigate to={limitedReturn.destination ?? exitTo ?? "/lobby"} replace />;
+  if (limitedReturn.error) {
+    return (
+      <div className="flex h-full flex-col items-center justify-center gap-3 px-4">
+        <p className="font-semibold">Game finished. Your Limited session could not be updated.</p>
+        <p className="text-sm text-destructive" role="alert">
+          {limitedReturn.error}
+        </p>
+        <Button variant="primary" onClick={() => void limitedReturn.retry()}>
+          Retry returning to pool
+        </Button>
+      </div>
+    );
+  }
   if (fatalError) {
     return <GameFailedScreen message={fatalError} onLeave={endGame} />;
   }
@@ -2209,7 +2251,9 @@ export default function Game({ exitTo }: GameProps = {}) {
   };
   const boardViewportRight = isActionPanelCollapsed ? undefined : rightPanelLeft;
   const commandPreview: BoardOverlayCommandPreviewSpec | null =
-    commandPreviewSource && showCommandZonePreview
+    commandPreviewSource &&
+    showCommandZonePreview &&
+    !(inGameCardPreviewStyle === "rules" && singleCommandPreviewCard)
       ? {
           cards: commandPreviewCards,
           castableCardIds: commandPreviewCards
@@ -2220,27 +2264,53 @@ export default function Game({ exitTo }: GameProps = {}) {
           suppressed: previewSuppressed,
           anchorRect: commandPreviewSource.anchorRect,
           viewportRight: boardViewportRight,
+          flip: previewFlip.command,
+          showBackFace: singleCommandPreviewCard ? previewShowBackFace : undefined,
         }
       : null;
   const rulesPreview: BoardOverlayPreviewSpec | null =
-    !commandPreview && inGameCardPreviewStyle === "rules" && showInGamePreview && livePreviewCard
+    inGameCardPreviewStyle === "rules" &&
+    showCommandZonePreview &&
+    singleCommandPreviewCard &&
+    commandPreviewSource
       ? {
-          card: livePreviewCard,
-          phase: preview.phase === "closing" ? "closing" : "open",
-          placement: preview.placement,
-          sticky: preview.isSticky,
+          card: singleCommandPreviewCard,
+          phase: commandZonePreview.phase === "closing" ? "closing" : "open",
+          placement: "auto",
+          sticky: commandZonePreview.isSticky,
           showBackFace: previewShowBackFace,
           suppressed: previewSuppressed,
-          skipEnterAnimation: skipPreviewEnterAnimation,
-          actions: hoveredCardActions,
-          reserveSidePanel:
-            hoveredCardActions.length > 0 || deriveCardRailState(livePreviewCard) != null,
-          mousePos: preview.mousePos,
-          anchorRect: preview.anchorRect,
+          skipEnterAnimation: true,
+          actions: getCardActions(singleCommandPreviewCard),
+          reserveSidePanel: false,
+          mousePos: commandZonePreview.mousePos,
+          anchorRect: commandPreviewSource.anchorRect,
           slotRect: null,
           viewportRight: boardViewportRight,
+          flip: previewFlip.rules,
         }
-      : null;
+      : !commandPreview &&
+          inGameCardPreviewStyle === "rules" &&
+          showInGamePreview &&
+          livePreviewCard
+        ? {
+            card: livePreviewCard,
+            phase: preview.phase === "closing" ? "closing" : "open",
+            placement: preview.placement,
+            sticky: preview.isSticky,
+            showBackFace: previewShowBackFace,
+            suppressed: previewSuppressed,
+            skipEnterAnimation: skipPreviewEnterAnimation,
+            actions: hoveredCardActions,
+            reserveSidePanel:
+              hoveredCardActions.length > 0 || deriveCardRailState(livePreviewCard) != null,
+            mousePos: preview.mousePos,
+            anchorRect: preview.anchorRect,
+            slotRect: null,
+            viewportRight: boardViewportRight,
+            flip: previewFlip.rules,
+          }
+        : null;
 
   const promptOverlaySpec: PromptOverlaySpec = {
     currentPrompt: activePrompt,
@@ -2374,8 +2444,6 @@ export default function Game({ exitTo }: GameProps = {}) {
     gameView.restoreVote.awaitingPlayerIds.includes(myPlayerSlot)
       ? gameView.restoreVote
       : null;
-
-  const ZonePreviewCanvas = isMobileGame ? MobileBoardOverlayCanvas : DesktopBoardOverlayCanvas;
 
   return (
     <div
@@ -2758,6 +2826,7 @@ export default function Game({ exitTo }: GameProps = {}) {
           >
             <Card
               card={draggingHandCard}
+              presentation={handCardStyle}
               className={cn("shadow-2xl ring-2 ring-primary playable-card")}
               style={{ width: ghostCardW, height: ghostCardH }}
             />
@@ -2794,13 +2863,7 @@ export default function Game({ exitTo }: GameProps = {}) {
         rulesPreview &&
         createPortal(
           <div className="pointer-events-none fixed inset-0 z-[10001]">
-            <ZonePreviewCanvas
-              scene={null}
-              stackSpec={EMPTY_PREVIEW_STACK}
-              onTargetSpell={NO_PREVIEW_ACTION}
-              onHoverStack={NO_PREVIEW_ACTION}
-              onToggleStack={NO_PREVIEW_ACTION}
-              promptSpec={null}
+            <CardPreviewOverlayCanvas
               previewSpec={rulesPreview}
               externalPreviewActive={externalPreviewActive}
               onPreviewPointerEnter={preview.onMouseEnterPreview}
@@ -2827,6 +2890,7 @@ export default function Game({ exitTo }: GameProps = {}) {
           suppressed={previewSuppressed}
           skipEnterAnimation={skipPreviewEnterAnimation}
           onToggleView={togglePreviewView}
+          flip={previewFlip.printed}
           viewportRight={boardViewportRight}
           portalTarget={zoneCardPreview ? zonePreviewPanel : null}
         />

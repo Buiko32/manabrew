@@ -1,3 +1,6 @@
+import { CardFoilOverlay } from "@/components/game/CardFoilOverlay";
+import { CardCustomizerModal } from "@/components/editor/CardCustomizerModal";
+import { isEtchedOnlyPrinting } from "@/lib/cardFinish";
 import { useEffect, useState } from "react";
 import { Modal } from "@/components/game/modals/Modal";
 import { ManaSymbols } from "@/components/game/ManaSymbols";
@@ -14,16 +17,23 @@ import {
   Tag,
   Check,
   RotateCcw,
-  Sparkles,
   AlertTriangle,
   LibraryBig,
+  Palette,
 } from "lucide-react";
 import { GameIcon } from "@/components/game/GameIcon";
 import { Input } from "@/components/ui/input";
-import { useCard, useCardRulings, useScryfallStore } from "@/stores/useScryfallStore";
+import {
+  useCard,
+  useCardRulings,
+  useScryfallStore,
+  tokenIdentityKey,
+} from "@/stores/useScryfallStore";
 import { isHorizontalCard } from "@/lib/cardLayout";
 import { HorizontalCardImage } from "@/components/game/HorizontalCardImage";
 import { ScryfallImg } from "@/components/ScryfallImg";
+import { GeneratedCardImage } from "@/components/game/GeneratedCardImage";
+import { usePreferencesStore } from "@/stores/usePreferencesStore";
 import { usePreferredPrintsStore } from "@/stores/usePreferredPrintsStore";
 import { useDeckStore } from "@/stores/useDeckStore";
 import { PrintPickerModal } from "@/components/editor/PrintPickerModal";
@@ -53,7 +63,6 @@ interface DeckEditorActions {
   onTagCard?: (cardName: string, tag: string) => void;
   onUntagCard?: (cardName: string, tag: string) => void;
   onAddTag?: (tag: string) => void;
-  onToggleFoil?: (cardName: string) => void;
   onSetCover?: (cardName: string, face: 0 | 1) => void;
   token?: DeckCard;
   printing?: DeckCardIdentity;
@@ -79,6 +88,7 @@ export function CardDetailModal({
   navigation,
 }: CardDetailModalProps) {
   const [showPrints, setShowPrints] = useState(false);
+  const [customizing, setCustomizing] = useState(false);
   const [showDeckPicker, setShowDeckPicker] = useState(false);
   const [newTagInput, setNewTagInput] = useState("");
   const [selectedPrint, setSelectedPrint] = useState<ScryfallCard | null>(null);
@@ -88,6 +98,9 @@ export function CardDetailModal({
     key: string;
     details: LocalizedCardDetails | null;
   } | null>(null);
+  const presentation = usePreferencesStore((state) => state.inGameCardPreviewStyle);
+  const setPresentation = usePreferencesStore((state) => state.setInGameCardPreviewStyle);
+  const generated = presentation === "rules";
   const rulingsData = useCardRulings(initialCard);
   const updatePrinting = useScryfallStore((s) => s.updatePrinting);
   const locale = useScryfallStore((s) => s.locale);
@@ -111,6 +124,7 @@ export function CardDetailModal({
     setSelectedPrint(null);
     setShowPrints(false);
     setShowDeckPicker(false);
+    setCustomizing(false);
     setFaceIndex(0);
   }
   const card = selectedPrint ?? initialCard;
@@ -156,8 +170,34 @@ export function CardDetailModal({
     ...currentDeck.sideboard,
     ...(currentDeck.maybeboard ?? []),
     ...(currentDeck.commanders ?? []),
+    ...(currentDeck.attractions ?? []),
+    ...(currentDeck.contraptions ?? []),
+    ...(currentDeck.schemes ?? []),
+    ...(currentDeck.planes ?? []),
+    ...(currentDeck.companion ? [currentDeck.companion] : []),
   ];
-  const matchingDeckCard = deckCards.find((candidate) => candidate.identity.name === deckCardName);
+  const exactDeckCard = deckEditorActions?.printing
+    ? deckCards.find((candidate) => candidate.identity.id === deckEditorActions.printing?.id)
+    : undefined;
+  const token = deckEditorActions?.token;
+  const customizationCard = token
+    ? (currentDeck.tokens?.find(
+        (candidate) => tokenIdentityKey(candidate) === tokenIdentityKey(token),
+      ) ?? token)
+    : exactDeckCard;
+  const matchingDeckCard =
+    exactDeckCard ?? deckCards.find((candidate) => candidate.identity.name === deckCardName);
+  const foil = !!(
+    customizationCard?.identity.foil ??
+    deckEditorActions?.printing?.foil ??
+    (deckEditorActions ? matchingDeckCard?.identity.foil : false)
+  );
+  const cosmetics = customizationCard?.identity.cosmetics;
+  const renderedCard = scryfallToDeckCard(card);
+  const renderCard = {
+    ...renderedCard,
+    identity: { ...renderedCard.identity, foil, cosmetics },
+  };
   const unsupported = useIsUnsupported(deckCardName);
   const owned = collectionQuantityForName(collectionQuantities, deckCardName);
   const exactOwnership = matchingDeckCard
@@ -200,15 +240,33 @@ export function CardDetailModal({
   const displayName =
     localizedFace?.name ??
     (activeFace ? undefined : displayDetails?.name) ??
-    (activeFace ? activeFace.name : card.name);
+    (activeFace
+      ? displayLocale === "en"
+        ? activeFace.name
+        : (activeFace.printed_name ?? activeFace.name)
+      : displayLocale === "en"
+        ? card.name
+        : (card.printed_name ?? card.name));
   const typeLine =
     localizedFace?.typeLine ??
     (activeFace ? undefined : displayDetails?.typeLine) ??
-    (activeFace ? activeFace.type_line : card.type_line);
+    (activeFace
+      ? displayLocale === "en"
+        ? activeFace.type_line
+        : (activeFace.printed_type_line ?? activeFace.type_line)
+      : displayLocale === "en"
+        ? card.type_line
+        : (card.printed_type_line ?? card.type_line));
   const oracleText =
     localizedFace?.text ??
     (activeFace ? undefined : displayDetails?.text) ??
-    (activeFace ? activeFace.oracle_text : card.oracle_text);
+    (activeFace
+      ? displayLocale === "en"
+        ? activeFace.oracle_text
+        : (activeFace.printed_text ?? activeFace.oracle_text)
+      : displayLocale === "en"
+        ? card.oracle_text
+        : (card.printed_text ?? card.oracle_text));
   const power =
     (
       activeFace as {
@@ -255,7 +313,7 @@ export function CardDetailModal({
     if (deckEditorActions?.token && deckEditorActions.onUpdateTokenPrint) {
       deckEditorActions.onUpdateTokenPrint(deckCardName, print);
     } else if (deckEditorActions?.printing) {
-      updatePrintingVariant(deckEditorActions.printing, print);
+      updatePrintingVariant(exactDeckCard?.identity ?? deckEditorActions.printing, print);
     } else if (deckEditorActions) {
       updatePrint(deckCardName, print);
     }
@@ -325,20 +383,50 @@ export function CardDetailModal({
                     isHorizontalActiveFace ? "max-w-96 sm:w-96" : "max-w-64 sm:w-64",
                   )}
                 >
-                  {imageUrl ? (
-                    isHorizontalActiveFace ? (
-                      <HorizontalCardImage
-                        src={imageUrl}
-                        alt={displayName}
-                        className="w-full aspect-[7/5] rounded-lg shadow-lg"
+                  {generated ? (
+                    <div
+                      className={cn(
+                        "relative w-full overflow-hidden rounded-lg shadow-lg",
+                        isHorizontalActiveFace ? "aspect-[7/5]" : "aspect-[5/7]",
+                      )}
+                    >
+                      <GeneratedCardImage
+                        deckCard={renderCard}
+                        faceIndex={faceIndex}
+                        className={
+                          isHorizontalActiveFace
+                            ? "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rotate-90 origin-center h-[calc(100%*7/5)] aspect-[5/7]"
+                            : "absolute inset-0 h-full w-full"
+                        }
                       />
-                    ) : (
-                      <ScryfallImg
-                        src={imageUrl}
-                        alt={displayName}
-                        className="w-full rounded-lg shadow-lg"
+                    </div>
+                  ) : imageUrl ? (
+                    <div
+                      className={cn(
+                        "relative w-full overflow-hidden rounded-lg shadow-lg",
+                        isHorizontalActiveFace ? "aspect-[7/5]" : "aspect-[5/7]",
+                      )}
+                    >
+                      {isHorizontalActiveFace ? (
+                        <HorizontalCardImage
+                          src={imageUrl}
+                          alt={displayName}
+                          className="h-full w-full"
+                        />
+                      ) : (
+                        <ScryfallImg
+                          src={imageUrl}
+                          alt={displayName}
+                          className="absolute inset-0 h-full w-full object-contain"
+                        />
+                      )}
+                      <CardFoilOverlay
+                        enabled
+                        foil={foil}
+                        cosmetics={cosmetics}
+                        etched={isEtchedOnlyPrinting(card.finishes)}
                       />
-                    )
+                    </div>
                   ) : (
                     <div
                       className={cn(
@@ -349,6 +437,14 @@ export function CardDetailModal({
                       <span className="text-muted-foreground text-sm">No Image</span>
                     </div>
                   )}
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="mt-2 w-full"
+                    onClick={() => setPresentation(generated ? "printed" : "rules")}
+                  >
+                    {generated ? "Show Realistic card" : "Show Manabrew card"}
+                  </Button>
 
                   {isDoubleFaced && (
                     <Button
@@ -612,6 +708,17 @@ export function CardDetailModal({
                   >
                     <ImageIcon className="h-3.5 w-3.5" />
                   </Button>
+                  {customizationCard && (
+                    <Button
+                      size="icon-sm"
+                      variant="ghost"
+                      title="Customize card"
+                      aria-label="Customize card"
+                      onClick={() => setCustomizing(true)}
+                    >
+                      <Palette className="h-3.5 w-3.5" />
+                    </Button>
+                  )}
                   {isDoubleFaced && (
                     <Button
                       size="icon-sm"
@@ -646,17 +753,6 @@ export function CardDetailModal({
                       }}
                     >
                       <GameIcon name={commanderSlot.icon} className="h-3.5 w-3.5" />
-                    </Button>
-                  )}
-                  {deckEditorActions.onToggleFoil && (
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      className={cn("h-7 w-7", matchingDeckCard?.identity.foil && "text-warning")}
-                      title={matchingDeckCard?.identity.foil ? `Remove foil` : `Make foil`}
-                      onClick={() => deckEditorActions.onToggleFoil?.(deckCardName)}
-                    >
-                      <Sparkles className="h-3.5 w-3.5" />
                     </Button>
                   )}
                   {deckEditorActions.onSetCover && (
@@ -804,6 +900,13 @@ export function CardDetailModal({
           onClose={() => setShowPrints(false)}
           onSelect={handleSelectPrint}
           token={deckEditorActions?.token}
+        />
+      )}
+      {customizing && customizationCard && !readOnly && (
+        <CardCustomizerModal
+          card={customizationCard}
+          token={!!token}
+          onClose={() => setCustomizing(false)}
         />
       )}
     </>

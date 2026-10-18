@@ -1,5 +1,9 @@
 import type { CSSProperties } from "react";
-import type { InlineCardStyle, InGameCardPreviewStyle } from "@/stores/usePreferencesStore";
+import type {
+  InlineCardStyle,
+  InGameCardPreviewSize,
+  InGameCardPreviewStyle,
+} from "@/stores/usePreferencesStore";
 export const IN_GAME_CARD_PREVIEW_STYLE_OPTIONS: ReadonlyArray<{
   value: InGameCardPreviewStyle;
   label: string;
@@ -10,8 +14,16 @@ export const IN_GAME_CARD_PREVIEW_STYLE_OPTIONS: ReadonlyArray<{
   },
   {
     value: "rules",
-    label: `Rules`,
+    label: `Manabrew`,
   },
+];
+export const IN_GAME_CARD_PREVIEW_SIZE_OPTIONS: ReadonlyArray<{
+  value: InGameCardPreviewSize;
+  label: string;
+}> = [
+  { value: "small", label: "Small" },
+  { value: "medium", label: "Medium" },
+  { value: "large", label: "Large" },
 ];
 export const INLINE_CARD_STYLE_OPTIONS: ReadonlyArray<{
   value: InlineCardStyle;
@@ -23,7 +35,7 @@ export const INLINE_CARD_STYLE_OPTIONS: ReadonlyArray<{
   },
   {
     value: "rules",
-    label: `Rules`,
+    label: `Manabrew`,
   },
 ];
 export const ACTIONABLE_CARD_GLOW_CLASS = "ring-2 transition-shadow duration-200" as const;

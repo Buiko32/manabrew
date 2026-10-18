@@ -4,8 +4,9 @@ import { act, createElement } from "react";
 import { createRoot } from "react-dom/client";
 import { describe, expect, it, vi } from "vitest";
 
-import type { useCardPreview } from "@/hooks/useCardPreview";
+import type { CardPreviewController } from "@/hooks/useCardPreview";
 import { CardPreviewMachine, type PreviewCard } from "@/lib/cardPreview";
+import { GAME_CARD_DEFAULTS } from "@/lib/gameCard";
 
 vi.mock("./HoverCardPreview", () => ({ HoverCardPreview: () => null }));
 
@@ -38,10 +39,12 @@ describe("CardPreviewRail", () => {
       onMouseEnterPreview: () => undefined,
       onMouseLeavePreview: () => undefined,
       showSticky: () => undefined,
-    } as ReturnType<typeof useCardPreview>;
-    const card = {
-      identity: { id: "card-1", name: "Lightning Bolt" },
-    } as unknown as PreviewCard;
+    } as CardPreviewController;
+    const card: PreviewCard = {
+      ...GAME_CARD_DEFAULTS,
+      id: "card-1",
+      identity: { ...GAME_CARD_DEFAULTS.identity, name: "Lightning Bolt" },
+    };
     const container = document.createElement("div");
     const root = createRoot(container);
 
