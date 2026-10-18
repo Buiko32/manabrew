@@ -43,6 +43,22 @@ export function scryfallDisplayTypeLine(card: ScryfallCard): string {
   return card.printed_type_line ?? card.type_line;
 }
 
+export function scryfallToSearchResult(
+  sc: ScryfallCard,
+  locale?: ScryfallLanguage,
+  preserveSearchLanguage = false,
+): {
+  card: DeckCard;
+  displayName: string;
+} {
+  const card = scryfallToDeckCard(sc);
+  const displayName =
+    !locale || preserveSearchLanguage || sc.lang === locale
+      ? scryfallDisplayName(sc)
+      : card.identity.name;
+  return { card, displayName };
+}
+
 function getFrontTypeLine(sc: ScryfallCard): string {
   if (sc.type_line) return sc.type_line.split("//")[0].trim();
   return sc.card_faces?.[0]?.type_line ?? "";

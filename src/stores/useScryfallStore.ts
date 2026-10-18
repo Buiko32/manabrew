@@ -34,6 +34,7 @@ import {
   localizedCardDetailsKey,
   type LocalizedCardDetails,
 } from "@/lib/localizedCardDetails";
+import { shouldLocalizeScryfallSearchResults } from "@/lib/scryfallSearch";
 import { installedCardRecord } from "@/lib/cardGlintAssetCache";
 
 export interface ScryfallCardLookup {
@@ -1064,7 +1065,7 @@ export const useScryfallStore = create<ScryfallState>()(
       searchCards: async (query, page, order, dir) => {
         const locale = get().locale;
         const response = await searchCards(query, page, order, dir);
-        if (/(?:^|\s)lang:/i.test(query)) return response;
+        if (!shouldLocalizeScryfallSearchResults(query)) return response;
         const localized = await localizeScryfallCards(response.data, locale, () => false);
         if (get().locale !== locale) return get().searchCards(query, page, order, dir);
         set((state) => {
