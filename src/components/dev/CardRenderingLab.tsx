@@ -12,6 +12,11 @@ import {
   type CardRenderingOverrides,
 } from "@/components/dev/cardRenderingOverrides";
 import { useCardRenderingFixture } from "@/components/dev/useCardRenderingFixture";
+import {
+  applyDevPreviewMechanicAction,
+  devPreviewMechanicActions,
+} from "@/components/dev/devPreviewScenarios";
+import { stationRulesPresentation } from "@/pixi/cardPreview/rulesCardPreviewPresentation";
 import { parsePrintedCardRailMetadata } from "@/components/game/cardRailState";
 import { useScryfallStore } from "@/stores/useScryfallStore";
 import { scryfallToSampleGameCard } from "@/lib/sampleGameCard";
@@ -20,6 +25,7 @@ import { cardFaceImageUris } from "@/lib/cardImage";
 import { resolveCardFaces } from "@/lib/cardFaces";
 import type { CardInspectAppearance } from "@/lib/cardGlintInspectAppearance";
 import type { HandActionOption } from "@/stores/useGameUIStore";
+import type { CardCosmetics } from "@/protocol/deck";
 
 export default function CardRenderingLab() {
   const [params, setParams] = useSearchParams();
@@ -53,9 +59,21 @@ export default function CardRenderingLab() {
   const entry = result?.entry;
   const flippable = resolveCardFaces(entry?.info).isFlippable;
   const effectiveFace = flippable ? face : 0;
+  const cosmetics = useMemo<CardCosmetics>(
+    () => ({
+      rainFog: appearance.rainFog,
+      wearAmount: appearance.wear?.amount,
+      wearSeed: appearance.wear?.seed,
+      cardstock: appearance.cardstock,
+      printDots: appearance.printDots,
+      finishCoverage: appearance.coverage,
+    }),
+    [appearance],
+  );
   const card = useMemo(() => {
     if (!entry) return undefined;
     const next = scryfallToSampleGameCard(entry.info, { foil, isTransformed: effectiveFace === 1 });
+    next.cosmetics = cosmetics;
     const rail = parsePrintedCardRailMetadata(next);
     if (rail?.kind === "saga") {
       next.sagaChapters = rail.sagaChapters;
@@ -64,6 +82,13 @@ export default function CardRenderingLab() {
     if (rail?.kind === "class") {
       next.classLevels = rail.classLevels;
       next.classLevel = live ? 3 : 1;
+    }
+    const station = stationRulesPresentation(next.text);
+    if (station) {
+      next.counters = {
+        ...next.counters,
+        Charge: live ? Math.max(...station.tiers.map((tier) => tier.threshold)) : 0,
+      };
     }
     if (live) {
       if (next.types.includes("Creature")) {
@@ -81,19 +106,29 @@ export default function CardRenderingLab() {
       next.keywords = [...next.keywords, "Lifelink"];
     }
     return applyCardRenderingOverrides(next, overrides);
-  }, [entry, foil, effectiveFace, live, granted, overrides]);
-  const deckCard = useMemo(() => (entry ? scryfallToDeckCard(entry.info) : undefined), [entry]);
+  }, [entry, foil, effectiveFace, live, granted, overrides, cosmetics]);
+  const deckCard = useMemo(() => {
+    if (!entry) return undefined;
+    const next = scryfallToDeckCard(entry.info);
+    return { ...next, identity: { ...next.identity, cosmetics } };
+  }, [entry, cosmetics]);
   const actions = useMemo<HandActionOption[]>(
     () =>
       card
-        ? Array.from({ length: actionCount }, (_, index) => ({
-            kind: "ability",
-            cardId: card.id,
-            actionId: `gallery-action-${index}`,
-            label: `Draw a card. Action ${index + 1}.`,
-            cost: `{${index + 1}}`,
-            abilityIndex: index,
-          }))
+        ? [
+            ...devPreviewMechanicActions(card),
+            ...Array.from(
+              { length: actionCount },
+              (_, index): HandActionOption => ({
+                kind: "ability",
+                cardId: card.id,
+                actionId: `gallery-action-${index}`,
+                label: `Draw a card. Action ${index + 1}.`,
+                cost: `{${index + 1}}`,
+                abilityIndex: index,
+              }),
+            ),
+          ]
         : [],
     [card, actionCount],
   );
@@ -114,6 +149,17 @@ export default function CardRenderingLab() {
   const flipFace = () => {
     setFace((value) => (value === 0 ? 1 : 0));
     setOverrides({});
+  };
+  const handleAction = (action: HandActionOption) => {
+    setLastAction(`Executed local fixture action: ${action.label}`);
+    if (!card) return;
+    const next = applyDevPreviewMechanicAction(card, action);
+    if (next === card) return;
+    setOverrides((current) => ({
+      ...current,
+      isCrewed: next.isCrewed,
+      counters: { ...current.counters, ...next.counters },
+    }));
   };
   return (
     <section
@@ -183,7 +229,7 @@ export default function CardRenderingLab() {
               }
               actions={actions}
               onFlip={flipFace}
-              onAction={(action) => setLastAction(`Executed local fixture action: ${action.label}`)}
+              onAction={handleAction}
             />
           </div>
           <CardRenderingProfile
