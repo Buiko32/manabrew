@@ -87,6 +87,55 @@ header {
 - Git
 - SSH access to the server from GitHub Actions (see Auto-Deploy section)
 
+## Self-hosted web image from upstream releases
+
+The `Self-hosted web image` workflow runs daily and can also be started from
+Actions. It resolves the latest stable release of
+`witchesofthehill/manabrew` (or a manually selected stable `vX.Y.Z` tag), checks
+out that upstream tag, and builds only `Dockerfile.web`. It does not merge or
+copy upstream changes into this fork. The resolved commit SHA is recorded in
+the workflow log.
+
+GitHub disables scheduled workflows by default in public forks. After this
+workflow reaches the fork's default branch, enable it from the Actions tab
+before relying on the daily run. GitHub can also disable scheduled workflows
+after 60 days without repository activity; re-enable it there if the schedule
+stops. See [GitHub's workflow enablement rules](https://docs.github.com/en/actions/how-tos/manage-workflow-runs/disable-and-enable-workflows).
+
+The build leaves `VITE_SCRYFALL_ASSET_BASE` empty and sets
+`VITE_SCRYFALL_SYMBOL_BASE=/scryfall-symbols/`. Before updating the moving
+`selfhosted` image tag, the workflow starts the candidate container and checks
+the isolation header, the compiled symbol path, absence of an R2 asset path,
+and the same-origin white mana SVG endpoint. Each candidate is tagged with its
+upstream release and `IMAGE_CONFIG_VERSION`; bump that workflow value whenever
+the build configuration changes so an existing candidate cannot mask a new
+configuration. If a build or smoke test fails, `selfhosted` remains on its
+previous image. The next daily run retries; a manual run can retry sooner. An
+already-built candidate is smoke-tested again and promoted without rebuilding.
+
+The workflow publishes `ghcr.io/buiko32/manabrew-web:selfhosted`. After its
+first successful publication, change that GHCR package to **Public** once so a
+NAS can pull without registry credentials. If you keep the package private,
+authenticate Docker on the NAS with a GitHub token that has `read:packages`;
+store it in the NAS credential manager rather than the Compose file. The web
+image currently targets `linux/amd64`, matching upstream's web-image build.
+Check the NAS CPU architecture before switching; ARM requires a native ARM
+runner and a separate build configuration.
+
+Keep the base Compose file on the upstream image until the first candidate has
+been published, smoke-tested, and made public (or registry login has been
+configured). For this deployment, an override file contains only the web image
+reference. Activate it with both files, so the base remains a one-file rollback:
+
+```sh
+docker compose -f docker-compose.yaml -f docker-compose.selfhosted.yaml pull manabrew-web
+docker compose -f docker-compose.yaml -f docker-compose.selfhosted.yaml up -d --no-deps manabrew-web
+```
+
+To roll back, run Compose with `docker-compose.yaml` alone and recreate the web
+service. For each later update, pull and recreate it with both files. The relay
+and Forge images do not need to change for this asset fix.
+
 ## Initial Server Setup
 
 ### 1. Clone the repo
