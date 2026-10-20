@@ -192,7 +192,7 @@ jobs:
             exit 1
           fi
           smoke_step="GET mana symbol W"
-          curl --fail --silent --show-error "$base/scryfall-symbols/W.svg" -o "$RUNNER_TEMP/mana-W.svg"
+          curl --fail --silent --show-error --connect-timeout 3 --max-time 15 --retry 10 --retry-all-errors --retry-delay 1 --retry-max-time 30 "$base/scryfall-symbols/W.svg" -o "$RUNNER_TEMP/mana-W.svg"
           smoke_step="check mana symbol SVG body"
           grep -q '<svg' "$RUNNER_TEMP/mana-W.svg"
 
