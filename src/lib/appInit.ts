@@ -6,6 +6,9 @@ import type { DeckCard } from "@/protocol/deck";
 import { initializeForgeRoomAvailability } from "@/stores/useForgeRoomAvailabilityStore";
 import { getEventBus, getPlatform } from "@/platform";
 import type { AppInitStage } from "@/stores/useAppInitStore";
+import { waitForStartupTask } from "@/lib/appBootstrap";
+
+const OPTIONAL_WARMUP_BUDGET_MS = 12_000;
 
 let initPromise: Promise<void> | null = null;
 
@@ -52,25 +55,41 @@ export function initApp(): Promise<void> {
   console.log("[appInit] initializing...");
   if (initPromise) return initPromise;
   initPromise = (async () => {
-    // The engine worker boots alongside the app, never in front of it: a
-    // player on the Forge engine needs none of it, and a browser without
-    // cross-origin isolation never gets it at all.
-    void getPlatform()
-      .init()
-      .catch((e) => console.error("[appInit] engine init failed:", e));
-
     // `ready` releases the init gate, so it has to survive anything thrown
     // above it — the app degrades without its warm caches, it does not close.
     try {
+      // The engine worker boots alongside the app, never in front of it: a
+      // player on the Forge engine needs none of it, and a browser without
+      // cross-origin isolation never gets it at all.
+      try {
+        void getPlatform()
+          .init()
+          .catch((e) => console.error("[appInit] engine init failed:", e));
+      } catch (e) {
+        console.error("[appInit] engine init failed:", e);
+      }
       postStage("assets");
-      await Promise.all([
-        initializeForgeRoomAvailability(),
-        initScryfallSets().catch((e) => console.error("[appInit] sets failed:", e)),
-        prefetchPresetDecks().catch((e) => console.error("[appInit] preset enrichment failed:", e)),
-        prefetchTokenArchive().catch((e) => console.error("[appInit] token archive failed:", e)),
-      ]);
+      const result = await waitForStartupTask(
+        () =>
+          Promise.all([
+            initializeForgeRoomAvailability(),
+            initScryfallSets().catch((e) => console.error("[appInit] sets failed:", e)),
+            prefetchPresetDecks().catch((e) =>
+              console.error("[appInit] preset enrichment failed:", e),
+            ),
+            prefetchTokenArchive().catch((e) =>
+              console.error("[appInit] token archive failed:", e),
+            ),
+          ]),
+        OPTIONAL_WARMUP_BUDGET_MS,
+      );
+      if (result.status === "timed-out") {
+        console.warn("[appInit] optional warmup timed out; continuing without prefetched data");
+      } else if (result.status === "failed") {
+        console.error("[appInit] optional warmup failed:", result.error);
+      }
       postStage("decks");
-      await prefetchDeckCovers().catch((e) =>
+      void prefetchDeckCovers().catch((e) =>
         console.error("[appInit] deck cover prefetch failed:", e),
       );
     } finally {

@@ -16,6 +16,7 @@ describe("forge wasm trial verdict", () => {
   beforeEach(() => {
     localStorage.clear();
     Object.defineProperty(window, "crossOriginIsolated", { value: true, configurable: true });
+    Object.assign(window, { __MANABREW_RUNTIME__: { featureFlags: { forgeWasm: true } } });
     (globalThis as { SharedArrayBuffer?: unknown }).SharedArrayBuffer ??= ArrayBuffer;
   });
 
@@ -80,6 +81,37 @@ describe("forge wasm trial verdict", () => {
     storeVerdict({ url: fresh.FORGE_WASM_URL, ok: null, at: 0, attempts: 0 });
     const mod = await load();
     expect(mod.forgeWasmNeedsValidation()).toBe(true);
+  });
+
+  it("blocks local Forge startup on iOS and points to hosted play", async () => {
+    Object.defineProperty(navigator, "userAgent", {
+      value: "Mozilla/5.0 (iPhone; CPU iPhone OS 26_0 like Mac OS X)",
+      configurable: true,
+    });
+
+    const mod = await load();
+
+    expect(mod.forgeWasmGate()).toBe("ios");
+    expect(mod.forgeWasmStartError()).toMatch(/hosted Forge/i);
+    expect(mod.resolveWebForgeLaunchRoute(true)).toBe("hosted");
+    expect(mod.resolveWebForgeLaunchRoute(false)).toBe("unsupported");
+    expect(() => mod.assertForgeWasmCanStart("Forge")).toThrow(/hosted Forge/i);
+    expect(() => mod.assertForgeWasmCanStart("Ironsmith")).not.toThrow();
+    expect(() => mod.assertForgeWasmCanStart(undefined)).not.toThrow();
+  });
+
+  it("allows local Forge startup on a supported browser", async () => {
+    Object.defineProperty(navigator, "userAgent", {
+      value: "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/140.0.0.0 Safari/537.36",
+      configurable: true,
+    });
+
+    const mod = await load();
+
+    expect(mod.forgeWasmGate()).toBe("in_browser");
+    expect(mod.forgeWasmStartError()).toBeNull();
+    expect(mod.resolveWebForgeLaunchRoute(true)).toBe("local");
+    expect(() => mod.assertForgeWasmCanStart("Forge")).not.toThrow();
   });
 
   it("counts attempts across successive timeouts", async () => {

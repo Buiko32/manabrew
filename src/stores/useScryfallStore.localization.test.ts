@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { ScryfallCard } from "@/types/scryfall";
 
 const scryfallMocks = vi.hoisted(() => ({
@@ -41,6 +41,8 @@ vi.mock("@/api/scryfall", () => ({
 vi.mock("@/platform", () => ({
   getPlatformType: () => "web",
 }));
+
+afterEach(() => vi.unstubAllGlobals());
 
 function printing(
   oracleId: string,
@@ -117,6 +119,35 @@ describe("localized card detail lookup", () => {
 
     expect([...details.values()][0]?.name).toBe("Fulmine");
     expect([...details.values()][0]?.text).toContain("danni");
+  });
+
+  it("hydrates a limited set without eagerly loading every card image", async () => {
+    const { useScryfallStore } = await import("@/stores/useScryfallStore");
+    const card = {
+      id: "limited-prefetch-card",
+      oracle_id: "limited-prefetch-oracle",
+      name: "Limited Prefetch Card",
+      set: "lpf",
+      collector_number: "1",
+      lang: "en",
+      type_line: "Creature",
+      oracle_text: "",
+      image_uris: {
+        small: "https://cards.test/lpf/1-small.jpg",
+        normal: "https://cards.test/lpf/1-normal.jpg",
+      },
+    } as ScryfallCard;
+    const imageConstructor = vi.fn();
+    vi.stubGlobal("Image", imageConstructor);
+    scryfallMocks.fetchCardsBySet.mockResolvedValue([card]);
+
+    await useScryfallStore.getState().prefetchSet("lpf");
+
+    expect(useScryfallStore.getState().hydratedSets.lpf).toBe(true);
+    expect(
+      await useScryfallStore.getState().getCard({ setCode: "lpf", collectorNumber: "1" }),
+    ).toMatchObject({ info: { name: "Limited Prefetch Card" } });
+    expect(imageConstructor).not.toHaveBeenCalled();
   });
 
   it("resolves legacy deck identities without an oracle ID in one exact-print batch", async () => {

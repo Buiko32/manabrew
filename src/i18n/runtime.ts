@@ -13,16 +13,22 @@ async function applyPreference(): Promise<void> {
   await activateLocale(locale);
 }
 
+function applyPreferenceSafely(): void {
+  void applyPreference().catch((error) =>
+    console.error("[localization] language update failed:", error),
+  );
+}
+
 export async function initializeLocalization(): Promise<void> {
   if (!initialized) {
     initialized = true;
     usePreferencesStore.subscribe((state) => {
       if (state.appLanguage === appliedPreference) return;
       appliedPreference = state.appLanguage;
-      void applyPreference();
+      applyPreferenceSafely();
     });
     window.addEventListener("languagechange", () => {
-      if (usePreferencesStore.getState().appLanguage === "system") void applyPreference();
+      if (usePreferencesStore.getState().appLanguage === "system") applyPreferenceSafely();
     });
   }
   await applyPreference();

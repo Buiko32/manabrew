@@ -24,10 +24,47 @@
         background-color: #121316;
         color-scheme: dark;
       }
+      #startup-fallback {
+        position: fixed;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+        background: #121316;
+        color: #f5f5f5;
+        font:
+          500 1rem system-ui,
+          sans-serif;
+        text-align: center;
+        z-index: 1000;
+      }
+      #startup-fallback button {
+        border: 1px solid #777;
+        border-radius: 0.5rem;
+        background: transparent;
+        color: inherit;
+        font: inherit;
+        padding: 0.6rem 1.2rem;
+      }
     </style>
   </head>
   <body>
     <div id="root"></div>
+    <div id="startup-fallback" role="status" aria-live="polite">
+      <p>Starting Manabrew…</p>
+    </div>
+    <script>
+      window.setTimeout(() => {
+        if (document.documentElement.dataset.appMounted === "true") return;
+        const fallback = document.getElementById("startup-fallback");
+        if (!fallback) return;
+        fallback.innerHTML =
+          '<p>Manabrew is taking longer than expected to load.</p><button type="button">Reload</button>';
+        fallback.querySelector("button")?.addEventListener("click", () => window.location.reload());
+      }, 15000);
+    </script>
     <!-- Runtime deploy config (relay endpoint). Must load before the app module;
          a classic script runs during parse, ahead of the deferred module. -->
     <script src="/config.js"></script>

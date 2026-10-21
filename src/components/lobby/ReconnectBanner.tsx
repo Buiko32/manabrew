@@ -8,6 +8,8 @@ interface ReconnectBannerProps {
 }
 export function ReconnectBanner({ className }: ReconnectBannerProps) {
   const reconnect = useServerStore((s) => s.reconnect);
+  const isGameActive = useGameStore((s) => s.isGameActive);
+  const isMultiplayer = useGameStore((s) => s.isMultiplayer);
   const gameView = useGameStore((s) => s.gameView);
   const currentPrompt = useGameStore((s) => s.currentPrompt);
   const myPlayerSlot = useGameStore((s) => s.myPlayerSlot);
@@ -31,6 +33,7 @@ export function ReconnectBanner({ className }: ReconnectBannerProps) {
       window.clearTimeout(timer);
     };
   }, [reconnect.phase]);
+  if (!isGameActive || !isMultiplayer) return null;
   if (reconnect.phase === "idle" && !restored) return null;
   const activePlayer = gameView?.players.find((player) => player.id === gameView.activePlayerId);
   const context =

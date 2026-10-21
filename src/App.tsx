@@ -108,6 +108,8 @@ function LocalizedApplication({ devToolsEnabled }: { devToolsEnabled: boolean })
 function App() {
   const devToolsEnabled = useGameDevStore((s) => s.devToolsEnabled);
   useEffect(() => {
+    document.documentElement.dataset.appMounted = "true";
+    document.getElementById("startup-fallback")?.remove();
     void initApp();
   }, []);
 

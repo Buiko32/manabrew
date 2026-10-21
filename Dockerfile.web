@@ -46,6 +46,16 @@ RUN cargo chef prepare --recipe-path recipe.json
 # --- Builder: Rust + Node to build WASM and bundle the Vite app ---
 FROM base AS builder
 
+ARG REQUIRE_FORGE_WASM=0
+COPY packages/forge-wasm/ ./packages/forge-wasm/
+RUN if [ "${REQUIRE_FORGE_WASM}" = "1" ] && { \
+        [ ! -s packages/forge-wasm/forgeharness.js ] || \
+        [ ! -s packages/forge-wasm/forgeharness.js.wasm ]; \
+    }; then \
+        echo >&2 "Forge WebImage artifacts are missing. Run 'yarn build:forge-wasm' on the host before building this image."; \
+        exit 1; \
+    fi
+
 # Install JS deps first for layer caching
 COPY package.json yarn.lock ./
 RUN corepack enable && yarn install --frozen-lockfile

@@ -56,6 +56,7 @@ import type {
 import { APP_VERSION } from "@/lib/constants";
 import { logComms } from "@/lib/commsLog";
 import { resolveRelayIdentity, type RelayIdentity } from "@/lib/relayIdentity";
+import { waitForWebSocketOpen } from "@/lib/webSocketHandshake";
 import { getClientPlatform } from "./clientPlatform";
 import {
   rememberSpawnedBot,
@@ -80,6 +81,7 @@ import { useMultiplayerLimitedStore } from "@/stores/useMultiplayerLimitedStore"
 import {
   FORGE_LAUNCHER_URL,
   FORGE_WASM_URL,
+  assertForgeWasmCanStart,
   forgeWasmGate,
   isForgeWasmHostingEnabled,
   setForgeWasmActive,
@@ -778,6 +780,7 @@ class WebGameApi implements IGameApi {
   }
 
   async startGame(params: StartGameParams): Promise<string> {
+    assertForgeWasmCanStart(params.engine);
     this.bridge.setLocalBotSlots(
       params.engine === "Forge" && params.aiController !== "forge"
         ? (params.opponentDecks?.length ? params.opponentDecks : [params.deck]).map(
@@ -967,6 +970,7 @@ interface BotEntry {
 }
 
 const RECONNECT_BACKOFF_MS = [1000, 2000, 4000, 8000, 16000, 30000];
+const SOCKET_OPEN_TIMEOUT_MS = 15_000;
 const KEEPALIVE_INTERVAL_MS = 4_000;
 // A half-open socket (peer reset seen only by the relay) stays writable here, so
 // silence is the only signal the connection is gone. The relay answers every Ping.
@@ -992,6 +996,7 @@ class WebServerApi implements IServerApi {
   private manualDisconnect = false;
   private reconnectTimer: ReturnType<typeof setTimeout> | null = null;
   private reconnectAttempt = 0;
+  private wasHidden = false;
   private serverShutdownPending: { reconnectInS: number } | null = null;
   private lastRelayStates = new Map<
     string,
@@ -1016,6 +1021,21 @@ class WebServerApi implements IServerApi {
 
   constructor(eventBus: WebEventBus) {
     this.eventBus = eventBus;
+
+    if (typeof document !== "undefined") {
+      document.addEventListener("visibilitychange", () => {
+        if (document.visibilityState === "hidden") {
+          this.wasHidden = true;
+          return;
+        }
+        if (!this.wasHidden) return;
+        this.wasHidden = false;
+        this.resumeRelayConnection();
+      });
+    }
+    if (typeof window !== "undefined") {
+      window.addEventListener("online", () => this.resumeRelayConnection());
+    }
 
     usePreferencesStore.subscribe((prefs) => {
       if (prefs.directTransport === this.directTransportOptIn) return;
@@ -1094,6 +1114,9 @@ class WebServerApi implements IServerApi {
     const forceRemint = this.sessionTokenRejected;
     this.sessionTokenRejected = false;
     const identity = await resolveRelayIdentity(this.sessionIdentity, params.username, forceRemint);
+    if (params !== this.connectParams || this.manualDisconnect) {
+      throw new Error("Connection attempt was cancelled");
+    }
     this.sessionIdentity = identity;
     const { proof, username } = identity;
     this.authedUsername = username;
@@ -1101,53 +1124,63 @@ class WebServerApi implements IServerApi {
     this.relayUrl = url;
     this.serverPassword = params.password;
 
-    return new Promise((resolve, reject) => {
-      const socket = new WebSocket(url);
-      this.ws = socket;
+    const socket = new WebSocket(url);
+    this.ws = socket;
 
-      socket.onopen = () => {
-        if (this.ws !== socket) return;
-        this.connectedAt = Date.now();
-        this.send({
-          type: "Authenticate",
-          username,
-          password: params.password,
-          identity: proof,
-          client_platform: getClientPlatform(),
-          client_version: APP_VERSION,
-          engine_gate: forgeWasmGate(),
-        });
-        this.startKeepalive();
-        resolve();
-      };
+    socket.onopen = () => {
+      if (this.ws !== socket) return;
+      this.connectedAt = Date.now();
+      this.send({
+        type: "Authenticate",
+        username,
+        password: params.password,
+        identity: proof,
+        client_platform: getClientPlatform(),
+        client_version: APP_VERSION,
+        engine_gate: forgeWasmGate(),
+      });
+      this.startKeepalive();
+    };
 
-      socket.onerror = () => {
-        reject(new Error(`Failed to connect to ${url}`));
-      };
+    socket.onclose = (event) => {
+      if (this.ws !== socket) return;
+      this.handleSocketClose(event);
+    };
 
-      socket.onclose = (event) => {
-        if (this.ws !== socket) return;
-        this.handleSocketClose(event);
-      };
+    socket.onmessage = (e: MessageEvent) => {
+      if (this.ws !== socket) return;
+      this.lastInboundAt = Date.now();
+      if (typeof e.data !== "string") return;
+      // Before the parse: a state frame is tens of kilobytes, and parsing
+      // it is this machine's work, not the wire's.
+      const frameAt = performance.now();
+      try {
+        const msg = JSON.parse(e.data);
+        this.handleServerMessage(msg, frameAt, e.data);
+      } catch {
+        // Ignore malformed messages
+      } finally {
+        // Store updates run inside the emit, so the frame's work ends here.
+        noteReplyFrameHandled();
+      }
+    };
 
-      socket.onmessage = (e: MessageEvent) => {
-        if (this.ws !== socket) return;
-        this.lastInboundAt = Date.now();
-        if (typeof e.data !== "string") return;
-        // Before the parse: a state frame is tens of kilobytes, and parsing
-        // it is this machine's work, not the wire's.
-        const frameAt = performance.now();
-        try {
-          const msg = JSON.parse(e.data);
-          this.handleServerMessage(msg, frameAt, e.data);
-        } catch {
-          // Ignore malformed messages
-        } finally {
-          // Store updates run inside the emit, so the frame's work ends here.
-          noteReplyFrameHandled();
-        }
-      };
-    });
+    return waitForWebSocketOpen(socket, SOCKET_OPEN_TIMEOUT_MS);
+  }
+
+  private resumeRelayConnection(): void {
+    if (this.manualDisconnect || !this.connectParams) return;
+    if (this.ws?.readyState === WebSocket.OPEN) return;
+    if (this.ws?.readyState === WebSocket.CONNECTING) {
+      this.ws.close();
+      return;
+    }
+    if (this.reconnectTimer !== null) {
+      this.clearReconnectTimer();
+      void this.tryReconnect();
+      return;
+    }
+    this.scheduleReconnect("network", 0);
   }
 
   private handleSocketClose(event: { code: number; reason: string; wasClean: boolean }): void {
@@ -1176,6 +1209,8 @@ class WebServerApi implements IServerApi {
       this.eventBus.emit("server:disconnected", { terminal: true });
       return;
     }
+
+    if (this.reconnectTimer !== null) return;
 
     if (shutdownPending !== null) {
       this.serverShutdownPending = null;
@@ -1215,11 +1250,21 @@ class WebServerApi implements IServerApi {
     }
     try {
       await this.openSocket(params);
+      if (
+        params !== this.connectParams ||
+        this.manualDisconnect ||
+        this.ws?.readyState !== WebSocket.OPEN
+      ) {
+        return;
+      }
       this.reconnectAttempt = 0;
       this.eventBus.emit("server:reconnecting", { phase: "idle" as const, attempt: 0 });
     } catch (e) {
       console.warn("[relay-disconnect] reconnect attempt failed", e);
-      this.scheduleReconnect("network", this.nextBackoffMs());
+      if (params !== this.connectParams || this.manualDisconnect) return;
+      if (this.reconnectTimer === null) {
+        this.scheduleReconnect("network", this.nextBackoffMs());
+      }
     }
   }
 
@@ -1781,8 +1826,7 @@ class WebServerApi implements IServerApi {
         );
       } else if (type === "RoomUpdate") {
         const room = msg.room as
-          | { room_id?: string; status?: string; host?: string; players?: unknown[] }
-          | undefined;
+          { room_id?: string; status?: string; host?: string; players?: unknown[] } | undefined;
         const players = Array.isArray(room?.players)
           ? (room?.players as { username?: string; is_bot?: boolean; connected?: boolean }[]).map(
               (p) => `${p.username}${p.is_bot ? "(bot)" : ""}:${p.connected ? "on" : "off"}`,
