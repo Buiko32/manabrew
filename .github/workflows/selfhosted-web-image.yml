@@ -1,8 +1,9 @@
 name: Self-hosted web image
 
 on:
-  schedule:
-    - cron: "17 6 * * *"
+  push:
+    branches:
+      - main
   workflow_dispatch:
     inputs:
       upstream_tag:
