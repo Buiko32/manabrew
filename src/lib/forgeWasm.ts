@@ -5,13 +5,7 @@ import { STORAGE_KEYS } from "@/lib/constants";
 // Keep in sync with `EngineGate` in manabrew-relay-protocol; the relay reads
 // these strings straight off `Authenticate`.
 export type EngineGate =
-  | "in_browser"
-  | "ios"
-  | "isolation"
-  | "trial_timeout"
-  | "trial_failed"
-  | "disabled"
-  | "unknown";
+  "in_browser" | "ios" | "isolation" | "trial_timeout" | "trial_failed" | "disabled" | "unknown";
 
 let active = false;
 
@@ -131,6 +125,34 @@ export function isForgeWasmSupported(): boolean {
   if (typeof window === "undefined") return true;
   const gate = forgeWasmGate();
   return gate === "in_browser" || gate === "disabled";
+}
+
+export function forgeWasmStartError(): string | null {
+  switch (forgeWasmGate()) {
+    case "ios":
+      return "This browser cannot run Forge locally. Enable hosted Forge play on this relay to play against bots.";
+    case "isolation":
+      return "This page is missing cross-origin isolation required by the Forge game engine.";
+    case "trial_timeout":
+      return "Forge did not start in this browser. Use hosted Forge play or retry after the cooldown.";
+    case "trial_failed":
+      return "Forge failed to start in this browser. Use hosted Forge play or update the browser.";
+    default:
+      return null;
+  }
+}
+
+export function assertForgeWasmCanStart(engine: string | undefined): void {
+  if (engine !== "Forge") return;
+  const error = forgeWasmStartError();
+  if (error) throw new Error(error);
+}
+
+export function resolveWebForgeLaunchRoute(
+  hostedEngineAvailable: boolean,
+): "local" | "hosted" | "unsupported" {
+  if (!forgeWasmStartError()) return "local";
+  return hostedEngineAvailable ? "hosted" : "unsupported";
 }
 
 export function isForgeWasmHostingEnabled(): boolean {

@@ -38,8 +38,9 @@ import {
 import { isHostedEngineAvailable } from "@/config/webRuntimeConfig";
 import {
   beginForgeWasmTrial,
+  forgeWasmStartError,
   hasForgeWasmVerdict,
-  isForgeWasmSupported,
+  resolveWebForgeLaunchRoute,
   recordForgeWasmVerdict,
 } from "@/lib/forgeWasm";
 import { FORGE_START_TIMEOUT_MESSAGE, withForgeStartTimeout } from "@/game/forgeWasmValidation";
@@ -156,9 +157,17 @@ async function initializeGame({
   const startingLife = format?.deckRules.startingLife ?? DEFAULT_STARTING_LIFE;
   const platformType = getPlatform().type;
   const tauriForgeRoomAvailable = platformType === "tauri" && isTauriForgeRoomAvailable();
+  const webForgeRoute =
+    engine === "Forge" && platformType === "web"
+      ? resolveWebForgeLaunchRoute(isHostedEngineAvailable())
+      : "local";
+  if (webForgeRoute === "unsupported") {
+    throw new Error(
+      forgeWasmStartError() ?? "Forge cannot start in this browser. Enable hosted Forge play.",
+    );
+  }
   const useHostedForge =
-    (platformType === "tauri" && !tauriForgeRoomAvailable) ||
-    (platformType === "web" && !isForgeWasmSupported() && isHostedEngineAvailable());
+    (platformType === "tauri" && !tauriForgeRoomAvailable) || webForgeRoute === "hosted";
   if (engine === "Forge" && opponentDecks?.length && (tauriForgeRoomAvailable || useHostedForge)) {
     const launchForge = tauriForgeRoomAvailable ? startTauriForgeAiGame : startHostedAiGame;
     set({

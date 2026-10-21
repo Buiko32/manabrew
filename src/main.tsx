@@ -15,11 +15,22 @@ import App from "./App.tsx";
 import { registerConsoleHooks } from "./lib/consoleHooks";
 import { initAndroidSafeArea } from "./platform/androidSafeArea";
 import { initializeLocalization } from "./i18n/runtime";
+import { waitForStartupTask } from "./lib/appBootstrap";
+
+const LOCALIZATION_STARTUP_BUDGET_MS = 5_000;
 
 async function start(): Promise<void> {
   initAndroidSafeArea();
   registerConsoleHooks();
-  await initializeLocalization();
+  const localizationResult = await waitForStartupTask(
+    initializeLocalization,
+    LOCALIZATION_STARTUP_BUDGET_MS,
+  );
+  if (localizationResult.status === "failed") {
+    console.error("[startup] localization failed; continuing in English", localizationResult.error);
+  } else if (localizationResult.status === "timed-out") {
+    console.error("[startup] localization timed out; continuing with the default language");
+  }
 
   createRoot(document.getElementById("root")!).render(<App />);
 }

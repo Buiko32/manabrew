@@ -1,0 +1,43 @@
+name: Client regressions
+
+on:
+  pull_request:
+    paths:
+      - "Dockerfile.web"
+      - "index.html"
+      - "src/**"
+      - "package.json"
+      - "yarn.lock"
+      - ".github/workflows/client-regressions.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  client-regressions:
+    name: Startup, engine, and client regressions
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: yarn
+
+      - name: Install Yarn
+        run: npm install --global yarn
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Run focused client regressions
+        run: >-
+          yarn vitest run
+          src/components/lobby/ReconnectBanner.test.ts
+          src/lib/appBootstrap.test.ts
+          src/lib/appInit.test.ts
+          src/lib/forgeWasm.test.ts
+          src/lib/webSocketHandshake.test.ts
+          src/stores/useScryfallStore.localization.test.ts

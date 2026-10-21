@@ -26,7 +26,7 @@ import type {
 import type { DeckCard } from "@/protocol/deck";
 import { Texture, ImageSource } from "pixi.js";
 import { useEffect, useState } from "react";
-import { frontFaceName, scryfallToDeckCard } from "@/lib/scryfall.utils";
+import { frontFaceName } from "@/lib/scryfall.utils";
 import { cardFaceImageUris, localizedDeckCardImageUris } from "@/lib/cardImage";
 import { DEFAULT_SCRYFALL_LANGUAGE, type ScryfallLanguage } from "@/i18n/locales";
 import {
@@ -609,9 +609,7 @@ const createTextureFromImage = (img: HTMLImageElement): Texture => {
 const textureCache = new Map<string, Texture>();
 const pendingTexturePromises = new Map<string, Promise<Texture>>();
 let textureCacheGeneration = 0;
-const SET_TEXTURE_PREFETCH_BATCH_SIZE = 6;
 const pendingSetPrefetches = new Map<string, Promise<void>>();
-let setTexturePrefetchQueue = Promise.resolve();
 let setPrefetchGeneration = 0;
 
 const getCachedTexture = (url: string): Texture | undefined => {
@@ -1119,47 +1117,6 @@ export const useScryfallStore = create<ScryfallState>()(
               }
               state.hydratedSets[code] = true;
             });
-          }
-          if (typeof Image === "undefined" || generation !== setPrefetchGeneration) return;
-          const cards = [
-            ...new Map(
-              Object.values(get().cards).flatMap((entry) =>
-                entry.card?.info.set.toLowerCase() === code
-                  ? [[entry.card.info.id, entry.card.info] as const]
-                  : [],
-              ),
-            ).values(),
-          ];
-          for (let offset = 0; offset < cards.length; offset += SET_TEXTURE_PREFETCH_BATCH_SIZE) {
-            const batch = cards.slice(offset, offset + SET_TEXTURE_PREFETCH_BATCH_SIZE);
-            const warming = setTexturePrefetchQueue.then(async () => {
-              if (generation !== setPrefetchGeneration) return;
-              const results = await Promise.allSettled(
-                batch.map(async (card) => {
-                  const entry = await get().getCard({
-                    setCode: card.set,
-                    collectorNumber: card.collector_number,
-                  });
-                  if (generation !== setPrefetchGeneration) return;
-                  await get().getCardTexture(
-                    scryfallToDeckCard({
-                      ...entry.info,
-                      image_uris: entry.info.image_uris ?? entry.uris,
-                    }),
-                    "full",
-                    0,
-                  );
-                }),
-              );
-              const failed = results.find((result) => result.status === "rejected");
-              if (failed?.status === "rejected") throw failed.reason;
-            });
-            setTexturePrefetchQueue = warming.then(
-              () => undefined,
-              () => undefined,
-            );
-            await warming;
-            if (generation !== setPrefetchGeneration) return;
           }
         })();
         pendingSetPrefetches.set(key, pending);

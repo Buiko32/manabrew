@@ -87,54 +87,82 @@ header {
 - Git
 - SSH access to the server from GitHub Actions (see Auto-Deploy section)
 
-## Self-hosted web image from upstream releases
+## Self-hosted web image from this fork
 
-The `Self-hosted web image` workflow runs daily and can also be started from
-Actions. It resolves the latest stable release of
-`witchesofthehill/manabrew` (or a manually selected stable `vX.Y.Z` tag), checks
-out that upstream tag, and builds only `Dockerfile.web`. It does not merge or
-copy upstream changes into this fork. The resolved commit SHA is recorded in
-the workflow log.
+The `Self-hosted web image` workflow checks out the selected fork revision,
+builds `Dockerfile.web` and its Forge WebImage engine, smoke-tests the
+candidate, then promotes the tested candidate to
+`ghcr.io/buiko32/manabrew-web:selfhosted`. It runs on pushes to `main` and can
+be started manually from Actions. It publishes an image but does not update a
+Compose deployment; pull and recreate the web service separately. Pull
+requests do not publish or promote an image.
 
-GitHub disables scheduled workflows by default in public forks. After this
-workflow reaches the fork's default branch, enable it from the Actions tab
-before relying on the daily run. GitHub can also disable scheduled workflows
-after 60 days without repository activity; re-enable it there if the schedule
-stops. See [GitHub's workflow enablement rules](https://docs.github.com/en/actions/how-tos/manage-workflow-runs/disable-and-enable-workflows).
-
-The build leaves `VITE_SCRYFALL_ASSET_BASE` empty and sets
-`VITE_SCRYFALL_SYMBOL_BASE=/scryfall-symbols/`. Before updating the moving
-`selfhosted` image tag, the workflow starts the candidate container and checks
-the isolation header, the compiled symbol path, absence of an R2 asset path,
-and the same-origin white mana SVG endpoint. Each candidate is tagged with its
-upstream release and `IMAGE_CONFIG_VERSION`; bump that workflow value whenever
-the build configuration changes so an existing candidate cannot mask a new
-configuration. If a build or smoke test fails, `selfhosted` remains on its
-previous image. The next daily run retries; a manual run can retry sooner. An
-already-built candidate is smoke-tested again and promoted without rebuilding.
-
-The workflow publishes `ghcr.io/buiko32/manabrew-web:selfhosted`. After its
-first successful publication, change that GHCR package to **Public** once so a
-NAS can pull without registry credentials. If you keep the package private,
-authenticate Docker on the NAS with a GitHub token that has `read:packages`;
-store it in the NAS credential manager rather than the Compose file. The web
-image currently targets `linux/amd64`, matching upstream's web-image build.
-Check the NAS CPU architecture before switching; ARM requires a native ARM
-runner and a separate build configuration.
-
-Keep the base Compose file on the upstream image until the first candidate has
-been published, smoke-tested, and made public (or registry login has been
-configured). For this deployment, an override file contains only the web image
-reference. Activate it with both files, so the base remains a one-file rollback:
+The workflow leaves `VITE_SCRYFALL_ASSET_BASE` empty and sets
+`VITE_SCRYFALL_SYMBOL_BASE=/scryfall-symbols/`. Its smoke test checks the
+isolation header, compiled symbol path, absence of an R2 asset path, and the
+same-origin white mana SVG endpoint. Candidates are tagged with the source
+commit and `IMAGE_CONFIG_VERSION`; change that workflow value when the image
+configuration changes. If building locally, prepare the Forge WebImage files
+before Docker so the image cannot silently omit its browser engine:
 
 ```sh
-docker compose -f docker-compose.yaml -f docker-compose.selfhosted.yaml pull manabrew-web
-docker compose -f docker-compose.yaml -f docker-compose.selfhosted.yaml up -d --no-deps manabrew-web
+git submodule update --init --recursive
+export WEBIMAGE_GRAALVM_HOME=/path/to/oracle-graalvm-25.1-or-newer
+export PATH="$WEBIMAGE_GRAALVM_HOME/bin:$PATH"
+wasm-as --version
+corepack enable
+yarn install --frozen-lockfile
+yarn build:forge-wasm
+test -s packages/forge-wasm/forgeharness.js
+test -s packages/forge-wasm/forgeharness.js.wasm
+docker build -f Dockerfile.web \
+  --build-arg REQUIRE_FORGE_WASM=1 \
+  --build-arg VITE_SCRYFALL_SYMBOL_BASE=/scryfall-symbols/ \
+  --build-arg VITE_SCRYFALL_ASSET_BASE= \
+  -t manabrew-web:local .
 ```
 
-To roll back, run Compose with `docker-compose.yaml` alone and recreate the web
-service. For each later update, pull and recreate it with both files. The relay
-and Forge images do not need to change for this asset fix.
+The Forge build needs Node.js 24 with Corepack, Java 18+, Maven, Rust/Cargo,
+Oracle GraalVM 25.1+ with Web Image, and Binaryen (`wasm-as`) on `PATH`.
+Configure the web container's runtime relay values for the host that serves
+the site: `RELAY_HOST`, `RELAY_PORT=443`, and `RELAY_PASSWORD` matching the
+relay's server key. Set `HOSTED_AI_ENABLED=true` only when a hosted engine node
+is available; start the node with the `hosted-ai` Compose profile and configure
+`SELF_HOSTED_NODE_FORMAT=any` and `SELF_HOSTED_NODE_HOST_PLAYS=false` for
+hosted AI rooms. Keep these environment values in the host's secret store or
+an untracked `.env` file, never in this guide or a committed Compose override.
+
+The published image is `ghcr.io/buiko32/manabrew-web:selfhosted`. Make its
+GitHub Container Registry package public for unauthenticated pulls, or
+configure the deployment host with `read:packages` access. In the existing
+Compose override, change only the web service's image reference, then pull and
+recreate that service without restarting the relay. For this repository's
+`compose.production.yml`, save a one-service override as
+`compose.selfhosted-local.yml` with:
+
+```yaml
+services:
+  manabrew:
+    image: ghcr.io/buiko32/manabrew-web:selfhosted
+```
+
+Pull and recreate only the web service with both files:
+
+```sh
+docker compose -f compose.production.yml -f compose.selfhosted-local.yml pull manabrew
+docker compose -f compose.production.yml -f compose.selfhosted-local.yml up -d --no-deps manabrew
+```
+
+Keep the base Compose file unchanged for rollback; pull and recreate from it
+alone to restore the upstream image:
+
+```sh
+docker compose -f compose.production.yml pull manabrew
+docker compose -f compose.production.yml up -d --no-deps manabrew
+```
+
+The web image currently targets `linux/amd64`. Check the server architecture
+before switching; ARM requires a native ARM runner and a separate build setup.
 
 ## Initial Server Setup
 
