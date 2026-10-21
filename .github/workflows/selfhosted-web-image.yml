@@ -55,9 +55,10 @@ jobs:
       - name: Derive candidate image tag
         id: candidate
         env:
-          RELEASE_TAG: ${{ steps.release.outputs.tag }}
           CONFIG_VERSION: ${{ env.IMAGE_CONFIG_VERSION }}
-        run: echo "tag=upstream-${RELEASE_TAG}-config${CONFIG_VERSION}" >> "$GITHUB_OUTPUT"
+        run: |
+          sha="$(git rev-parse --short=12 HEAD)"
+          echo "tag=fork-${sha}-config${CONFIG_VERSION}" >> "$GITHUB_OUTPUT"
 
       - name: Check for an existing candidate
         id: existing
