@@ -5,11 +5,6 @@ on:
     branches:
       - main
   workflow_dispatch:
-    inputs:
-      upstream_tag:
-        description: "Upstream release tag to build (defaults to the latest stable release)"
-        required: false
-        type: string
 
 concurrency:
   group: selfhosted-web-image
@@ -124,7 +119,7 @@ jobs:
             org.opencontainers.image.source=https://github.com/Buiko32/manabrew
             org.opencontainers.image.upstream.source=https://github.com/witchesofthehill/manabrew
             org.opencontainers.image.revision=${{ steps.source.outputs.sha }}
-            org.opencontainers.image.version=${{ steps.release.outputs.tag }}
+            org.opencontainers.image.version=${{ steps.source.outputs.sha }}
           build-args: |
             VITE_SCRYFALL_SYMBOL_BASE=/scryfall-symbols/
             VITE_SCRYFALL_ASSET_BASE=
