@@ -6,6 +6,7 @@ import type { Prompt, StepKind } from "@/protocol";
 import { validCardIdsInCards, type BoardTargetBuckets } from "@/lib/boardTargets";
 import type { PreviewFlipOptions, PreviewPointerInput } from "@/lib/cardPreview";
 import { stripUsernameTag } from "@/lib/username";
+import { displayPlayerNames } from "@/lib/playerDisplayNames";
 import { hiddenZoneCard } from "@/lib/gameCard";
 import { nextHandOrderMode } from "@/lib/handOrder";
 import { type ZonePanelItem } from "@/stores/usePreferencesStore";
@@ -865,13 +866,19 @@ export function GameBoard({
   const currentRoom = useServerStore((s) => s.currentRoom);
   const playerBarSpecs = useMemo<PlayerHudSpec[]>(() => {
     const allPlayers = [me, ...opponents];
+    const displayNames = displayPlayerNames(allPlayers, currentRoom?.players ?? []);
+    const displayNameByPlayerId = new Map(
+      allPlayers.map((player, index) => [
+        player.id,
+        displayNames[index] ?? stripUsernameTag(player.name),
+      ]),
+    );
     const seatColorOf = (pid: string): string => {
       if (pid === me.id) return playerColors.self;
       const idx = opponents.findIndex((o) => o.id === pid);
       return playerColors[OPPONENT_SEATS[idx] ?? "opponent1"];
     };
-    const nameOf = (pid: string): string =>
-      allPlayers.find((p) => p.id === pid)?.name ?? "a player";
+    const nameOf = (pid: string): string => displayNameByPlayerId.get(pid) ?? "a player";
     // Commander damage is keyed by the source commander's card id; resolve each
     // to its owner so the badge can take that opponent's seat colour.
     const cardOwner = new Map<string, string>();
@@ -1196,7 +1203,7 @@ export function GameBoard({
       const incoming = incomingDamageFor(player);
       return {
         playerId: player.id,
-        name: stripUsernameTag(player.name),
+        name: displayNameByPlayerId.get(player.id) ?? stripUsernameTag(player.name),
         isSelf,
         life: dev.life ?? player.life,
         color,
