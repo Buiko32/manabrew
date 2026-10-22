@@ -1,4 +1,4 @@
-import { ManaSymbols } from "@/components/game/ManaSymbols";
+import { KeywordHelp, KeywordLabel } from "@/components/game/KeywordHelp";
 import { cn } from "@/lib/utils";
 import { isVisibleBattlefieldKeyword } from "@/lib/battlefieldKeywords";
 
@@ -13,23 +13,11 @@ const CHIP_BASE =
  */
 const KEYWORD_LABEL_MAX_LEN = 14;
 
-function truncateChipLabel(text: string): string {
-  if (text.length <= KEYWORD_LABEL_MAX_LEN) return text;
-  return `${text.slice(0, KEYWORD_LABEL_MAX_LEN - 1)}…`;
-}
-
 export function KeywordChip({ kw }: { kw: string }) {
-  const colonIdx = kw.indexOf(":");
-  if (colonIdx === -1) {
-    return <span className={CHIP_BASE}>{truncateChipLabel(kw)}</span>;
-  }
-  const label = kw.slice(0, colonIdx);
-  const cost = kw.slice(colonIdx + 1);
   return (
-    <span className={cn("inline-flex items-center gap-0.5", CHIP_BASE)}>
-      {truncateChipLabel(label)}
-      <ManaSymbols cost={cost} size="sm" />
-    </span>
+    <KeywordHelp keyword={kw} className={cn("inline-flex items-center gap-0.5", CHIP_BASE)}>
+      <KeywordLabel keyword={kw} maxLength={KEYWORD_LABEL_MAX_LEN} />
+    </KeywordHelp>
   );
 }
 
