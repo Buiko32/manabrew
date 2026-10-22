@@ -10,6 +10,8 @@ import { waitForStartupTask } from "@/lib/appBootstrap";
 
 const OPTIONAL_WARMUP_BUDGET_MS = 12_000;
 
+const COVER_WAIT_CAP_MS = 1_500;
+
 let initPromise: Promise<void> | null = null;
 
 function postStage(stage: AppInitStage): void {
@@ -89,9 +91,14 @@ export function initApp(): Promise<void> {
         console.error("[appInit] optional warmup failed:", result.error);
       }
       postStage("decks");
-      void prefetchDeckCovers().catch((e) =>
-        console.error("[appInit] deck cover prefetch failed:", e),
-      );
+      // Deck cover loading is best-effort: keep it running, but never let a
+      // slow image request hold the app startup gate open.
+      await Promise.race([
+        prefetchDeckCovers().catch((e) =>
+          console.error("[appInit] deck cover prefetch failed:", e),
+        ),
+        new Promise<void>((resolve) => setTimeout(resolve, COVER_WAIT_CAP_MS)),
+      ]);
     } finally {
       postStage("ready");
     }
