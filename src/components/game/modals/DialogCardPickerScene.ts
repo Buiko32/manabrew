@@ -102,6 +102,7 @@ export class DialogCardPickerScene {
         eventFeatures: { wheel: false },
       });
       this.app.renderer.events.autoPreventDefault = false;
+      this.canvas.style.touchAction = "pan-y";
       this.initialized = true;
       if (this.disposed) {
         destroyPixiApp(this.app);
@@ -119,6 +120,7 @@ export class DialogCardPickerScene {
       this.unsubscribe = useScryfallStore.subscribe(this.request);
       this.canvas.addEventListener("pointermove", this.request);
       this.canvas.addEventListener("pointerdown", this.request);
+      this.canvas.addEventListener("pointercancel", this.onNativePointerCancel);
       this.canvas.addEventListener("wheel", this.request);
       this.update(this.props);
     } catch (cause) {
@@ -233,6 +235,7 @@ export class DialogCardPickerScene {
     this.scheduler?.dispose();
     this.canvas.removeEventListener("pointermove", this.request);
     this.canvas.removeEventListener("pointerdown", this.request);
+    this.canvas.removeEventListener("pointercancel", this.onNativePointerCancel);
     this.canvas.removeEventListener("wheel", this.request);
     for (const { sprite, feedback } of this.entries.values()) {
       gsap.killTweensOf(sprite.scale);
@@ -303,6 +306,10 @@ export class DialogCardPickerScene {
     }
     return entry;
   }
+
+  private readonly onNativePointerCancel = (event: PointerEvent) => {
+    if (event.pointerId === this.longPressPointerId) this.resetLongPress();
+  };
 
   private readonly finishLongPress = (event: FederatedPointerEvent) => {
     if (event.pointerId !== this.longPressPointerId) return;
