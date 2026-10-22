@@ -28,6 +28,7 @@ export function RightActionPanel({
   const mobile = useIsMobileGame();
   const visibleLog = gameLog.filter((entry) => entry.entryType !== "rule");
   const latestLog = visibleLog.at(-1);
+  const mobileBannerLog = latestLog?.isDiagnostic ? undefined : latestLog;
   const forceLogActivityOverride = useGameDevStore(
     (state) => state.gameStateOverrides.forceLogActivity,
   );
@@ -55,19 +56,19 @@ export function RightActionPanel({
 
   if (collapsed) {
     if (mobile) {
-      return latestLog ? (
+      return mobileBannerLog ? (
         <button
           type="button"
           className="absolute left-1/2 top-[calc(0.5rem+var(--safe-area-inset-top))] z-50 flex min-h-11 max-w-[min(75vw,30rem)] -translate-x-1/2 items-center gap-2 rounded-full border border-border/80 bg-card/95 px-3 font-game text-xs font-semibold text-foreground shadow-lg backdrop-blur-sm active:scale-[0.98]"
-          title={latestLog.message}
-          aria-label={`Open action log. Last action: ${latestLog.message}`}
+          title={mobileBannerLog.message}
+          aria-label={`Open action log. Last action: ${mobileBannerLog.message}`}
           onClick={() => {
             setActiveTab("log");
             rawToggle();
           }}
         >
           <ScrollText className="h-4 w-4 shrink-0 text-primary" />
-          <span className="truncate">{latestLog.message}</span>
+          <span className="truncate">{mobileBannerLog.message}</span>
         </button>
       ) : null;
     }

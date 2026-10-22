@@ -33,6 +33,7 @@ function appendAutoResolutionLog(promptType: string, reason: string): void {
     message: `Auto-resolved ${promptType}: ${reason}`,
     entryType: "info" as const,
     timestampMs: Date.now(),
+    isDiagnostic: true,
   };
   useGameStore.setState((state) => ({
     gameLog: [...state.gameLog.slice(-199), entry],

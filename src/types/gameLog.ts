@@ -8,6 +8,7 @@ export interface GameLogEntry {
   message: string;
   entryType: GameLogEntryType;
   timestampMs: number;
+  isDiagnostic?: boolean;
   playerId?: string;
   cardId?: string;
   sourceCardId?: string;
@@ -33,6 +34,7 @@ export function normalizeGameLogPayload(payload: unknown): GameLogEntry {
       message,
       entryType,
       timestampMs,
+      isDiagnostic: obj.isDiagnostic === true,
       playerId: typeof obj.playerId === "string" ? obj.playerId : undefined,
       cardId: typeof obj.cardId === "string" ? obj.cardId : undefined,
       sourceCardId: typeof obj.sourceCardId === "string" ? obj.sourceCardId : undefined,
