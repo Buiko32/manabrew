@@ -4,8 +4,8 @@ import type { CardDto } from "@/protocol/game";
 import { CounterDisplay } from "@/components/game/CounterBadge";
 import { PtBadge } from "@/components/game/PtBadge";
 import { GameIcon } from "@/components/game/GameIcon";
+import { ManaSymbols } from "@/components/game/ManaSymbols";
 import { CardChoiceIndicators } from "@/components/game/CardChoiceIndicators";
-import { KeywordHelp, KeywordLabel } from "@/components/game/KeywordHelp";
 import { CARD_BADGES } from "./game.constants";
 import { withAlpha } from "@/themes/gameTheme";
 import { useTheme } from "@/hooks/useTheme";
@@ -138,16 +138,19 @@ export function CardPreviewOverlay({
           )}
           <CardChoiceIndicators card={card} expanded />
           {keywords.length > 0 && (
-            <div className="pointer-events-auto flex flex-wrap gap-1 justify-center">
+            <div className="flex flex-wrap gap-1 justify-center">
               {visibleKeywords.map((kw, i) => {
+                const colonIdx = kw.indexOf(":");
+                const label = colonIdx === -1 ? kw : kw.slice(0, colonIdx);
+                const cost = colonIdx === -1 ? null : kw.slice(colonIdx + 1);
                 return (
-                  <KeywordHelp
+                  <span
                     key={`${kw}-${i}`}
-                    keyword={kw}
                     className="inline-flex items-center gap-0.5 text-[11px] font-bold uppercase tracking-wide bg-black/75 text-white px-2 py-0.5 rounded shadow-md"
                   >
-                    <KeywordLabel keyword={kw} />
-                  </KeywordHelp>
+                    {label}
+                    {cost && <ManaSymbols cost={cost} size="sm" />}
+                  </span>
                 );
               })}
               {hiddenKeywordCount > 0 && (
