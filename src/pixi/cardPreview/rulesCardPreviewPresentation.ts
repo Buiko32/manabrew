@@ -40,7 +40,6 @@ export interface RulesPreviewDisplay {
   prototype?: boolean;
   sections: RulesPreviewSection[];
   keywords: string[];
-  keywordSources: string[];
   stats: CardStatPresentation | null;
   loyalty: number | null;
   defense: number | null;
@@ -523,24 +522,12 @@ function sectionFromFace(
   };
 }
 
-function grantedKeywordEntries(card: CardDto): { label: string; source: string }[] {
-  const seen = new Set<string>();
-  const entries: { label: string; source: string }[] = [];
-  for (const source of card.grantedKeywords) {
-    const label = card.keywordLabels?.[source] ?? keywordText(source);
-    if (seen.has(label)) continue;
-    seen.add(label);
-    entries.push({ label, source });
-  }
-  return entries;
-}
-
 function grantedKeywordChips(card: CardDto): string[] {
-  return grantedKeywordEntries(card).map((entry) => entry.label);
-}
-
-function grantedKeywordSources(card: CardDto): string[] {
-  return grantedKeywordEntries(card).map((entry) => entry.source);
+  return [
+    ...new Set(
+      card.grantedKeywords.map((keyword) => card.keywordLabels?.[keyword] ?? keywordText(keyword)),
+    ),
+  ];
 }
 
 function manaText(cost: string): string {
@@ -648,7 +635,6 @@ export function resolveRulesPreviewDisplay(options: {
       faceless: true,
       sections: [],
       keywords: [],
-      keywordSources: [],
       stats: presentation.stats,
       loyalty: presentation.loyalty,
       defense: presentation.defense,
@@ -707,7 +693,6 @@ export function resolveRulesPreviewDisplay(options: {
       prototype: true,
       sections: representable ? [base, alternate] : [],
       keywords: grantedKeywordChips(card),
-      keywordSources: grantedKeywordSources(card),
       stats: presentation.stats,
       loyalty: null,
       defense: null,
@@ -761,7 +746,6 @@ export function resolveRulesPreviewDisplay(options: {
       faceless: false,
       sections,
       keywords: grantedKeywordChips(card),
-      keywordSources: grantedKeywordSources(card),
       stats: presentation.stats ?? printedStats(resolved.faces[0]),
       loyalty: presentation.loyalty,
       defense: presentation.defense,
@@ -833,7 +817,6 @@ export function resolveRulesPreviewDisplay(options: {
     faceless: false,
     sections: [section],
     keywords: currentFace ? grantedKeywordChips(card) : [],
-    keywordSources: currentFace ? grantedKeywordSources(card) : [],
     stats,
     loyalty,
     defense,

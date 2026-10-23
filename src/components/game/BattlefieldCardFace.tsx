@@ -17,7 +17,6 @@ import { CardFoilOverlay } from "@/components/game/CardFoilOverlay";
 import { isEtchedOnlyPrinting } from "@/lib/cardFinish";
 import { gameCardFaceIndex } from "@/lib/gameCard";
 import { RoomDoorOverlay } from "@/components/game/RoomDoorOverlay";
-import { KeywordHelp, KeywordLabel } from "@/components/game/KeywordHelp";
 
 export type BattlefieldCardFaceVariant = "frame" | "art";
 
@@ -155,9 +154,8 @@ export function BattlefieldCardFace({
           style={{ left: pad, top: (card.choices?.length ?? 0) > 0 ? "42%" : "30%", gap: 1 * u }}
         >
           {keywords.map((kw) => (
-            <KeywordHelp
+            <span
               key={kw}
-              keyword={kw}
               className="font-bold uppercase rounded leading-none max-w-full truncate"
               style={{
                 fontSize: Math.max(4, 5.5 * u),
@@ -166,8 +164,8 @@ export function BattlefieldCardFace({
                 backgroundColor: withAlpha(theme.canvas.shadow, 0.7),
               }}
             >
-              <KeywordLabel keyword={kw} />
-            </KeywordHelp>
+              {kw}
+            </span>
           ))}
           {hiddenKeywords > 0 && (
             <span
