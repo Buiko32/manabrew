@@ -1,5 +1,6 @@
 import { useLayoutEffect } from "react";
 import { useGameStore } from "@/stores/useGameStore";
+import { useGameUIStore } from "@/stores/useGameUIStore";
 import { usePromptPreferencesStore } from "@/stores/usePromptPreferencesStore";
 import { resolvePrompt } from "./promptHandlers";
 
@@ -38,4 +39,5 @@ function appendAutoResolutionLog(promptType: string, reason: string): void {
   useGameStore.setState((state) => ({
     gameLog: [...state.gameLog.slice(-199), entry],
   }));
+  useGameUIStore.getState().notifyAutoResolution();
 }

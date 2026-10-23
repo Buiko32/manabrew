@@ -66,6 +66,7 @@ interface GameUIState {
   viewingZone: ViewingZoneState | null;
   isActionPanelCollapsed: boolean;
   rightPanelTab: "log" | "snapshots" | "dev";
+  unreadAutoResolutionCount: number;
   promptModalHidden: boolean;
   zoneBrowserStates: Record<string, CardBrowserState>;
   mobileHandState: { promptId: Prompt["promptId"] | null; open: boolean };
@@ -83,6 +84,8 @@ interface GameUIState {
   toggleActionPanel: () => void;
   setActionPanelCollapsed: (collapsed: boolean) => void;
   setRightPanelTab: (tab: "log" | "snapshots" | "dev") => void;
+  notifyAutoResolution: () => void;
+  resetUnreadAutoResolutions: () => void;
   toggleDevPanel: () => void;
   hidePromptModal: () => void;
   showPromptModal: () => void;
@@ -97,6 +100,7 @@ export const useGameUIStore = create<GameUIState>()(
       viewingZone: null,
       isActionPanelCollapsed: true,
       rightPanelTab: "log",
+      unreadAutoResolutionCount: 0,
       promptModalHidden: false,
       zoneBrowserStates: {},
       mobileHandState: { promptId: null, open: false },
@@ -116,9 +120,31 @@ export const useGameUIStore = create<GameUIState>()(
       closeZoneViewer: () => set({ viewingZone: null }),
 
       toggleActionPanel: () =>
-        set((state) => ({ isActionPanelCollapsed: !state.isActionPanelCollapsed })),
-      setActionPanelCollapsed: (collapsed) => set({ isActionPanelCollapsed: collapsed }),
-      setRightPanelTab: (tab) => set({ rightPanelTab: tab }),
+        set((state) => ({
+          isActionPanelCollapsed: !state.isActionPanelCollapsed,
+          ...(state.isActionPanelCollapsed && state.rightPanelTab === "log"
+            ? { unreadAutoResolutionCount: 0 }
+            : {}),
+        })),
+      setActionPanelCollapsed: (collapsed) =>
+        set((state) => ({
+          isActionPanelCollapsed: collapsed,
+          ...(collapsed || state.rightPanelTab !== "log" ? {} : { unreadAutoResolutionCount: 0 }),
+        })),
+      setRightPanelTab: (tab) =>
+        set((state) => ({
+          rightPanelTab: tab,
+          ...(tab === "log" && !state.isActionPanelCollapsed
+            ? { unreadAutoResolutionCount: 0 }
+            : {}),
+        })),
+      notifyAutoResolution: () =>
+        set((state) =>
+          !state.isActionPanelCollapsed && state.rightPanelTab === "log"
+            ? {}
+            : { unreadAutoResolutionCount: state.unreadAutoResolutionCount + 1 },
+        ),
+      resetUnreadAutoResolutions: () => set({ unreadAutoResolutionCount: 0 }),
       toggleDevPanel: () => {
         if (!import.meta.env.DEV) return;
         set((state) =>
@@ -140,6 +166,7 @@ export const useGameUIStore = create<GameUIState>()(
           zoneBrowserStates: {},
           mobileHandState: { promptId: null, open: false },
           mobilePanel: null,
+          unreadAutoResolutionCount: 0,
         }),
     }),
     { name: "gameUI", enabled: import.meta.env.DEV },
