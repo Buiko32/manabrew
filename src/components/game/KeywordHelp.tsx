@@ -88,7 +88,7 @@ export function KeywordHelp({
       </TooltipTrigger>
       {resolved.description && (
         <TooltipContent
-          className="pointer-events-none max-w-60 whitespace-normal text-left normal-case"
+          className="pointer-events-none z-[10002] max-w-60 whitespace-normal text-left normal-case"
           side="top"
         >
           <span className="font-semibold">{resolved.label}</span>
