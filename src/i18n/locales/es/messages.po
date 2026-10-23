@@ -14,7 +14,7 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. placeholder {0}: display.stats.damage
-#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1302
+#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1316
 msgid "{0} damage"
 msgstr "{0} de daño"
 
@@ -22,6 +22,14 @@ msgstr "{0} de daño"
 #: src/pixi/cardPreview/previewMechanics.ts:106
 msgid "Active level"
 msgstr "Nivel activo"
+
+#: src/lib/cardKeywords.ts:26
+msgid "Any amount of damage this creature deals to a creature is enough to destroy it."
+msgstr "Cualquier cantidad de daño que esta criatura haga a otra criatura es suficiente para destruirla."
+
+#: src/lib/cardKeywords.ts:15
+msgid "Attacking doesn't cause this creature to tap."
+msgstr "Atacar no hace que esta criatura se gire."
 
 #: src/components/game/RulesPreviewAccessibility.tsx:133
 msgid "Base ability"
@@ -33,7 +41,7 @@ msgstr "Características actuales"
 
 #. placeholder {0}: display.stats.power
 #. placeholder {1}: display.stats.toughness
-#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1102
+#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1116
 msgid "Current P/T: {0}/{1}"
 msgstr "F/R actuales: {0}/{1}"
 
@@ -41,35 +49,99 @@ msgstr "F/R actuales: {0}/{1}"
 msgid "Current power and toughness"
 msgstr "Fuerza y resistencia actuales"
 
-#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1692
+#: src/lib/cardKeywords.ts:22
+msgid "Damage dealt by this permanent also causes its controller to gain that much life."
+msgstr "El daño que hace este permanente también hace que su controlador gane esa misma cantidad de vidas."
+
+#: src/lib/cardKeywords.ts:64
+msgid "Damage from this source gives players poison counters and is dealt to creatures as -1/-1 counters."
+msgstr "El daño de esta fuente da contadores de veneno a los jugadores y se hace a las criaturas en forma de contadores -1/-1."
+
+#: src/lib/cardKeywords.ts:66
+msgid "Damage from this source is dealt to creatures as -1/-1 counters."
+msgstr "El daño de esta fuente se hace a las criaturas en forma de contadores -1/-1."
+
+#: src/lib/cardKeywords.ts:25
+msgid "Deathtouch"
+msgstr "Toque mortal"
+
+#: src/lib/cardKeywords.ts:42
+msgid "Defender"
+msgstr "Defensor"
+
+#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1735
 msgid "Defense"
 msgstr "Defensa"
+
+#: src/lib/cardKeywords.ts:12
+msgid "Double strike"
+msgstr "Dañar dos veces"
 
 #: src/pixi/cardPreview/PixiCardRailPreview.ts:169
 #: src/pixi/cardPreview/PixiCardRailPreview.ts:241
 msgid "Effect text unavailable"
 msgstr "Texto del efecto no disponible"
 
-#: src/pixi/cardPreview/rulesCardPreviewPresentation.ts:625
+#: src/pixi/cardPreview/rulesCardPreviewPresentation.ts:638
 msgid "Face-down card"
 msgstr "Carta boca abajo"
 
-#: src/pixi/cardPreview/rulesCardPreviewPresentation.ts:627
+#: src/pixi/cardPreview/rulesCardPreviewPresentation.ts:640
 msgid "Face-down permanent"
 msgstr "Permanente boca abajo"
 
-#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1274
+#: src/lib/cardKeywords.ts:50
+msgid "Fear"
+msgstr "Miedo"
+
+#: src/lib/cardKeywords.ts:8
+msgid "First strike"
+msgstr "Dañar primero"
+
+#: src/lib/cardKeywords.ts:43
+msgid "Flash"
+msgstr "Destello"
+
+#: src/lib/cardKeywords.ts:80
+msgid "Flashback"
+msgstr "Retrospectiva"
+
+#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1288
 msgid "Flip back · F"
 msgstr "Ver el reverso · F"
 
-#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1274
+#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1288
 msgid "Flip front · F"
 msgstr "Ver el anverso · F"
+
+#: src/lib/cardKeywords.ts:6
+msgid "Flying"
+msgstr "Volar"
+
+#: src/lib/cardKeywords.ts:30
+msgid "Haste"
+msgstr "Prisa"
+
+#: src/lib/cardKeywords.ts:34
+msgid "Hexproof"
+msgstr "Antimaleficio"
 
 #: src/components/game/RulesPreviewAccessibility.tsx:93
 #: src/pixi/cardPreview/previewMechanics.ts:106
 msgid "Inactive level"
 msgstr "Nivel inactivo"
+
+#: src/lib/cardKeywords.ts:39
+msgid "Indestructible"
+msgstr "Indestructible"
+
+#: src/lib/cardKeywords.ts:63
+msgid "Infect"
+msgstr "Infectar"
+
+#: src/lib/cardKeywords.ts:54
+msgid "Intimidate"
+msgstr "Intimidar"
 
 #: src/components/game/RulesPreviewAccessibility.tsx:88
 msgid "Level"
@@ -80,17 +152,25 @@ msgstr "Nivel"
 msgid "Level {0}"
 msgstr "Nivel {0}"
 
+#: src/lib/cardKeywords.ts:21
+msgid "Lifelink"
+msgstr "Vínculo vital"
+
 #: src/pixi/cardPreview/previewMechanics.ts:104
 msgid "Locked"
 msgstr "Cerrada"
 
-#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1691
+#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1734
 msgid "Loyalty"
 msgstr "Lealtad"
 
 #: src/components/game/RulesPreviewAccessibility.tsx:118
 msgid "Mana cost"
 msgstr "Coste de maná"
+
+#: src/lib/cardKeywords.ts:37
+msgid "Menace"
+msgstr "Amenaza"
 
 #: src/components/game/RulesPreviewAccessibility.tsx:82
 msgid "Not prototyped"
@@ -104,19 +184,23 @@ msgstr "No suspendida"
 msgid "On an Adventure"
 msgstr "De aventura"
 
-#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1096
+#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1110
 msgid "On an Adventure · available actions are listed on their spell half"
 msgstr "De aventura · las acciones disponibles se indican en su mitad de hechizo"
 
-#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1290
+#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1304
 msgid "Original printing · generated frame unavailable"
 msgstr ""
+
+#: src/lib/cardKeywords.ts:68
+msgid "Persist"
+msgstr "Persistir"
 
 #: src/pixi/cardPreview/previewMechanics.ts:108
 msgid "Printed alternative"
 msgstr "Alternativa impresa"
 
-#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1288
+#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1302
 msgid "Printed face · live state belongs to the other face"
 msgstr "Cara impresa · el estado actual corresponde a la otra cara"
 
@@ -124,13 +208,33 @@ msgstr "Cara impresa · el estado actual corresponde a la otra cara"
 msgid "Printed power and toughness"
 msgstr "Fuerza y resistencia impresas"
 
-#: src/pixi/cardPreview/rulesCardPreviewPresentation.ts:653
+#: src/lib/cardKeywords.ts:76
+msgid "Protection"
+msgstr "Protección"
+
+#: src/pixi/cardPreview/rulesCardPreviewPresentation.ts:667
 msgid "Prototype"
 msgstr "Prototipo"
 
 #: src/components/game/RulesPreviewAccessibility.tsx:82
 msgid "Prototyped"
 msgstr "Lanzada como prototipo"
+
+#: src/lib/cardKeywords.ts:59
+msgid "Prowess"
+msgstr "Destreza"
+
+#: src/lib/cardKeywords.ts:28
+msgid "Reach"
+msgstr "Alcance"
+
+#: src/lib/cardKeywords.ts:48
+msgid "Shroud"
+msgstr "Velo"
+
+#: src/lib/cardKeywords.ts:57
+msgid "Skulk"
+msgstr "Escurridizo"
 
 #: src/components/game/RulesPreviewAccessibility.tsx:142
 msgid "Solved · active"
@@ -148,9 +252,77 @@ msgstr "Suspendida"
 msgid "Suspended · {time} time counters"
 msgstr "Suspendida · {time} contadores de tiempo"
 
+#: src/lib/cardKeywords.ts:18
+msgid "This creature can assign excess combat damage to the player, planeswalker, or battle it's attacking."
+msgstr "Esta criatura puede asignar el daño de combate sobrante al jugador, planeswalker o batalla al que está atacando."
+
+#: src/lib/cardKeywords.ts:31
+msgid "This creature can attack and use tap abilities even if it hasn't been under your control since your turn began."
+msgstr "Esta criatura puede atacar y activar habilidades de girar aunque no haya estado bajo tu control desde que empezó tu turno."
+
+#: src/lib/cardKeywords.ts:6
+msgid "This creature can be blocked only by creatures with flying or reach."
+msgstr "Esta criatura solo puede ser bloqueada por criaturas con la habilidad de volar o de alcance."
+
+#: src/lib/cardKeywords.ts:28
+msgid "This creature can block creatures with flying."
+msgstr "Esta criatura puede bloquear criaturas con la habilidad de volar."
+
+#: src/lib/cardKeywords.ts:42
+msgid "This creature can't attack."
+msgstr "Esta criatura no puede atacar."
+
+#: src/lib/cardKeywords.ts:57
+msgid "This creature can't be blocked by creatures with greater power."
+msgstr "Esta criatura no puede ser bloqueada por criaturas con mayor fuerza."
+
+#: src/lib/cardKeywords.ts:51
+msgid "This creature can't be blocked except by artifact creatures and black creatures."
+msgstr "Esta criatura no puede ser bloqueada excepto por criaturas artefacto y criaturas negras."
+
+#: src/lib/cardKeywords.ts:55
+msgid "This creature can't be blocked except by artifact creatures and creatures that share a color with it."
+msgstr "Esta criatura no puede ser bloqueada excepto por criaturas artefacto y criaturas que compartan un color con ella."
+
+#: src/lib/cardKeywords.ts:37
+msgid "This creature can't be blocked except by two or more creatures."
+msgstr "Esta criatura no puede ser bloqueada excepto por dos o más criaturas."
+
+#: src/lib/cardKeywords.ts:13
+msgid "This creature deals both first-strike and regular combat damage."
+msgstr "Esta criatura hace daño de combate tanto de dañar primero como daño de combate normal."
+
+#: src/lib/cardKeywords.ts:9
+msgid "This creature deals combat damage before creatures without first strike or double strike."
+msgstr "Esta criatura hace daño de combate antes que las criaturas sin dañar primero ni dañar dos veces."
+
+#: src/lib/cardKeywords.ts:77
+msgid "This permanent can't be damaged, enchanted, equipped, blocked, or targeted by anything with the specified quality."
+msgstr "Este permanente no puede recibir daño, ser encantado, equipado, bloqueado ni ser objetivo de nada que tenga la cualidad especificada."
+
+#: src/lib/cardKeywords.ts:40
+msgid "This permanent can't be destroyed by lethal damage or effects that say “destroy”."
+msgstr "Este permanente no puede ser destruido por daño letal ni por efectos que digan “destruye”."
+
+#: src/lib/cardKeywords.ts:35
+msgid "This permanent can't be the target of spells or abilities your opponents control."
+msgstr "Este permanente no puede ser objetivo de hechizos o habilidades que controlen tus oponentes."
+
+#: src/lib/cardKeywords.ts:48
+msgid "This permanent can't be the target of spells or abilities."
+msgstr "Este permanente no puede ser objetivo de hechizos o habilidades."
+
 #: src/components/game/RulesPreviewAccessibility.tsx:135
 msgid "To solve"
 msgstr "Resolver"
+
+#: src/lib/cardKeywords.ts:17
+msgid "Trample"
+msgstr "Arrollar"
+
+#: src/lib/cardKeywords.ts:72
+msgid "Undying"
+msgstr "Inmortal"
 
 #: src/pixi/cardPreview/previewMechanics.ts:104
 msgid "Unlocked"
@@ -159,3 +331,44 @@ msgstr "Abierta"
 #: src/components/game/RulesPreviewAccessibility.tsx:143
 msgid "Unsolved · inactive"
 msgstr "Sin resolver · inactivo"
+
+#: src/lib/cardKeywords.ts:15
+msgid "Vigilance"
+msgstr "Vigilancia"
+
+#: src/lib/cardKeywords.ts:45
+msgid "Ward"
+msgstr "Resguardo"
+
+#: src/lib/cardKeywords.ts:69
+msgid "When this creature dies, if it had no -1/-1 counters on it, return it to the battlefield under its owner's control with a -1/-1 counter."
+msgstr "Cuando esta criatura muera, si no tenía contadores -1/-1 sobre ella, regrésala al campo de batalla bajo el control de su propietario con un contador -1/-1."
+
+#: src/lib/cardKeywords.ts:73
+msgid "When this creature dies, if it had no +1/+1 counters on it, return it to the battlefield under its owner's control with a +1/+1 counter."
+msgstr "Cuando esta criatura muera, si no tenía contadores +1/+1 sobre ella, regrésala al campo de batalla bajo el control de su propietario con un contador +1/+1."
+
+#: src/lib/cardKeywords.ts:46
+msgid "Whenever an opponent targets this permanent, counter that spell or ability unless they pay its ward cost."
+msgstr "Siempre que un oponente haga objetivo a este permanente, contrarresta ese hechizo o habilidad a menos que pague su coste de resguardo."
+
+#: src/lib/cardKeywords.ts:60
+msgid "Whenever you cast a noncreature spell, this creature gets +1/+1 until end of turn."
+msgstr "Siempre que lances un hechizo que no sea de criatura, esta criatura obtiene +1/+1 hasta el final del turno."
+
+#: src/lib/cardKeywords.ts:66
+msgid "Wither"
+msgstr "Debilitar"
+
+#. placeholder {0}: parameter ?? ""
+#: src/lib/cardKeywords.ts:144
+msgid "You may cast this card from your graveyard by paying {0} instead of its mana cost. If it would leave the stack, exile it instead."
+msgstr "Puedes lanzar esta carta desde tu cementerio pagando {0} en vez de su coste de maná. Si fuera a dejar la pila, en vez de eso, exíliala."
+
+#: src/lib/cardKeywords.ts:81
+msgid "You may cast this card from your graveyard for its flashback cost. If it would leave the stack, exile it instead."
+msgstr "Puedes lanzar esta carta desde tu cementerio pagando su coste de retrospectiva. Si fuera a dejar la pila, en vez de eso, exíliala."
+
+#: src/lib/cardKeywords.ts:43
+msgid "You may cast this spell any time you could cast an instant."
+msgstr "Puedes lanzar este hechizo en cualquier momento en que pudieras lanzar un instantáneo."

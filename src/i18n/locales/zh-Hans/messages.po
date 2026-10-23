@@ -14,7 +14,7 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. placeholder {0}: display.stats.damage
-#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1302
+#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1316
 msgid "{0} damage"
 msgstr "{0} 点伤害"
 
@@ -22,6 +22,14 @@ msgstr "{0} 点伤害"
 #: src/pixi/cardPreview/previewMechanics.ts:106
 msgid "Active level"
 msgstr "生效等级"
+
+#: src/lib/cardKeywords.ts:26
+msgid "Any amount of damage this creature deals to a creature is enough to destroy it."
+msgstr "此生物对另一个生物造成的任意数量伤害都足以将其消灭。"
+
+#: src/lib/cardKeywords.ts:15
+msgid "Attacking doesn't cause this creature to tap."
+msgstr "攻击不会使此生物横置。"
 
 #: src/components/game/RulesPreviewAccessibility.tsx:133
 msgid "Base ability"
@@ -33,7 +41,7 @@ msgstr "当前特征"
 
 #. placeholder {0}: display.stats.power
 #. placeholder {1}: display.stats.toughness
-#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1102
+#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1116
 msgid "Current P/T: {0}/{1}"
 msgstr "当前力量／防御力：{0}/{1}"
 
@@ -41,35 +49,99 @@ msgstr "当前力量／防御力：{0}/{1}"
 msgid "Current power and toughness"
 msgstr "当前力量与防御力"
 
-#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1692
+#: src/lib/cardKeywords.ts:22
+msgid "Damage dealt by this permanent also causes its controller to gain that much life."
+msgstr "此永久物造成的伤害也会使其操控者获得等量的生命。"
+
+#: src/lib/cardKeywords.ts:64
+msgid "Damage from this source gives players poison counters and is dealt to creatures as -1/-1 counters."
+msgstr "此来源对牌手造成的伤害会使其获得中毒指示物；对生物造成的伤害则以-1/-1指示物的形式造成。"
+
+#: src/lib/cardKeywords.ts:66
+msgid "Damage from this source is dealt to creatures as -1/-1 counters."
+msgstr "此来源对生物造成的伤害以-1/-1指示物的形式造成。"
+
+#: src/lib/cardKeywords.ts:25
+msgid "Deathtouch"
+msgstr "死触"
+
+#: src/lib/cardKeywords.ts:42
+msgid "Defender"
+msgstr "守军"
+
+#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1735
 msgid "Defense"
 msgstr "防御"
+
+#: src/lib/cardKeywords.ts:12
+msgid "Double strike"
+msgstr "连击"
 
 #: src/pixi/cardPreview/PixiCardRailPreview.ts:169
 #: src/pixi/cardPreview/PixiCardRailPreview.ts:241
 msgid "Effect text unavailable"
 msgstr "无法获取效应文本"
 
-#: src/pixi/cardPreview/rulesCardPreviewPresentation.ts:625
+#: src/pixi/cardPreview/rulesCardPreviewPresentation.ts:638
 msgid "Face-down card"
 msgstr "牌面朝下的牌"
 
-#: src/pixi/cardPreview/rulesCardPreviewPresentation.ts:627
+#: src/pixi/cardPreview/rulesCardPreviewPresentation.ts:640
 msgid "Face-down permanent"
 msgstr "牌面朝下的永久物"
 
-#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1274
+#: src/lib/cardKeywords.ts:50
+msgid "Fear"
+msgstr "恐惧"
+
+#: src/lib/cardKeywords.ts:8
+msgid "First strike"
+msgstr "先攻"
+
+#: src/lib/cardKeywords.ts:43
+msgid "Flash"
+msgstr "闪现"
+
+#: src/lib/cardKeywords.ts:80
+msgid "Flashback"
+msgstr "返照"
+
+#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1288
 msgid "Flip back · F"
 msgstr "翻到背面 · F"
 
-#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1274
+#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1288
 msgid "Flip front · F"
 msgstr "翻到正面 · F"
+
+#: src/lib/cardKeywords.ts:6
+msgid "Flying"
+msgstr "飞行"
+
+#: src/lib/cardKeywords.ts:30
+msgid "Haste"
+msgstr "敏捷"
+
+#: src/lib/cardKeywords.ts:34
+msgid "Hexproof"
+msgstr "辟邪"
 
 #: src/components/game/RulesPreviewAccessibility.tsx:93
 #: src/pixi/cardPreview/previewMechanics.ts:106
 msgid "Inactive level"
 msgstr "未生效等级"
+
+#: src/lib/cardKeywords.ts:39
+msgid "Indestructible"
+msgstr "不灭"
+
+#: src/lib/cardKeywords.ts:63
+msgid "Infect"
+msgstr "侵染"
+
+#: src/lib/cardKeywords.ts:54
+msgid "Intimidate"
+msgstr "威吓"
 
 #: src/components/game/RulesPreviewAccessibility.tsx:88
 msgid "Level"
@@ -80,17 +152,25 @@ msgstr "等级"
 msgid "Level {0}"
 msgstr "等级 {0}"
 
+#: src/lib/cardKeywords.ts:21
+msgid "Lifelink"
+msgstr "系命"
+
 #: src/pixi/cardPreview/previewMechanics.ts:104
 msgid "Locked"
 msgstr "已上锁"
 
-#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1691
+#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1734
 msgid "Loyalty"
 msgstr "忠诚"
 
 #: src/components/game/RulesPreviewAccessibility.tsx:118
 msgid "Mana cost"
 msgstr "法术力费用"
+
+#: src/lib/cardKeywords.ts:37
+msgid "Menace"
+msgstr "威慑"
 
 #: src/components/game/RulesPreviewAccessibility.tsx:82
 msgid "Not prototyped"
@@ -104,19 +184,23 @@ msgstr "未延缓"
 msgid "On an Adventure"
 msgstr "历险中"
 
-#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1096
+#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1110
 msgid "On an Adventure · available actions are listed on their spell half"
 msgstr "历险中 · 可用操作列于咒语一侧"
 
-#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1290
+#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1304
 msgid "Original printing · generated frame unavailable"
 msgstr ""
+
+#: src/lib/cardKeywords.ts:68
+msgid "Persist"
+msgstr "留存"
 
 #: src/pixi/cardPreview/previewMechanics.ts:108
 msgid "Printed alternative"
 msgstr "牌面上的另一组特征"
 
-#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1288
+#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1302
 msgid "Printed face · live state belongs to the other face"
 msgstr "印刷牌面 · 当前状态属于另一面"
 
@@ -124,13 +208,33 @@ msgstr "印刷牌面 · 当前状态属于另一面"
 msgid "Printed power and toughness"
 msgstr "牌面上的力量与防御力"
 
-#: src/pixi/cardPreview/rulesCardPreviewPresentation.ts:653
+#: src/lib/cardKeywords.ts:76
+msgid "Protection"
+msgstr "保护"
+
+#: src/pixi/cardPreview/rulesCardPreviewPresentation.ts:667
 msgid "Prototype"
 msgstr "试作"
 
 #: src/components/game/RulesPreviewAccessibility.tsx:82
 msgid "Prototyped"
 msgstr "试作状态"
+
+#: src/lib/cardKeywords.ts:59
+msgid "Prowess"
+msgstr "精熟"
+
+#: src/lib/cardKeywords.ts:28
+msgid "Reach"
+msgstr "延势"
+
+#: src/lib/cardKeywords.ts:48
+msgid "Shroud"
+msgstr "帷幕"
+
+#: src/lib/cardKeywords.ts:57
+msgid "Skulk"
+msgstr "潜匿"
 
 #: src/components/game/RulesPreviewAccessibility.tsx:142
 msgid "Solved · active"
@@ -148,9 +252,77 @@ msgstr "已延缓"
 msgid "Suspended · {time} time counters"
 msgstr "已延缓 · {time} 个计时指示物"
 
+#: src/lib/cardKeywords.ts:18
+msgid "This creature can assign excess combat damage to the player, planeswalker, or battle it's attacking."
+msgstr "此生物可以将过量的战斗伤害分配给它正在攻击的牌手、鹏洛客或战役。"
+
+#: src/lib/cardKeywords.ts:31
+msgid "This creature can attack and use tap abilities even if it hasn't been under your control since your turn began."
+msgstr "即使此生物自你回合开始时起不在你的操控下，它也能攻击并起动费用中包含横置符号的异能。"
+
+#: src/lib/cardKeywords.ts:6
+msgid "This creature can be blocked only by creatures with flying or reach."
+msgstr "此生物只能被具有飞行或延势的生物阻挡。"
+
+#: src/lib/cardKeywords.ts:28
+msgid "This creature can block creatures with flying."
+msgstr "此生物可以阻挡具飞行的生物。"
+
+#: src/lib/cardKeywords.ts:42
+msgid "This creature can't attack."
+msgstr "此生物不能攻击。"
+
+#: src/lib/cardKeywords.ts:57
+msgid "This creature can't be blocked by creatures with greater power."
+msgstr "此生物不能被力量大于它的生物阻挡。"
+
+#: src/lib/cardKeywords.ts:51
+msgid "This creature can't be blocked except by artifact creatures and black creatures."
+msgstr "此生物只能被神器生物和黑色生物阻挡。"
+
+#: src/lib/cardKeywords.ts:55
+msgid "This creature can't be blocked except by artifact creatures and creatures that share a color with it."
+msgstr "此生物只能被神器生物和与其共享颜色的生物阻挡。"
+
+#: src/lib/cardKeywords.ts:37
+msgid "This creature can't be blocked except by two or more creatures."
+msgstr "此生物只能被两个或更多生物阻挡。"
+
+#: src/lib/cardKeywords.ts:13
+msgid "This creature deals both first-strike and regular combat damage."
+msgstr "此生物同时造成先攻战斗伤害和普通战斗伤害。"
+
+#: src/lib/cardKeywords.ts:9
+msgid "This creature deals combat damage before creatures without first strike or double strike."
+msgstr "此生物先于不具先攻或连击的生物造成战斗伤害。"
+
+#: src/lib/cardKeywords.ts:77
+msgid "This permanent can't be damaged, enchanted, equipped, blocked, or targeted by anything with the specified quality."
+msgstr "此永久物不能被具有所述特性的事物伤害、结附、佩带、阻挡或成为其目标。"
+
+#: src/lib/cardKeywords.ts:40
+msgid "This permanent can't be destroyed by lethal damage or effects that say “destroy”."
+msgstr "此永久物不能被致命伤害或写明“消灭”的效应消灭。"
+
+#: src/lib/cardKeywords.ts:35
+msgid "This permanent can't be the target of spells or abilities your opponents control."
+msgstr "此永久物不能成为由对手操控的咒语或异能的目标。"
+
+#: src/lib/cardKeywords.ts:48
+msgid "This permanent can't be the target of spells or abilities."
+msgstr "此永久物不能成为咒语或异能的目标。"
+
 #: src/components/game/RulesPreviewAccessibility.tsx:135
 msgid "To solve"
 msgstr "侦办"
+
+#: src/lib/cardKeywords.ts:17
+msgid "Trample"
+msgstr "践踏"
+
+#: src/lib/cardKeywords.ts:72
+msgid "Undying"
+msgstr "不息"
 
 #: src/pixi/cardPreview/previewMechanics.ts:104
 msgid "Unlocked"
@@ -159,3 +331,44 @@ msgstr "已解锁"
 #: src/components/game/RulesPreviewAccessibility.tsx:143
 msgid "Unsolved · inactive"
 msgstr "未侦结 · 未生效"
+
+#: src/lib/cardKeywords.ts:15
+msgid "Vigilance"
+msgstr "警戒"
+
+#: src/lib/cardKeywords.ts:45
+msgid "Ward"
+msgstr "守护"
+
+#: src/lib/cardKeywords.ts:69
+msgid "When this creature dies, if it had no -1/-1 counters on it, return it to the battlefield under its owner's control with a -1/-1 counter."
+msgstr "当此生物死去时，若其上没有-1/-1指示物，则在其拥有者操控下将它移回战场，并在其上放置一个-1/-1指示物。"
+
+#: src/lib/cardKeywords.ts:73
+msgid "When this creature dies, if it had no +1/+1 counters on it, return it to the battlefield under its owner's control with a +1/+1 counter."
+msgstr "当此生物死去时，若其上没有+1/+1指示物，则在其拥有者操控下将它移回战场，并在其上放置一个+1/+1指示物。"
+
+#: src/lib/cardKeywords.ts:46
+msgid "Whenever an opponent targets this permanent, counter that spell or ability unless they pay its ward cost."
+msgstr "每当对手以此永久物为目标时，除非该牌手支付其守护费用，否则反击该咒语或异能。"
+
+#: src/lib/cardKeywords.ts:60
+msgid "Whenever you cast a noncreature spell, this creature gets +1/+1 until end of turn."
+msgstr "每当你施放非生物咒语时，此生物得+1/+1直到回合结束。"
+
+#: src/lib/cardKeywords.ts:66
+msgid "Wither"
+msgstr "干枯"
+
+#. placeholder {0}: parameter ?? ""
+#: src/lib/cardKeywords.ts:144
+msgid "You may cast this card from your graveyard by paying {0} instead of its mana cost. If it would leave the stack, exile it instead."
+msgstr "你可以从你的坟墓场支付{0}而非其法术力费用来施放此牌。若它将离开堆叠，则改为将它放逐。"
+
+#: src/lib/cardKeywords.ts:81
+msgid "You may cast this card from your graveyard for its flashback cost. If it would leave the stack, exile it instead."
+msgstr "你可以从你的坟墓场支付其返照费用来施放此牌。若它将离开堆叠，则改为将它放逐。"
+
+#: src/lib/cardKeywords.ts:43
+msgid "You may cast this spell any time you could cast an instant."
+msgstr "你可以于你能施放瞬间的时机施放此咒语。"

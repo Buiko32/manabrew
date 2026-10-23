@@ -72,6 +72,13 @@ import { HandRulesCardFace } from "./cardPreview/HandRulesCardFace";
 import { rulesCardRadius } from "./cardPreview/rulesPreviewFrame";
 import { HandCardControls, type HandCardControlsSpec } from "./HandCardControls";
 import { PreviewFlipAnimation } from "@/pixi/cardPreview/PreviewFlipAnimation";
+import { resolveCardKeyword } from "@/lib/cardKeywords";
+import {
+  bindPixiKeywordTooltip,
+  cleanupPixiKeywordTooltips,
+  hideKeywordTooltip,
+} from "@/pixi/KeywordTooltip";
+import { i18n } from "@/i18n/i18n";
 let activeTheme: Theme = getTheme();
 const TINTED_TEXT_STYLES: TextStyle[] = [];
 const SHADOW_CONTEXTS: { width: number; height: number; context: GraphicsContext }[] = [];
@@ -410,6 +417,7 @@ const resolvePTBgColor = (card: CardDto): number => {
 export class CardSprite extends Container {
   private static readonly instances = new Set<CardSprite>();
   private static unsubscribeLocale: (() => void) | null = null;
+  private static unsubscribeKeywordLocale: (() => void) | null = null;
 
   static refreshTheme(): void {
     for (const sprite of CardSprite.instances) sprite.redrawTheme();
@@ -759,8 +767,20 @@ export class CardSprite extends Container {
     if (!CardSprite.unsubscribeLocale) {
       CardSprite.unsubscribeLocale = useScryfallStore.subscribe((state, previous) => {
         if (state.locale === previous.locale) return;
-        for (const sprite of CardSprite.instances) void sprite.loadImage();
+        for (const sprite of CardSprite.instances) {
+          void sprite.loadImage();
+          sprite.updateKeywords();
+        }
       });
+    }
+    if (!CardSprite.unsubscribeKeywordLocale) {
+      const updateKeywords = () => {
+        for (const sprite of CardSprite.instances) {
+          sprite.updateKeywords();
+          sprite.onVisualChange?.();
+        }
+      };
+      CardSprite.unsubscribeKeywordLocale = i18n.on("change", updateKeywords);
     }
     this.rebuildDecorations(true);
     this.loadImage();
@@ -1671,6 +1691,8 @@ export class CardSprite extends Container {
     }
   }
   destroy(options?: DestroyOptions): void {
+    cleanupPixiKeywordTooltips(this);
+    hideKeywordTooltip(this);
     const hold = this.faceHold;
     this.faceHold = null;
     if (hold && !hold.released) {
@@ -1703,6 +1725,8 @@ export class CardSprite extends Container {
     if (CardSprite.instances.size === 0) {
       CardSprite.unsubscribeLocale?.();
       CardSprite.unsubscribeLocale = null;
+      CardSprite.unsubscribeKeywordLocale?.();
+      CardSprite.unsubscribeKeywordLocale = null;
     }
     this.shadowGfx.destroy({ context: false });
     this.foilRing.destroy({ context: false });
@@ -1801,6 +1825,8 @@ export class CardSprite extends Container {
     applyIcon(this.mustAttackIcon, "sword-brandish", fgHex, 64, iconSize, iconSize);
   }
   private updateKeywords(): void {
+    cleanupPixiKeywordTooltips(this);
+    hideKeywordTooltip(this);
     this.keywordsContainer.removeChildren().forEach((c) => c.destroy({ children: true }));
     const custom = this.isBattlefield && activeStyle !== "realistic";
     if (!custom && this.card.id !== DEBUG_KEYWORD_CARD_ID) return;
@@ -1810,7 +1836,7 @@ export class CardSprite extends Container {
     const keywordTop = (this.card.choices?.length ?? 0) > 0 ? 0.42 : 0.3;
     let offsetY = Math.round(this.ch * keywordTop);
     const shadowNum = hexToNum(activeTheme.gameTheme.canvas.shadow);
-    const addChip = (text: string) => {
+    const addChip = (text: string, raw: string) => {
       const chip = new Container();
       const bg = new Graphics();
       const txt = new Text({ text, style: KEYWORD_CHIP_STYLE });
@@ -1823,13 +1849,28 @@ export class CardSprite extends Container {
       bg.fill({ color: shadowNum, alpha: 0.7 });
       chip.addChild(bg);
       chip.addChild(txt);
+      const resolved = resolveCardKeyword(raw);
+      if (resolved.description) {
+        chip.eventMode = "static";
+        chip.cursor = "help";
+        chip.hitArea = new Rectangle(0, 0, cw, rowH);
+        const key = `${this.card.id}:${raw}`;
+        chip.on("pointerdown", (event) => event.stopPropagation());
+        bindPixiKeywordTooltip(chip, this, key, resolved.label, resolved.description);
+      } else {
+        chip.eventMode = "none";
+      }
       chip.x = 3;
       chip.y = offsetY;
       this.keywordsContainer.addChild(chip);
       offsetY += rowH + 2;
     };
-    shown.forEach((kw) => addChip(truncateChipLabel(kw)));
-    if (hidden > 0) addChip(`+${hidden}`);
+    shown.forEach((kw) => {
+      const raw = this.card.keywords.find((keyword) => keyword.split(":")[0]!.trim() === kw) ?? kw;
+      const resolved = resolveCardKeyword(raw);
+      addChip(truncateChipLabel(resolved.label), raw);
+    });
+    if (hidden > 0) addChip(`+${hidden}`, "");
   }
   setEntryGlowAlpha(alpha: number): void {
     if (alpha <= 0) {

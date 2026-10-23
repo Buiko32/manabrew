@@ -14,7 +14,7 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. placeholder {0}: display.stats.damage
-#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1302
+#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1316
 msgid "{0} damage"
 msgstr "{0} ダメージ"
 
@@ -22,6 +22,14 @@ msgstr "{0} ダメージ"
 #: src/pixi/cardPreview/previewMechanics.ts:106
 msgid "Active level"
 msgstr "有効なレベル"
+
+#: src/lib/cardKeywords.ts:26
+msgid "Any amount of damage this creature deals to a creature is enough to destroy it."
+msgstr "このクリーチャーがクリーチャーに与えるダメージは、１点でもあればそれを破壊するのに十分である。"
+
+#: src/lib/cardKeywords.ts:15
+msgid "Attacking doesn't cause this creature to tap."
+msgstr "攻撃してもこのクリーチャーはタップしない。"
 
 #: src/components/game/RulesPreviewAccessibility.tsx:133
 msgid "Base ability"
@@ -33,7 +41,7 @@ msgstr "現在の特性"
 
 #. placeholder {0}: display.stats.power
 #. placeholder {1}: display.stats.toughness
-#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1102
+#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1116
 msgid "Current P/T: {0}/{1}"
 msgstr "現在のパワー／タフネス：{0}/{1}"
 
@@ -41,35 +49,99 @@ msgstr "現在のパワー／タフネス：{0}/{1}"
 msgid "Current power and toughness"
 msgstr "現在のパワーとタフネス"
 
-#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1692
+#: src/lib/cardKeywords.ts:22
+msgid "Damage dealt by this permanent also causes its controller to gain that much life."
+msgstr "このパーマネントが与えたダメージにより、そのコントローラーは同じ点数のライフを得る。"
+
+#: src/lib/cardKeywords.ts:64
+msgid "Damage from this source gives players poison counters and is dealt to creatures as -1/-1 counters."
+msgstr "この発生源からのダメージは、プレイヤーには毒カウンターを与え、クリーチャーには-1/-1カウンターとして与えられる。"
+
+#: src/lib/cardKeywords.ts:66
+msgid "Damage from this source is dealt to creatures as -1/-1 counters."
+msgstr "この発生源からのダメージは、クリーチャーには-1/-1カウンターとして与えられる。"
+
+#: src/lib/cardKeywords.ts:25
+msgid "Deathtouch"
+msgstr "接死"
+
+#: src/lib/cardKeywords.ts:42
+msgid "Defender"
+msgstr "防衛"
+
+#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1735
 msgid "Defense"
 msgstr "防衛"
+
+#: src/lib/cardKeywords.ts:12
+msgid "Double strike"
+msgstr "二段攻撃"
 
 #: src/pixi/cardPreview/PixiCardRailPreview.ts:169
 #: src/pixi/cardPreview/PixiCardRailPreview.ts:241
 msgid "Effect text unavailable"
 msgstr "効果テキストを利用できません"
 
-#: src/pixi/cardPreview/rulesCardPreviewPresentation.ts:625
+#: src/pixi/cardPreview/rulesCardPreviewPresentation.ts:638
 msgid "Face-down card"
 msgstr "裏向きのカード"
 
-#: src/pixi/cardPreview/rulesCardPreviewPresentation.ts:627
+#: src/pixi/cardPreview/rulesCardPreviewPresentation.ts:640
 msgid "Face-down permanent"
 msgstr "裏向きのパーマネント"
 
-#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1274
+#: src/lib/cardKeywords.ts:50
+msgid "Fear"
+msgstr "畏怖"
+
+#: src/lib/cardKeywords.ts:8
+msgid "First strike"
+msgstr "先制攻撃"
+
+#: src/lib/cardKeywords.ts:43
+msgid "Flash"
+msgstr "瞬速"
+
+#: src/lib/cardKeywords.ts:80
+msgid "Flashback"
+msgstr "フラッシュバック"
+
+#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1288
 msgid "Flip back · F"
 msgstr "裏面に切替 · F"
 
-#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1274
+#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1288
 msgid "Flip front · F"
 msgstr "表面に切替 · F"
+
+#: src/lib/cardKeywords.ts:6
+msgid "Flying"
+msgstr "飛行"
+
+#: src/lib/cardKeywords.ts:30
+msgid "Haste"
+msgstr "速攻"
+
+#: src/lib/cardKeywords.ts:34
+msgid "Hexproof"
+msgstr "呪禁"
 
 #: src/components/game/RulesPreviewAccessibility.tsx:93
 #: src/pixi/cardPreview/previewMechanics.ts:106
 msgid "Inactive level"
 msgstr "無効なレベル"
+
+#: src/lib/cardKeywords.ts:39
+msgid "Indestructible"
+msgstr "破壊不能"
+
+#: src/lib/cardKeywords.ts:63
+msgid "Infect"
+msgstr "感染"
+
+#: src/lib/cardKeywords.ts:54
+msgid "Intimidate"
+msgstr "威嚇"
 
 #: src/components/game/RulesPreviewAccessibility.tsx:88
 msgid "Level"
@@ -80,17 +152,25 @@ msgstr "レベル"
 msgid "Level {0}"
 msgstr "レベル {0}"
 
+#: src/lib/cardKeywords.ts:21
+msgid "Lifelink"
+msgstr "絆魂"
+
 #: src/pixi/cardPreview/previewMechanics.ts:104
 msgid "Locked"
 msgstr "閉鎖"
 
-#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1691
+#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1734
 msgid "Loyalty"
 msgstr "忠誠度"
 
 #: src/components/game/RulesPreviewAccessibility.tsx:118
 msgid "Mana cost"
 msgstr "マナ・コスト"
+
+#: src/lib/cardKeywords.ts:37
+msgid "Menace"
+msgstr "威迫"
 
 #: src/components/game/RulesPreviewAccessibility.tsx:82
 msgid "Not prototyped"
@@ -104,19 +184,23 @@ msgstr "待機中ではない"
 msgid "On an Adventure"
 msgstr "出来事中"
 
-#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1096
+#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1110
 msgid "On an Adventure · available actions are listed on their spell half"
 msgstr "出来事中 · 可能なアクションは呪文側に表示されます"
 
-#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1290
+#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1304
 msgid "Original printing · generated frame unavailable"
 msgstr ""
+
+#: src/lib/cardKeywords.ts:68
+msgid "Persist"
+msgstr "頑強"
 
 #: src/pixi/cardPreview/previewMechanics.ts:108
 msgid "Printed alternative"
 msgstr "印刷上の別の特性"
 
-#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1288
+#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1302
 msgid "Printed face · live state belongs to the other face"
 msgstr "印刷された面 · 現在の状態はもう一方の面に適用されます"
 
@@ -124,13 +208,33 @@ msgstr "印刷された面 · 現在の状態はもう一方の面に適用さ�
 msgid "Printed power and toughness"
 msgstr "印刷されたパワーとタフネス"
 
-#: src/pixi/cardPreview/rulesCardPreviewPresentation.ts:653
+#: src/lib/cardKeywords.ts:76
+msgid "Protection"
+msgstr "プロテクション"
+
+#: src/pixi/cardPreview/rulesCardPreviewPresentation.ts:667
 msgid "Prototype"
 msgstr "試作"
 
 #: src/components/game/RulesPreviewAccessibility.tsx:82
 msgid "Prototyped"
 msgstr "試作済み"
+
+#: src/lib/cardKeywords.ts:59
+msgid "Prowess"
+msgstr "果敢"
+
+#: src/lib/cardKeywords.ts:28
+msgid "Reach"
+msgstr "到達"
+
+#: src/lib/cardKeywords.ts:48
+msgid "Shroud"
+msgstr "被覆"
+
+#: src/lib/cardKeywords.ts:57
+msgid "Skulk"
+msgstr "潜伏"
 
 #: src/components/game/RulesPreviewAccessibility.tsx:142
 msgid "Solved · active"
@@ -148,9 +252,77 @@ msgstr "待機中"
 msgid "Suspended · {time} time counters"
 msgstr "待機中 · 時間カウンター {time} 個"
 
+#: src/lib/cardKeywords.ts:18
+msgid "This creature can assign excess combat damage to the player, planeswalker, or battle it's attacking."
+msgstr "このクリーチャーは超過した戦闘ダメージを、攻撃しているプレイヤーやプレインズウォーカーやバトルに割り振ってもよい。"
+
+#: src/lib/cardKeywords.ts:31
+msgid "This creature can attack and use tap abilities even if it hasn't been under your control since your turn began."
+msgstr "あなたのターン開始時からあなたのコントロール下にいなかったとしても、このクリーチャーは攻撃でき、タップ・シンボルを含む能力を起動できる。"
+
+#: src/lib/cardKeywords.ts:6
+msgid "This creature can be blocked only by creatures with flying or reach."
+msgstr "このクリーチャーは飛行か到達を持つクリーチャーにしかブロックされない。"
+
+#: src/lib/cardKeywords.ts:28
+msgid "This creature can block creatures with flying."
+msgstr "このクリーチャーは飛行を持つクリーチャーをブロックできる。"
+
+#: src/lib/cardKeywords.ts:42
+msgid "This creature can't attack."
+msgstr "このクリーチャーは攻撃できない。"
+
+#: src/lib/cardKeywords.ts:57
+msgid "This creature can't be blocked by creatures with greater power."
+msgstr "このクリーチャーはこれより大きいパワーを持つクリーチャーにはブロックされない。"
+
+#: src/lib/cardKeywords.ts:51
+msgid "This creature can't be blocked except by artifact creatures and black creatures."
+msgstr "このクリーチャーはアーティファクト・クリーチャーか黒のクリーチャーにしかブロックされない。"
+
+#: src/lib/cardKeywords.ts:55
+msgid "This creature can't be blocked except by artifact creatures and creatures that share a color with it."
+msgstr "このクリーチャーはアーティファクト・クリーチャーかこれと色を共有するクリーチャーにしかブロックされない。"
+
+#: src/lib/cardKeywords.ts:37
+msgid "This creature can't be blocked except by two or more creatures."
+msgstr "このクリーチャーは２体以上のクリーチャーによってしかブロックされない。"
+
+#: src/lib/cardKeywords.ts:13
+msgid "This creature deals both first-strike and regular combat damage."
+msgstr "このクリーチャーは先制攻撃の戦闘ダメージと通常の戦闘ダメージの両方を与える。"
+
+#: src/lib/cardKeywords.ts:9
+msgid "This creature deals combat damage before creatures without first strike or double strike."
+msgstr "このクリーチャーは先制攻撃も二段攻撃も持たないクリーチャーより先に戦闘ダメージを与える。"
+
+#: src/lib/cardKeywords.ts:77
+msgid "This permanent can't be damaged, enchanted, equipped, blocked, or targeted by anything with the specified quality."
+msgstr "このパーマネントは指定された性質を持つものからダメージを受けず、エンチャントされず、装備されず、ブロックされず、対象にもされない。"
+
+#: src/lib/cardKeywords.ts:40
+msgid "This permanent can't be destroyed by lethal damage or effects that say “destroy”."
+msgstr "このパーマネントは致死ダメージや「破壊する」と書かれた効果では破壊されない。"
+
+#: src/lib/cardKeywords.ts:35
+msgid "This permanent can't be the target of spells or abilities your opponents control."
+msgstr "このパーマネントは対戦相手がコントロールする呪文や能力の対象にならない。"
+
+#: src/lib/cardKeywords.ts:48
+msgid "This permanent can't be the target of spells or abilities."
+msgstr "このパーマネントは呪文や能力の対象にならない。"
+
 #: src/components/game/RulesPreviewAccessibility.tsx:135
 msgid "To solve"
 msgstr "解明条件"
+
+#: src/lib/cardKeywords.ts:17
+msgid "Trample"
+msgstr "トランプル"
+
+#: src/lib/cardKeywords.ts:72
+msgid "Undying"
+msgstr "不死"
 
 #: src/pixi/cardPreview/previewMechanics.ts:104
 msgid "Unlocked"
@@ -159,3 +331,44 @@ msgstr "開放"
 #: src/components/game/RulesPreviewAccessibility.tsx:143
 msgid "Unsolved · inactive"
 msgstr "未解明 · 無効"
+
+#: src/lib/cardKeywords.ts:15
+msgid "Vigilance"
+msgstr "警戒"
+
+#: src/lib/cardKeywords.ts:45
+msgid "Ward"
+msgstr "護法"
+
+#: src/lib/cardKeywords.ts:69
+msgid "When this creature dies, if it had no -1/-1 counters on it, return it to the battlefield under its owner's control with a -1/-1 counter."
+msgstr "このクリーチャーが死亡したとき、それの上に-1/-1カウンターがなかったなら、それのオーナーのコントロール下で-1/-1カウンター１個が置かれた状態で戦場に戻す。"
+
+#: src/lib/cardKeywords.ts:73
+msgid "When this creature dies, if it had no +1/+1 counters on it, return it to the battlefield under its owner's control with a +1/+1 counter."
+msgstr "このクリーチャーが死亡したとき、それの上に+1/+1カウンターがなかったなら、それのオーナーのコントロール下で+1/+1カウンター１個が置かれた状態で戦場に戻す。"
+
+#: src/lib/cardKeywords.ts:46
+msgid "Whenever an opponent targets this permanent, counter that spell or ability unless they pay its ward cost."
+msgstr "対戦相手がこのパーマネントを対象にするたび、その対戦相手が護法コストを支払わないかぎり、その呪文や能力を打ち消す。"
+
+#: src/lib/cardKeywords.ts:60
+msgid "Whenever you cast a noncreature spell, this creature gets +1/+1 until end of turn."
+msgstr "あなたがクリーチャーでない呪文を唱えるたび、ターン終了時までこのクリーチャーは+1/+1の修整を受ける。"
+
+#: src/lib/cardKeywords.ts:66
+msgid "Wither"
+msgstr "萎縮"
+
+#. placeholder {0}: parameter ?? ""
+#: src/lib/cardKeywords.ts:144
+msgid "You may cast this card from your graveyard by paying {0} instead of its mana cost. If it would leave the stack, exile it instead."
+msgstr "あなたはマナ・コストの代わりに{0}を支払うことで、このカードを墓地から唱えてもよい。それがスタックを離れるなら、代わりに追放する。"
+
+#: src/lib/cardKeywords.ts:81
+msgid "You may cast this card from your graveyard for its flashback cost. If it would leave the stack, exile it instead."
+msgstr "あなたはこのカードをフラッシュバック・コストで墓地から唱えてもよい。それがスタックを離れるなら、代わりに追放する。"
+
+#: src/lib/cardKeywords.ts:43
+msgid "You may cast this spell any time you could cast an instant."
+msgstr "あなたはインスタントを唱えられるときならいつでもこの呪文を唱えてよい。"

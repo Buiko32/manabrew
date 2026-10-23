@@ -74,6 +74,12 @@ import { containsPreviewHoverBridge } from "@/pixi/cardPreview/previewHoverArea"
 import { msg } from "@lingui/core/macro";
 import { i18n } from "@/i18n/i18n";
 import { parseManaCost } from "@/pixi/manaSymbols";
+import { resolveCardKeyword } from "@/lib/cardKeywords";
+import {
+  bindPixiKeywordTooltip,
+  cancelPixiKeywordTooltips,
+  cleanupPixiKeywordTooltips,
+} from "@/pixi/KeywordTooltip";
 import {
   CARD_PREVIEW_EDGE_PAD as EDGE_PAD,
   computePreviewLayout,
@@ -242,6 +248,7 @@ export class RulesCardPreviewLayer {
   private projectedRasterHeight = 0;
   private rasterFlipping = false;
   private unsubscribeLocale: () => void;
+  private unsubscribeKeywordLocale: () => void;
   private renderState: "loading" | "ready" | "error" = "loading";
   private preserveArtwork = false;
   private scanOverlay = false;
@@ -336,6 +343,12 @@ export class RulesCardPreviewLayer {
       void this.loadCardInfo();
       void this.loadFace();
     });
+    const refreshKeywords = () => {
+      if (!this.spec || this.container.destroyed) return;
+      this.rebuild();
+      this.callbacks.onRenderRequested();
+    };
+    this.unsubscribeKeywordLocale = i18n.on("change", refreshKeywords);
 
     const requestRender = () => this.callbacks.onRenderRequested();
     this.actions.on("pointerover", requestRender);
@@ -797,6 +810,7 @@ export class RulesCardPreviewLayer {
   }
 
   private rebuild(): void {
+    cleanupPixiKeywordTooltips(this);
     const spec = this.spec;
     if (!spec || this.viewportWidth <= 0 || this.viewportHeight <= 0) return;
     this.highlightedEffectTween?.kill();
@@ -1087,7 +1101,7 @@ export class RulesCardPreviewLayer {
       y = this.addActionRows(body, upfrontActions, y, primary);
       if (primary) {
         if (display.keywords.length > 0)
-          y = this.addKeywordChips(body, display.keywords, y) + SECTION_GAP;
+          y = this.addKeywordChips(body, display.keywords, display.keywordSources, y) + SECTION_GAP;
         const suspended = suspendState(spec.card);
         if (suspended) y = this.addStaticAbilityRow(body, suspended, y);
         if (spec.card.isOnAdventure === true)
@@ -1353,11 +1367,25 @@ export class RulesCardPreviewLayer {
     });
   }
 
-  private addKeywordChips(body: RulesPreviewBody, keywords: string[], y: number): number {
+  private addKeywordChips(
+    body: RulesPreviewBody,
+    keywords: string[],
+    sources: string[],
+    y: number,
+  ): number {
     let x = 0;
     let rowHeight = 0;
-    for (const keyword of keywords) {
-      const text = keyword.toUpperCase();
+    for (const [index, keyword] of keywords.entries()) {
+      const source = sources[index] ?? keyword;
+      const resolved = resolveCardKeyword(source, keyword);
+      const costSymbols = resolved.manaCost
+        ? parseManaCost(resolved.manaCost)
+            .map((code) => `{${code}}`)
+            .join("")
+        : "";
+      const text = resolved.description
+        ? `${resolved.label.toUpperCase()}${costSymbols ? ` ${costSymbols}` : resolved.parameter && resolved.name !== "Flashback" ? ` ${resolved.parameter}` : ""}`
+        : `${keyword}${resolved.parameter && !resolved.manaCost ? ` ${resolved.parameter}` : ""}`;
       if (!text) continue;
       const content = new PixiRichText();
       const textHeight = content.setContent(
@@ -1381,6 +1409,21 @@ export class RulesCardPreviewLayer {
       content.position.set(7, (height - textHeight) / 2);
       chip.position.set(x, y);
       chip.addChild(background, content);
+      if (resolved.description) {
+        chip.eventMode = "static";
+        chip.cursor = "help";
+        chip.hitArea = new Rectangle(0, 0, width, height);
+        chip.name = "keyword-help-chip";
+        bindPixiKeywordTooltip(
+          chip,
+          this,
+          `${this.spec?.card.id ?? "preview"}:${source}`,
+          resolved.label,
+          resolved.description,
+        );
+      } else {
+        chip.eventMode = "none";
+      }
       body.content.addChild(chip);
       x += width + 5;
       rowHeight = Math.max(rowHeight, height);
@@ -2144,6 +2187,7 @@ export class RulesCardPreviewLayer {
   }
 
   private hide(preserveHover = false): void {
+    cancelPixiKeywordTooltips(this);
     this.foil?.setEnabled(false);
     this.flip.cancel();
     gsap.killTweensOf(this.container);
@@ -2170,6 +2214,8 @@ export class RulesCardPreviewLayer {
 
   destroy(): void {
     this.unsubscribePreferences();
+    this.unsubscribeKeywordLocale();
+    cleanupPixiKeywordTooltips(this);
     if (this.spec?.flip) this.spec.flip.handleRef.current = null;
     this.clearHover();
     this.hide();

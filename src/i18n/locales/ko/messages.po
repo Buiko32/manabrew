@@ -14,7 +14,7 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. placeholder {0}: display.stats.damage
-#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1302
+#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1316
 msgid "{0} damage"
 msgstr "피해 {0}"
 
@@ -22,6 +22,14 @@ msgstr "피해 {0}"
 #: src/pixi/cardPreview/previewMechanics.ts:106
 msgid "Active level"
 msgstr "활성 레벨"
+
+#: src/lib/cardKeywords.ts:26
+msgid "Any amount of damage this creature deals to a creature is enough to destroy it."
+msgstr "이 생물이 다른 생물에게 입히는 피해는 어느 양이든 그 생물을 파괴하기에 충분하다."
+
+#: src/lib/cardKeywords.ts:15
+msgid "Attacking doesn't cause this creature to tap."
+msgstr "공격해도 이 생물은 탭되지 않는다."
 
 #: src/components/game/RulesPreviewAccessibility.tsx:133
 msgid "Base ability"
@@ -33,7 +41,7 @@ msgstr "현재 특성"
 
 #. placeholder {0}: display.stats.power
 #. placeholder {1}: display.stats.toughness
-#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1102
+#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1116
 msgid "Current P/T: {0}/{1}"
 msgstr "현재 공격력/방어력: {0}/{1}"
 
@@ -41,35 +49,99 @@ msgstr "현재 공격력/방어력: {0}/{1}"
 msgid "Current power and toughness"
 msgstr "현재 공격력 및 방어력"
 
-#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1692
+#: src/lib/cardKeywords.ts:22
+msgid "Damage dealt by this permanent also causes its controller to gain that much life."
+msgstr "이 지속물이 입히는 피해만큼 그 조종자는 생명점을 얻는다."
+
+#: src/lib/cardKeywords.ts:64
+msgid "Damage from this source gives players poison counters and is dealt to creatures as -1/-1 counters."
+msgstr "이 원천의 피해는 플레이어에게 독 카운터를 주고 생물에게는 -1/-1 카운터의 형태로 입혀진다."
+
+#: src/lib/cardKeywords.ts:66
+msgid "Damage from this source is dealt to creatures as -1/-1 counters."
+msgstr "이 원천의 피해는 생물에게 -1/-1 카운터의 형태로 입혀진다."
+
+#: src/lib/cardKeywords.ts:25
+msgid "Deathtouch"
+msgstr "치명타"
+
+#: src/lib/cardKeywords.ts:42
+msgid "Defender"
+msgstr "수비태세"
+
+#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1735
 msgid "Defense"
 msgstr "방어"
+
+#: src/lib/cardKeywords.ts:12
+msgid "Double strike"
+msgstr "이단공격"
 
 #: src/pixi/cardPreview/PixiCardRailPreview.ts:169
 #: src/pixi/cardPreview/PixiCardRailPreview.ts:241
 msgid "Effect text unavailable"
 msgstr "효과 텍스트를 사용할 수 없음"
 
-#: src/pixi/cardPreview/rulesCardPreviewPresentation.ts:625
+#: src/pixi/cardPreview/rulesCardPreviewPresentation.ts:638
 msgid "Face-down card"
 msgstr "뒷면인 카드"
 
-#: src/pixi/cardPreview/rulesCardPreviewPresentation.ts:627
+#: src/pixi/cardPreview/rulesCardPreviewPresentation.ts:640
 msgid "Face-down permanent"
 msgstr "뒷면인 영구물"
 
-#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1274
+#: src/lib/cardKeywords.ts:50
+msgid "Fear"
+msgstr "공포"
+
+#: src/lib/cardKeywords.ts:8
+msgid "First strike"
+msgstr "선제공격"
+
+#: src/lib/cardKeywords.ts:43
+msgid "Flash"
+msgstr "섬광"
+
+#: src/lib/cardKeywords.ts:80
+msgid "Flashback"
+msgstr "회상"
+
+#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1288
 msgid "Flip back · F"
 msgstr "뒷면으로 뒤집기 · F"
 
-#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1274
+#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1288
 msgid "Flip front · F"
 msgstr "앞면으로 뒤집기 · F"
+
+#: src/lib/cardKeywords.ts:6
+msgid "Flying"
+msgstr "비행"
+
+#: src/lib/cardKeywords.ts:30
+msgid "Haste"
+msgstr "신속"
+
+#: src/lib/cardKeywords.ts:34
+msgid "Hexproof"
+msgstr "방호"
 
 #: src/components/game/RulesPreviewAccessibility.tsx:93
 #: src/pixi/cardPreview/previewMechanics.ts:106
 msgid "Inactive level"
 msgstr "비활성 레벨"
+
+#: src/lib/cardKeywords.ts:39
+msgid "Indestructible"
+msgstr "무적"
+
+#: src/lib/cardKeywords.ts:63
+msgid "Infect"
+msgstr "감염"
+
+#: src/lib/cardKeywords.ts:54
+msgid "Intimidate"
+msgstr "위협"
 
 #: src/components/game/RulesPreviewAccessibility.tsx:88
 msgid "Level"
@@ -80,17 +152,25 @@ msgstr "레벨"
 msgid "Level {0}"
 msgstr "레벨 {0}"
 
+#: src/lib/cardKeywords.ts:21
+msgid "Lifelink"
+msgstr "생명연결"
+
 #: src/pixi/cardPreview/previewMechanics.ts:104
 msgid "Locked"
 msgstr "잠김"
 
-#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1691
+#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1734
 msgid "Loyalty"
 msgstr "충성도"
 
 #: src/components/game/RulesPreviewAccessibility.tsx:118
 msgid "Mana cost"
 msgstr "마나 비용"
+
+#: src/lib/cardKeywords.ts:37
+msgid "Menace"
+msgstr "호전적"
 
 #: src/components/game/RulesPreviewAccessibility.tsx:82
 msgid "Not prototyped"
@@ -104,19 +184,23 @@ msgstr "유예 중이 아님"
 msgid "On an Adventure"
 msgstr "모험 중"
 
-#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1096
+#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1110
 msgid "On an Adventure · available actions are listed on their spell half"
 msgstr "모험 중 · 가능한 행동은 주문 쪽에 표시됩니다"
 
-#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1290
+#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1304
 msgid "Original printing · generated frame unavailable"
 msgstr ""
+
+#: src/lib/cardKeywords.ts:68
+msgid "Persist"
+msgstr "끈기"
 
 #: src/pixi/cardPreview/previewMechanics.ts:108
 msgid "Printed alternative"
 msgstr "인쇄된 대체 특성"
 
-#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1288
+#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1302
 msgid "Printed face · live state belongs to the other face"
 msgstr "인쇄된 면 · 현재 상태는 반대쪽 면에 적용됩니다"
 
@@ -124,13 +208,33 @@ msgstr "인쇄된 면 · 현재 상태는 반대쪽 면에 적용됩니다"
 msgid "Printed power and toughness"
 msgstr "인쇄된 공격력 및 방어력"
 
-#: src/pixi/cardPreview/rulesCardPreviewPresentation.ts:653
+#: src/lib/cardKeywords.ts:76
+msgid "Protection"
+msgstr "보호"
+
+#: src/pixi/cardPreview/rulesCardPreviewPresentation.ts:667
 msgid "Prototype"
 msgstr "프로토타입"
 
 #: src/components/game/RulesPreviewAccessibility.tsx:82
 msgid "Prototyped"
 msgstr "프로토타입 적용"
+
+#: src/lib/cardKeywords.ts:59
+msgid "Prowess"
+msgstr "기량"
+
+#: src/lib/cardKeywords.ts:28
+msgid "Reach"
+msgstr "대공"
+
+#: src/lib/cardKeywords.ts:48
+msgid "Shroud"
+msgstr "은신"
+
+#: src/lib/cardKeywords.ts:57
+msgid "Skulk"
+msgstr "잠복"
 
 #: src/components/game/RulesPreviewAccessibility.tsx:142
 msgid "Solved · active"
@@ -148,9 +252,77 @@ msgstr "유예 중"
 msgid "Suspended · {time} time counters"
 msgstr "유예 중 · 시간 카운터 {time}개"
 
+#: src/lib/cardKeywords.ts:18
+msgid "This creature can assign excess combat damage to the player, planeswalker, or battle it's attacking."
+msgstr "이 생물은 초과 전투 피해를 자신이 공격 중인 플레이어, 플레인즈워커 또는 전투에 배정할 수 있다."
+
+#: src/lib/cardKeywords.ts:31
+msgid "This creature can attack and use tap abilities even if it hasn't been under your control since your turn began."
+msgstr "당신의 턴이 시작될 때부터 당신이 조종하지 않았더라도 이 생물은 공격하고 탭 능력을 활성화할 수 있다."
+
+#: src/lib/cardKeywords.ts:6
+msgid "This creature can be blocked only by creatures with flying or reach."
+msgstr "이 생물은 비행이나 대공을 가진 생물로만 방어될 수 있다."
+
+#: src/lib/cardKeywords.ts:28
+msgid "This creature can block creatures with flying."
+msgstr "이 생물은 비행을 가진 생물을 방어할 수 있다."
+
+#: src/lib/cardKeywords.ts:42
+msgid "This creature can't attack."
+msgstr "이 생물은 공격할 수 없다."
+
+#: src/lib/cardKeywords.ts:57
+msgid "This creature can't be blocked by creatures with greater power."
+msgstr "이 생물은 더 높은 공격력을 가진 생물에게 방어될 수 없다."
+
+#: src/lib/cardKeywords.ts:51
+msgid "This creature can't be blocked except by artifact creatures and black creatures."
+msgstr "이 생물은 마법물체 생물 및 흑색 생물로만 방어될 수 있다."
+
+#: src/lib/cardKeywords.ts:55
+msgid "This creature can't be blocked except by artifact creatures and creatures that share a color with it."
+msgstr "이 생물은 마법물체 생물 및 이 생물과 색을 공유하는 생물로만 방어될 수 있다."
+
+#: src/lib/cardKeywords.ts:37
+msgid "This creature can't be blocked except by two or more creatures."
+msgstr "이 생물은 두 개 이상의 생물로만 방어될 수 있다."
+
+#: src/lib/cardKeywords.ts:13
+msgid "This creature deals both first-strike and regular combat damage."
+msgstr "이 생물은 선제공격 전투 피해와 일반 전투 피해를 모두 입힌다."
+
+#: src/lib/cardKeywords.ts:9
+msgid "This creature deals combat damage before creatures without first strike or double strike."
+msgstr "이 생물은 선제공격이나 이단공격이 없는 생물보다 먼저 전투 피해를 입힌다."
+
+#: src/lib/cardKeywords.ts:77
+msgid "This permanent can't be damaged, enchanted, equipped, blocked, or targeted by anything with the specified quality."
+msgstr "이 지속물은 명시된 특성을 가진 것에 피해받거나, 마법진에 부여되거나, 장착되거나, 방어되거나, 목표가 될 수 없다."
+
+#: src/lib/cardKeywords.ts:40
+msgid "This permanent can't be destroyed by lethal damage or effects that say “destroy”."
+msgstr "이 지속물은 치명적인 피해나 “파괴한다”라고 명시된 효과로 파괴될 수 없다."
+
+#: src/lib/cardKeywords.ts:35
+msgid "This permanent can't be the target of spells or abilities your opponents control."
+msgstr "이 지속물은 상대가 조종하는 주문이나 능력의 목표가 될 수 없다."
+
+#: src/lib/cardKeywords.ts:48
+msgid "This permanent can't be the target of spells or abilities."
+msgstr "이 지속물은 주문이나 능력의 목표가 될 수 없다."
+
 #: src/components/game/RulesPreviewAccessibility.tsx:135
 msgid "To solve"
 msgstr "해결 조건"
+
+#: src/lib/cardKeywords.ts:17
+msgid "Trample"
+msgstr "돌진"
+
+#: src/lib/cardKeywords.ts:72
+msgid "Undying"
+msgstr "불사"
 
 #: src/pixi/cardPreview/previewMechanics.ts:104
 msgid "Unlocked"
@@ -159,3 +331,44 @@ msgstr "잠금 해제됨"
 #: src/components/game/RulesPreviewAccessibility.tsx:143
 msgid "Unsolved · inactive"
 msgstr "미해결 · 비활성"
+
+#: src/lib/cardKeywords.ts:15
+msgid "Vigilance"
+msgstr "경계"
+
+#: src/lib/cardKeywords.ts:45
+msgid "Ward"
+msgstr "보호진"
+
+#: src/lib/cardKeywords.ts:69
+msgid "When this creature dies, if it had no -1/-1 counters on it, return it to the battlefield under its owner's control with a -1/-1 counter."
+msgstr "이 생물이 죽을 때, 이 생물에 -1/-1 카운터가 없었다면 소유자의 조종하에 -1/-1 카운터 한 개를 올려 전장으로 되돌린다."
+
+#: src/lib/cardKeywords.ts:73
+msgid "When this creature dies, if it had no +1/+1 counters on it, return it to the battlefield under its owner's control with a +1/+1 counter."
+msgstr "이 생물이 죽을 때, 이 생물에 +1/+1 카운터가 없었다면 소유자의 조종하에 +1/+1 카운터 한 개를 올려 전장으로 되돌린다."
+
+#: src/lib/cardKeywords.ts:46
+msgid "Whenever an opponent targets this permanent, counter that spell or ability unless they pay its ward cost."
+msgstr "상대가 이 지속물을 목표로 정할 때마다, 그 상대가 보호진 비용을 지불하지 않으면 그 주문이나 능력을 무효화한다."
+
+#: src/lib/cardKeywords.ts:60
+msgid "Whenever you cast a noncreature spell, this creature gets +1/+1 until end of turn."
+msgstr "당신이 생물이 아닌 주문을 발동할 때마다, 이 생물은 턴종료까지 +1/+1을 받는다."
+
+#: src/lib/cardKeywords.ts:66
+msgid "Wither"
+msgstr "위축"
+
+#. placeholder {0}: parameter ?? ""
+#: src/lib/cardKeywords.ts:144
+msgid "You may cast this card from your graveyard by paying {0} instead of its mana cost. If it would leave the stack, exile it instead."
+msgstr "당신은 마나 비용 대신 {0}를 지불해 이 카드를 무덤에서 발동할 수 있다. 이 카드가 스택을 떠나려 한다면 대신 추방한다."
+
+#: src/lib/cardKeywords.ts:81
+msgid "You may cast this card from your graveyard for its flashback cost. If it would leave the stack, exile it instead."
+msgstr "당신은 이 카드를 회상 비용으로 무덤에서 발동할 수 있다. 이 카드가 스택을 떠나려 한다면 대신 추방한다."
+
+#: src/lib/cardKeywords.ts:43
+msgid "You may cast this spell any time you could cast an instant."
+msgstr "당신은 집중마법을 발동할 수 있는 시점이면 언제든 이 주문을 발동할 수 있다."
