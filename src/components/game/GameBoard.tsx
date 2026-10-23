@@ -726,7 +726,7 @@ export function GameBoard({
   const [unifiedLayout, setUnifiedLayout] = useState<BoardCanvasLayout | null>(null);
   const localSceneRef = useRef<BoardScene | null>(null);
   const sceneRef = boardSceneRef ?? localSceneRef;
-  const { appTheme, gameTheme } = useTheme();
+  const { gameTheme } = useTheme();
   const playerColors = gameTheme.playerColors;
   const activeOpponentIndex = opponents.findIndex((opponent) => opponent.id === activePlayerId);
   const activeOpponentSeat = OPPONENT_SEATS[activeOpponentIndex];
@@ -997,7 +997,7 @@ export function GameBoard({
               {
                 id: "controlled-player",
                 icon: "overlord-helm",
-                color: appTheme.primary,
+                color: gameTheme.activeAction.active,
                 label: `Controlled by ${controlledByName}`,
               },
             ]
@@ -1069,7 +1069,7 @@ export function GameBoard({
               {
                 id: "player-keyword",
                 icon: "round-shield",
-                color: appTheme.primary,
+                color: gameTheme.activeAction.active,
                 label: playerKeywords.join(" · "),
               },
             ]
@@ -1261,7 +1261,6 @@ export function GameBoard({
     gameTheme.badges,
     gameTheme.pt,
     gameTheme.activeAction.active,
-    appTheme.primary,
     gameTheme.promptAction.defenseAction,
     gameTheme.textMuted,
     devOverrides,
