@@ -186,7 +186,7 @@ async function initializeGame({
       gameConfig: { formatId: selectedFormatId, startingLife },
       isPrefetchingCards: true,
       cardPrefetchProgress: null,
-      cardRenderProgress: null,
+      isRenderingCards: false,
       debugInfo: "Starting Forge engine...",
     });
     let hosted: Awaited<ReturnType<typeof launchForge>> | null = null;
@@ -282,7 +282,7 @@ async function initializeGame({
     gameDecks,
     isPrefetchingCards: true,
     cardPrefetchProgress: null,
-    cardRenderProgress: null,
+    isRenderingCards: false,
     debugInfo: "Starting engine...",
   });
   const engineLabel = engine === "Forge" ? "forge-wasm" : localEngineLabel();
@@ -355,7 +355,7 @@ export const useGameStore = create<GameState>()(
       ironsmithDeckError: null,
       isPrefetchingCards: false,
       cardPrefetchProgress: null,
-      cardRenderProgress: null,
+      isRenderingCards: false,
       deferredQueue: [],
       isFlashing: false,
       isWaitingForResponse: false,
@@ -574,7 +574,7 @@ export const useGameStore = create<GameState>()(
             debugInfo: "Starting multiplayer game...",
             isPrefetchingCards: true,
             cardPrefetchProgress: null,
-            cardRenderProgress: null,
+            isRenderingCards: false,
             gameDecks,
           });
           const limited = useMultiplayerLimitedStore.getState();

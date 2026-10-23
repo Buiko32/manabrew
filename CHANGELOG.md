@@ -1,5 +1,23 @@
 # Changelog
 
+## [3.64.6](https://github.com/witchesofthehill/manabrew/compare/v3.64.5...v3.64.6) (2026-10-23)
+
+### Fixes
+
+* x targeting action space ([#1116](https://github.com/witchesofthehill/manabrew/issues/1116)) ([f690093](https://github.com/witchesofthehill/manabrew/commit/f69009369c303e14e6e702e2e44270d1965c8bbb))
+
+## [3.64.5](https://github.com/witchesofthehill/manabrew/compare/v3.64.4...v3.64.5) (2026-10-23)
+
+### Fixes
+
+* aggressive preloading ([#1115](https://github.com/witchesofthehill/manabrew/issues/1115)) ([c72d014](https://github.com/witchesofthehill/manabrew/commit/c72d0146c348ad1a7ee1758a21be637c6eaba3da))
+
+## [3.64.4](https://github.com/witchesofthehill/manabrew/compare/v3.64.3...v3.64.4) (2026-10-23)
+
+### Fixes
+
+* bug ([#1108](https://github.com/witchesofthehill/manabrew/issues/1108)) ([00ef493](https://github.com/witchesofthehill/manabrew/commit/00ef493b70ec6397dd323ba35aaf2473e17043e7))
+
 ## [3.64.3](https://github.com/witchesofthehill/manabrew/compare/v3.64.2...v3.64.3) (2026-10-22)
 
 ### Fixes
@@ -46,6 +64,7 @@
 
 ### Fixes
 
+* Allow combat damage to be divided freely among blockers under current Magic rules, while preserving lethal-damage requirements for trample.
 * Preserve each Room, split and aftermath half's frame color instead of inheriting the whole card's combined colors in hand and stack previews.
 * Highlight unlocked Room doors and the door represented on the stack in both card views, with outlines that include the collector strip.
 * Preserve localized Prototype abilities and reminders, including Japanese line wrapping.
