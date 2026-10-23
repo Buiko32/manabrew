@@ -27,11 +27,11 @@ export function RightActionPanel({
 }: RightActionPanelProps) {
   const mobile = useIsMobileGame();
   const visibleLog = gameLog.filter((entry) => entry.entryType !== "rule");
+  const latestLog = visibleLog.at(-1);
   const forceLogActivityOverride = useGameDevStore(
     (state) => state.gameStateOverrides.forceLogActivity,
   );
   const storedActiveTab = useGameUIStore((s) => s.rightPanelTab);
-  const unreadAutoResolutionCount = useGameUIStore((s) => s.unreadAutoResolutionCount);
   const activeTab = storedActiveTab === "dev" && !import.meta.env.DEV ? "log" : storedActiveTab;
   const setActiveTab = useGameUIStore((s) => s.setRightPanelTab);
   const forceLogActivity = import.meta.env.DEV && forceLogActivityOverride;
@@ -54,19 +54,28 @@ export function RightActionPanel({
   }, [collapsed, onLeftEdgeChange]);
 
   if (collapsed) {
-    return (
+    if (mobile) {
+      return latestLog ? (
+        <button
+          type="button"
+          className="absolute left-1/2 top-[calc(0.5rem+var(--safe-area-inset-top))] z-50 flex min-h-11 max-w-[min(75vw,30rem)] -translate-x-1/2 items-center gap-2 rounded-full border border-border/80 bg-card/95 px-3 font-game text-xs font-semibold text-foreground shadow-lg backdrop-blur-sm active:scale-[0.98]"
+          title={latestLog.message}
+          aria-label={`Open action log. Last action: ${latestLog.message}`}
+          onClick={() => {
+            setActiveTab("log");
+            rawToggle();
+          }}
+        >
+          <ScrollText className="h-4 w-4 shrink-0 text-primary" />
+          <span className="truncate">{latestLog.message}</span>
+        </button>
+      ) : null;
+    }
+    return logActivityCount > 0 ? (
       <button
         type="button"
-        className={cn(
-          "absolute z-50 flex min-h-11 items-center gap-2 rounded-full border bg-card/95 px-3 py-2 font-game text-xs font-semibold text-foreground shadow-lg backdrop-blur-sm transition-colors hover:bg-accent active:scale-[0.98]",
-          mobile
-            ? "left-1/2 top-[calc(0.5rem+var(--safe-area-inset-top))] -translate-x-1/2"
-            : "right-[calc(0.75rem+var(--safe-area-inset-right))] top-[calc(0.75rem+var(--safe-area-inset-top))]",
-          unreadAutoResolutionCount > 0
-            ? "border-primary/70 ring-2 ring-primary/40"
-            : "border-border/80",
-        )}
-        aria-label={`Open action log${unreadAutoResolutionCount > 0 ? `, ${unreadAutoResolutionCount} unread automatic resolutions` : ""}`}
+        className="absolute right-[calc(0.75rem+var(--safe-area-inset-right))] top-[calc(0.75rem+var(--safe-area-inset-top))] z-50 flex items-center gap-2 rounded-full border border-primary/50 bg-card/95 px-3 py-2 font-game text-xs font-semibold text-foreground shadow-lg backdrop-blur-sm transition-colors hover:bg-accent"
+        aria-label={`Open action log with ${logActivityCount} entries`}
         onClick={() => {
           setActiveTab("log");
           rawToggle();
@@ -74,13 +83,11 @@ export function RightActionPanel({
       >
         <ScrollText className="h-4 w-4 text-primary" />
         Log
-        {unreadAutoResolutionCount > 0 ? (
-          <span className="min-w-5 rounded-full bg-primary px-1.5 py-0.5 text-[10px] font-semibold tabular-nums lining-nums text-primary-foreground">
-            {unreadAutoResolutionCount}
-          </span>
-        ) : null}
+        <span className="min-w-5 rounded-full bg-primary px-1.5 py-0.5 text-[10px] font-semibold tabular-nums lining-nums text-primary-foreground">
+          {logActivityCount}
+        </span>
       </button>
-    );
+    ) : null;
   }
 
   return (
