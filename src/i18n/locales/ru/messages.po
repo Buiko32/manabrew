@@ -14,7 +14,7 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. placeholder {0}: display.stats.damage
-#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1312
+#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1316
 msgid "{0} damage"
 msgstr "{0} урона"
 
@@ -41,7 +41,7 @@ msgstr "Текущие характеристики"
 
 #. placeholder {0}: display.stats.power
 #. placeholder {1}: display.stats.toughness
-#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1112
+#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1116
 msgid "Current P/T: {0}/{1}"
 msgstr "Текущая сила/выносливость: {0}/{1}"
 
@@ -69,7 +69,7 @@ msgstr "Смертельное касание"
 msgid "Defender"
 msgstr "Защитник"
 
-#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1725
+#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1735
 msgid "Defense"
 msgstr "Защита"
 
@@ -106,11 +106,11 @@ msgstr "Мгновенность"
 msgid "Flashback"
 msgstr "Воспоминание"
 
-#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1284
+#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1288
 msgid "Flip back · F"
 msgstr "Оборотная сторона · F"
 
-#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1284
+#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1288
 msgid "Flip front · F"
 msgstr "Лицевая сторона · F"
 
@@ -160,7 +160,7 @@ msgstr "Связь жизней"
 msgid "Locked"
 msgstr "Заперто"
 
-#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1724
+#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1734
 msgid "Loyalty"
 msgstr "Верность"
 
@@ -184,11 +184,11 @@ msgstr "Не на отсрочке"
 msgid "On an Adventure"
 msgstr "В приключении"
 
-#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1106
+#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1110
 msgid "On an Adventure · available actions are listed on their spell half"
 msgstr "В приключении · доступные действия указаны на половине заклинания"
 
-#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1300
+#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1304
 msgid "Original printing · generated frame unavailable"
 msgstr ""
 
@@ -200,7 +200,7 @@ msgstr "Упорство"
 msgid "Printed alternative"
 msgstr "Альтернативные печатные характеристики"
 
-#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1298
+#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1302
 msgid "Printed face · live state belongs to the other face"
 msgstr "Печатная сторона · текущее состояние относится к другой стороне"
 
@@ -360,9 +360,10 @@ msgstr "Каждый раз, когда вы разыгрываете не яв�
 msgid "Wither"
 msgstr "Увядание"
 
+#. placeholder {0}: parameter ?? ""
 #: src/lib/cardKeywords.ts:144
-msgid "You may cast this card from your graveyard by paying {parameter} instead of its mana cost. If it would leave the stack, exile it instead."
-msgstr "Вы можете разыграть эту карту из вашего кладбища, заплатив {parameter} вместо ее стоимости маны. Если она должна покинуть стек, вместо этого изгоните ее."
+msgid "You may cast this card from your graveyard by paying {0} instead of its mana cost. If it would leave the stack, exile it instead."
+msgstr "Вы можете разыграть эту карту из вашего кладбища, заплатив {0} вместо ее стоимости маны. Если она должна покинуть стек, вместо этого изгоните ее."
 
 #: src/lib/cardKeywords.ts:81
 msgid "You may cast this card from your graveyard for its flashback cost. If it would leave the stack, exile it instead."

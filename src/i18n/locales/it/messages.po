@@ -14,7 +14,7 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. placeholder {0}: display.stats.damage
-#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1312
+#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1316
 msgid "{0} damage"
 msgstr "{0} danni"
 
@@ -41,7 +41,7 @@ msgstr "Caratteristiche attuali"
 
 #. placeholder {0}: display.stats.power
 #. placeholder {1}: display.stats.toughness
-#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1112
+#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1116
 msgid "Current P/T: {0}/{1}"
 msgstr "F/C attuali: {0}/{1}"
 
@@ -69,7 +69,7 @@ msgstr "Tocco letale"
 msgid "Defender"
 msgstr "Difensore"
 
-#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1725
+#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1735
 msgid "Defense"
 msgstr "Difesa"
 
@@ -106,11 +106,11 @@ msgstr "Lampo"
 msgid "Flashback"
 msgstr "Flashback"
 
-#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1284
+#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1288
 msgid "Flip back · F"
 msgstr "Mostra il retro · F"
 
-#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1284
+#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1288
 msgid "Flip front · F"
 msgstr "Mostra il fronte · F"
 
@@ -160,7 +160,7 @@ msgstr "Legame vitale"
 msgid "Locked"
 msgstr "Bloccata"
 
-#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1724
+#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1734
 msgid "Loyalty"
 msgstr "Fedeltà"
 
@@ -184,11 +184,11 @@ msgstr "Non sospesa"
 msgid "On an Adventure"
 msgstr "In un'Avventura"
 
-#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1106
+#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1110
 msgid "On an Adventure · available actions are listed on their spell half"
 msgstr "In un'Avventura · le azioni disponibili sono indicate sulla metà magia"
 
-#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1300
+#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1304
 msgid "Original printing · generated frame unavailable"
 msgstr ""
 
@@ -200,7 +200,7 @@ msgstr "Persistere"
 msgid "Printed alternative"
 msgstr "Alternativa stampata"
 
-#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1298
+#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1302
 msgid "Printed face · live state belongs to the other face"
 msgstr "Faccia stampata · lo stato attuale corrisponde all'altra faccia"
 
@@ -360,9 +360,10 @@ msgstr "Ogniqualvolta lanci una magia non creatura, questa creatura prende +1/+1
 msgid "Wither"
 msgstr "Avvizzire"
 
+#. placeholder {0}: parameter ?? ""
 #: src/lib/cardKeywords.ts:144
-msgid "You may cast this card from your graveyard by paying {parameter} instead of its mana cost. If it would leave the stack, exile it instead."
-msgstr "Puoi lanciare questa carta dal tuo cimitero pagando {parameter} invece del suo costo di mana. Se sta per lasciare la pila, invece esiliala."
+msgid "You may cast this card from your graveyard by paying {0} instead of its mana cost. If it would leave the stack, exile it instead."
+msgstr "Puoi lanciare questa carta dal tuo cimitero pagando {0} invece del suo costo di mana. Se sta per lasciare la pila, invece esiliala."
 
 #: src/lib/cardKeywords.ts:81
 msgid "You may cast this card from your graveyard for its flashback cost. If it would leave the stack, exile it instead."

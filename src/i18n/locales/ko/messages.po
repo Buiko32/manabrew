@@ -14,7 +14,7 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. placeholder {0}: display.stats.damage
-#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1312
+#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1316
 msgid "{0} damage"
 msgstr "피해 {0}"
 
@@ -41,7 +41,7 @@ msgstr "현재 특성"
 
 #. placeholder {0}: display.stats.power
 #. placeholder {1}: display.stats.toughness
-#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1112
+#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1116
 msgid "Current P/T: {0}/{1}"
 msgstr "현재 공격력/방어력: {0}/{1}"
 
@@ -69,7 +69,7 @@ msgstr "치명타"
 msgid "Defender"
 msgstr "수비태세"
 
-#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1725
+#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1735
 msgid "Defense"
 msgstr "방어"
 
@@ -106,11 +106,11 @@ msgstr "섬광"
 msgid "Flashback"
 msgstr "회상"
 
-#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1284
+#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1288
 msgid "Flip back · F"
 msgstr "뒷면으로 뒤집기 · F"
 
-#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1284
+#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1288
 msgid "Flip front · F"
 msgstr "앞면으로 뒤집기 · F"
 
@@ -160,7 +160,7 @@ msgstr "생명연결"
 msgid "Locked"
 msgstr "잠김"
 
-#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1724
+#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1734
 msgid "Loyalty"
 msgstr "충성도"
 
@@ -184,11 +184,11 @@ msgstr "유예 중이 아님"
 msgid "On an Adventure"
 msgstr "모험 중"
 
-#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1106
+#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1110
 msgid "On an Adventure · available actions are listed on their spell half"
 msgstr "모험 중 · 가능한 행동은 주문 쪽에 표시됩니다"
 
-#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1300
+#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1304
 msgid "Original printing · generated frame unavailable"
 msgstr ""
 
@@ -200,7 +200,7 @@ msgstr "끈기"
 msgid "Printed alternative"
 msgstr "인쇄된 대체 특성"
 
-#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1298
+#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1302
 msgid "Printed face · live state belongs to the other face"
 msgstr "인쇄된 면 · 현재 상태는 반대쪽 면에 적용됩니다"
 
@@ -360,9 +360,10 @@ msgstr "당신이 생물이 아닌 주문을 발동할 때마다, 이 생물은 
 msgid "Wither"
 msgstr "위축"
 
+#. placeholder {0}: parameter ?? ""
 #: src/lib/cardKeywords.ts:144
-msgid "You may cast this card from your graveyard by paying {parameter} instead of its mana cost. If it would leave the stack, exile it instead."
-msgstr "당신은 마나 비용 대신 {parameter}를 지불해 이 카드를 무덤에서 발동할 수 있다. 이 카드가 스택을 떠나려 한다면 대신 추방한다."
+msgid "You may cast this card from your graveyard by paying {0} instead of its mana cost. If it would leave the stack, exile it instead."
+msgstr "당신은 마나 비용 대신 {0}를 지불해 이 카드를 무덤에서 발동할 수 있다. 이 카드가 스택을 떠나려 한다면 대신 추방한다."
 
 #: src/lib/cardKeywords.ts:81
 msgid "You may cast this card from your graveyard for its flashback cost. If it would leave the stack, exile it instead."

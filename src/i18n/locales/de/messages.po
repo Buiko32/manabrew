@@ -14,7 +14,7 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. placeholder {0}: display.stats.damage
-#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1312
+#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1316
 msgid "{0} damage"
 msgstr "{0} Schaden"
 
@@ -41,7 +41,7 @@ msgstr "Aktuelle Eigenschaften"
 
 #. placeholder {0}: display.stats.power
 #. placeholder {1}: display.stats.toughness
-#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1112
+#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1116
 msgid "Current P/T: {0}/{1}"
 msgstr "Aktuelle S/W: {0}/{1}"
 
@@ -69,7 +69,7 @@ msgstr "Todesberührung"
 msgid "Defender"
 msgstr "Verteidiger"
 
-#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1725
+#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1735
 msgid "Defense"
 msgstr "Verteidigung"
 
@@ -106,11 +106,11 @@ msgstr "Aufblitzen"
 msgid "Flashback"
 msgstr "Rückblende"
 
-#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1284
+#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1288
 msgid "Flip back · F"
 msgstr "Rückseite zeigen · F"
 
-#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1284
+#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1288
 msgid "Flip front · F"
 msgstr "Vorderseite zeigen · F"
 
@@ -160,7 +160,7 @@ msgstr "Lebensverknüpfung"
 msgid "Locked"
 msgstr "Versperrt"
 
-#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1724
+#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1734
 msgid "Loyalty"
 msgstr "Loyalität"
 
@@ -184,11 +184,11 @@ msgstr "Nicht ausgesetzt"
 msgid "On an Adventure"
 msgstr "Auf einem Abenteuer"
 
-#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1106
+#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1110
 msgid "On an Adventure · available actions are listed on their spell half"
 msgstr "Auf einem Abenteuer · verfügbare Aktionen stehen auf der Zauberspruchhälfte"
 
-#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1300
+#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1304
 msgid "Original printing · generated frame unavailable"
 msgstr ""
 
@@ -200,7 +200,7 @@ msgstr "Beharrlichkeit"
 msgid "Printed alternative"
 msgstr "Aufgedruckte Alternative"
 
-#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1298
+#: src/pixi/cardPreview/RulesCardPreviewLayer.ts:1302
 msgid "Printed face · live state belongs to the other face"
 msgstr "Gedruckte Kartenseite · der aktuelle Zustand gehört zur anderen Seite"
 
@@ -360,9 +360,10 @@ msgstr "Immer wenn du einen Nichtkreaturzauber wirkst, erhält diese Kreatur +1/
 msgid "Wither"
 msgstr "Verdorren"
 
+#. placeholder {0}: parameter ?? ""
 #: src/lib/cardKeywords.ts:144
-msgid "You may cast this card from your graveyard by paying {parameter} instead of its mana cost. If it would leave the stack, exile it instead."
-msgstr "Du kannst diese Karte aus deinem Friedhof wirken, indem du {parameter} statt ihrer Manakosten bezahlst. Würde sie den Stapel verlassen, schicke sie stattdessen ins Exil."
+msgid "You may cast this card from your graveyard by paying {0} instead of its mana cost. If it would leave the stack, exile it instead."
+msgstr "Du kannst diese Karte aus deinem Friedhof wirken, indem du {0} statt ihrer Manakosten bezahlst. Würde sie den Stapel verlassen, schicke sie stattdessen ins Exil."
 
 #: src/lib/cardKeywords.ts:81
 msgid "You may cast this card from your graveyard for its flashback cost. If it would leave the stack, exile it instead."
