@@ -51,7 +51,6 @@ import { DEFAULT_STARTING_LIFE, useServerStore } from "./useServerStore";
 import { useMultiplayerLimitedStore } from "./useMultiplayerLimitedStore";
 import { isTauriForgeRoomAvailable } from "./useForgeRoomAvailabilityStore";
 import { usePreferencesStore } from "./usePreferencesStore";
-import { useGameUIStore } from "./useGameUIStore";
 import type { ClientCardDto, ClientGameView, GameState } from "./gameStore.types";
 import type { Prompt, PromptOutput } from "@/protocol";
 import type { Deck, DeckCard } from "@/protocol/deck";
@@ -171,7 +170,6 @@ async function initializeGame({
     (platformType === "tauri" && !tauriForgeRoomAvailable) || webForgeRoute === "hosted";
   if (engine === "Forge" && opponentDecks?.length && (tauriForgeRoomAvailable || useHostedForge)) {
     const launchForge = tauriForgeRoomAvailable ? startTauriForgeAiGame : startHostedAiGame;
-    useGameUIStore.getState().resetUnreadAutoResolutions();
     set({
       isGameActive: true,
       fatalError: null,
@@ -264,7 +262,6 @@ async function initializeGame({
     gameDecks[`player-${index + 1}`] = opponentDeck;
   });
   const runtime = getSelectedGameRuntime();
-  useGameUIStore.getState().resetUnreadAutoResolutions();
   set({
     isGameActive: true,
     fatalError: null,
@@ -557,7 +554,6 @@ export const useGameStore = create<GameState>()(
           });
         }
         try {
-          useGameUIStore.getState().resetUnreadAutoResolutions();
           set({
             isGameActive: true,
             isMultiplayer: true,
@@ -733,7 +729,6 @@ export const useGameStore = create<GameState>()(
               }
             : undefined,
         });
-        useGameUIStore.getState().resetUnreadAutoResolutions();
         set({
           isGameActive: false,
           gauntletId: null,
