@@ -8,6 +8,7 @@ import { ManaSymbols } from "@/components/game/ManaSymbols";
 import { Modal } from "@/components/game/modals/Modal";
 import { RING_ABILITIES } from "@/components/game/game.constants";
 import { useTheme } from "@/hooks/useTheme";
+import { avatarAssetUrl } from "@/lib/avatarAssetUrl";
 import { cn } from "@/lib/utils";
 import { MANA_LETTERS, readableTextColor, withAlpha } from "@/themes/gameTheme";
 import type { GameIconName } from "@/components/game/GameIcon";
@@ -44,7 +45,7 @@ export function PlayerSheetModal({ spec, onClose }: PlayerSheetModalProps) {
           >
             {spec.avatarUrl ? (
               <img
-                src={spec.avatarUrl}
+                src={avatarAssetUrl(spec.avatarUrl)}
                 crossOrigin="anonymous"
                 alt=""
                 className="absolute inset-0 h-full w-full object-cover"

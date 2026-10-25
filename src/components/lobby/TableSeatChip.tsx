@@ -1,6 +1,7 @@
 import type { CSSProperties } from "react";
 import { Bot, Crown, Plus, User, X } from "lucide-react";
 import { usePlayerAvatar } from "@/hooks/usePlayerAvatar";
+import { avatarAssetUrl } from "@/lib/avatarAssetUrl";
 import { stripUsernameTag } from "@/lib/username";
 import { cn } from "@/lib/utils";
 import type { RoomPlayerInfo } from "@/types/server";
@@ -112,7 +113,7 @@ export function TableSeatChip({
           />
         ) : avatarUrl ? (
           <img
-            src={avatarUrl}
+            src={avatarAssetUrl(avatarUrl)}
             crossOrigin="anonymous"
             alt=""
             aria-hidden="true"

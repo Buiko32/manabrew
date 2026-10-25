@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import type { AccountAsset, AssetKind } from "@/api/hubTypes";
+import { avatarAssetUrl } from "@/lib/avatarAssetUrl";
 import { formatBytes, useAssetStore, useAssetsAvailable } from "@/stores/useAssetStore";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { cn } from "@/lib/utils";
@@ -193,7 +194,7 @@ function AssetTile({
     <div className="flex overflow-hidden rounded-lg border bg-card/60 transition-colors hover:border-primary/40">
       <div className="h-[72px] w-[72px] shrink-0 bg-muted">
         <img
-          src={asset.url}
+          src={asset.kind === "avatar" ? avatarAssetUrl(asset.url) : asset.url}
           alt={`${KIND_LABELS[asset.kind]} image`}
           crossOrigin="anonymous"
           loading="lazy"

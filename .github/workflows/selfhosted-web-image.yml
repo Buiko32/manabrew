@@ -123,6 +123,7 @@ jobs:
           build-args: |
             VITE_SCRYFALL_SYMBOL_BASE=/scryfall-symbols/
             VITE_SCRYFALL_ASSET_BASE=
+            VITE_AVATAR_ASSET_PROXY_HOST=pub-ffa167cacd604dd790f6c11b0f4423ca.r2.dev
           cache-from: type=registry,ref=${{ env.IMAGE }}:buildcache
           cache-to: type=registry,ref=${{ env.IMAGE }}:buildcache,mode=max,image-manifest=true,oci-mediatypes=true,ignore-error=true
 
@@ -130,6 +131,7 @@ jobs:
         env:
           IMAGE: ${{ env.IMAGE }}
           CANDIDATE_TAG: ${{ steps.candidate.outputs.tag }}
+          AVATAR_ASSET_HOST: pub-ffa167cacd604dd790f6c11b0f4423ca.r2.dev
         run: |
           set -euo pipefail
           container=""
@@ -150,6 +152,8 @@ jobs:
           }
           trap cleanup EXIT
           container="$(docker run -d -p 127.0.0.1::80 "$IMAGE:$CANDIDATE_TAG")"
+          smoke_step="validate Caddy configuration"
+          docker exec "$container" caddy validate --config /etc/caddy/Caddyfile
           smoke_step="resolve mapped port"
           port="$(docker port "$container" 80/tcp | head -1 | sed 's/.*://')"
           base="http://127.0.0.1:$port"
@@ -164,10 +168,20 @@ jobs:
           curl --fail --silent --show-error "$base$bundle" -o "$RUNNER_TEMP/app.js"
           smoke_step="check asset base paths"
           grep -q '/scryfall-symbols/' "$RUNNER_TEMP/app.js"
-          if grep -Eqi 'r2\.dev|__assets/' "$RUNNER_TEMP/app.js"; then
+          grep -Fq "$AVATAR_ASSET_HOST" "$RUNNER_TEMP/app.js"
+          if grep -Fq '__assets/' "$RUNNER_TEMP/app.js"; then
             echo "The candidate bundle still contains an R2 asset mirror path." >&2
             exit 1
           fi
+          unexpected_r2_hosts="$(grep -Eo '[A-Za-z0-9.-]+\.r2\.dev' "$RUNNER_TEMP/app.js" | sort -u | grep -Fxv "$AVATAR_ASSET_HOST" || true)"
+          if [[ -n "$unexpected_r2_hosts" ]]; then
+            echo "The candidate bundle contains an unexpected R2 host: $unexpected_r2_hosts" >&2
+            exit 1
+          fi
+          smoke_step="check restricted avatar proxy route"
+          fake_avatar="/codex-assets-r2/11111111-2222-4333-8444-555555555555/avatar/aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee.webp"
+          status="$(curl --silent --show-error --output /dev/null --write-out '%{http_code}' -X POST "$base$fake_avatar")"
+          test "$status" = "405"
           smoke_step="GET mana symbol W"
           curl --fail --silent --show-error --connect-timeout 3 --max-time 15 --retry 10 --retry-all-errors --retry-delay 1 --retry-max-time 30 "$base/scryfall-symbols/W.svg" -o "$RUNNER_TEMP/mana-W.svg"
           smoke_step="check mana symbol SVG body"

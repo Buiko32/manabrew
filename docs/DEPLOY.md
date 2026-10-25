@@ -99,9 +99,16 @@ requests do not publish or promote an image.
 
 The workflow leaves `VITE_SCRYFALL_ASSET_BASE` empty and sets
 `VITE_SCRYFALL_SYMBOL_BASE=/scryfall-symbols/`. Its smoke test checks the
-isolation header, compiled symbol path, absence of an R2 asset path, and the
-same-origin white mana SVG endpoint. Candidates are tagged with the source
-commit and `IMAGE_CONFIG_VERSION`; change that workflow value when the image
+isolation header, Caddy configuration, compiled symbol and avatar paths, the
+restricted avatar route, and the same-origin white mana SVG endpoint. The
+fork has a narrow avatar-only exception to the no-image-proxy rule: Hub avatar
+objects from the configured public bucket are fetched through the same-origin
+`/codex-assets-r2/` route because custom domains may not be on that bucket's
+CORS allowlist under `COEP: require-corp`. The route is pinned to that fixed
+bucket, accepts only UUID `/avatar/UUID.webp` paths and GET/HEAD, and forwards
+no cookies or authorization headers. It does not apply to card art or
+playmats. Candidates are tagged with the source commit and
+`IMAGE_CONFIG_VERSION`; change that workflow value when the image
 configuration changes. If building locally, prepare the Forge WebImage files
 before Docker so the image cannot silently omit its browser engine:
 
@@ -119,8 +126,11 @@ docker build -f Dockerfile.web \
   --build-arg REQUIRE_FORGE_WASM=1 \
   --build-arg VITE_SCRYFALL_SYMBOL_BASE=/scryfall-symbols/ \
   --build-arg VITE_SCRYFALL_ASSET_BASE= \
+  --build-arg VITE_AVATAR_ASSET_PROXY_HOST=pub-ffa167cacd604dd790f6c11b0f4423ca.r2.dev \
   -t manabrew-web:local .
 ```
+
+The URL rewrite has a focused regression test: `yarn test src/lib/avatarAssetUrl.test.ts`.
 
 The Forge build needs Node.js 24 with Corepack, Java 18+, Maven, Rust/Cargo,
 Oracle GraalVM 25.1+ with Web Image, and Binaryen (`wasm-as`) on `PATH`.

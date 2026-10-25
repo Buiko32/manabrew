@@ -1,4 +1,5 @@
 import { ImageSource, Texture } from "pixi.js";
+import { avatarAssetUrl } from "@/lib/avatarAssetUrl";
 
 const MAX_RASTER = 256;
 const textures = new Map<string, Texture>();
@@ -7,6 +8,7 @@ const loading = new Map<string, Promise<Texture>>();
 /** Load a player avatar into a Pixi texture by drawing it onto a canvas — the
  *  same path the mana/icon caches use. */
 export function loadAvatarTexture(url: string): Promise<Texture> {
+  url = avatarAssetUrl(url) ?? url;
   const cached = textures.get(url);
   if (cached && !cached.destroyed) return Promise.resolve(cached);
   const inflight = loading.get(url);

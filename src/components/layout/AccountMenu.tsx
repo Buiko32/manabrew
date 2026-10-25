@@ -10,6 +10,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { isFeatureEnabled } from "@/featureFlags";
+import { avatarAssetUrl } from "@/lib/avatarAssetUrl";
 import { ROUTES } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { stripUsernameTag } from "@/lib/username";
@@ -65,7 +66,7 @@ export function AccountMenu({ disabled = false }: AccountMenuProps) {
   function renderAvatar(initialClass: string) {
     if (customAvatar) {
       return (
-        <img src={customAvatar} crossOrigin="anonymous" alt="" className="size-full object-cover" />
+        <img src={avatarAssetUrl(customAvatar)} crossOrigin="anonymous" alt="" className="size-full object-cover" />
       );
     }
     if (initial) {
