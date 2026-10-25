@@ -1,4 +1,5 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { avatarAssetUrl } from "@/lib/avatarAssetUrl";
 import { cn } from "@/lib/utils";
 import { stripUsernameTag } from "@/lib/username";
 
@@ -17,7 +18,9 @@ export function PlayerAvatar({
 }: PlayerAvatarProps) {
   return (
     <Avatar className={cn("h-7 w-7", className)}>
-      {avatarUrl && <AvatarImage src={avatarUrl} alt="" crossOrigin="anonymous" />}
+      {avatarUrl && (
+        <AvatarImage src={avatarAssetUrl(avatarUrl)} alt="" crossOrigin="anonymous" />
+      )}
       <AvatarFallback className={cn("text-xs", fallbackClassName)}>
         {stripUsernameTag(username).slice(0, 1).toUpperCase()}
       </AvatarFallback>

@@ -3,6 +3,7 @@ import { Camera, CircleUserRound, X } from "lucide-react";
 import { useAssetsAvailable, useAssetStore } from "@/stores/useAssetStore";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { AvatarCropDialog } from "@/components/settings/AvatarCropDialog";
+import { avatarAssetUrl } from "@/lib/avatarAssetUrl";
 export function AvatarPicker() {
   const avatarSrc = useAuthStore((s) => s.account?.avatarUrl);
   const uploadAvatar = useAssetStore((s) => s.uploadAvatar);
@@ -31,7 +32,7 @@ export function AvatarPicker() {
       >
         {avatarSrc ? (
           <img
-            src={avatarSrc}
+            src={avatarAssetUrl(avatarSrc)}
             crossOrigin="anonymous"
             alt={`Your avatar`}
             className="size-full rounded-full object-cover"

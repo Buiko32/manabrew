@@ -1,6 +1,7 @@
 /// <reference types="vite/client" />
 
 interface ImportMetaEnv {
+  readonly VITE_AVATAR_ASSET_PROXY_HOST?: string;
   readonly VITE_SCRYFALL_SYMBOL_BASE?: string;
   readonly VITE_SCRYFALL_ASSET_BASE?: string;
   readonly VITE_HOSTED_AI_ENABLED?: string;

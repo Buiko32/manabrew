@@ -35,6 +35,30 @@ http://play.manabrew.app {
 
     encode zstd gzip
 
+    # Proxy only public Hub avatar objects from the configured fixed bucket.
+    # Keeping the exact UUID/avatar/<uuid>.webp path shape makes this a narrow
+    # same-origin image route, not a general-purpose proxy.
+    @hubAvatar path_regexp hub_avatar ^/codex-assets-r2/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/avatar/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}\.webp$
+    handle @hubAvatar {
+        @read method GET HEAD
+        handle @read {
+            uri strip_prefix /codex-assets-r2
+            reverse_proxy https://pub-ffa167cacd604dd790f6c11b0f4423ca.r2.dev {
+                header_up Host pub-ffa167cacd604dd790f6c11b0f4423ca.r2.dev
+                header_up -Cookie
+                header_up -Authorization
+                header_up -Origin
+                header_up -Referer
+            }
+            header {
+                Cross-Origin-Resource-Policy "same-origin"
+            }
+        }
+        handle {
+            respond 405
+        }
+    }
+
     @worker path_regexp \.worker[.-][^/]+\.js$
     handle @worker {
         header {
