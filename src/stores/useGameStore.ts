@@ -176,7 +176,6 @@ async function initializeGame({
       engineCrash: null,
       gameView: null,
       currentPrompt: null,
-      gameLog: [],
       protocolError: null,
       deferredQueue: [],
       isFlashing: false,
@@ -269,7 +268,6 @@ async function initializeGame({
     ironsmithDeckError: null,
     gameView: null,
     currentPrompt: null,
-    gameLog: [],
     protocolError: null,
     deferredQueue: [],
     isFlashing: false,
@@ -346,7 +344,6 @@ export const useGameStore = create<GameState>()(
     (set, get) => ({
       gameView: null,
       currentPrompt: null,
-      gameLog: [],
       protocolError: null,
       isGameActive: false,
       debugInfo: "",
@@ -563,7 +560,6 @@ export const useGameStore = create<GameState>()(
             engineCrash: null,
             gameView: null,
             currentPrompt: null,
-            gameLog: [],
             protocolError: null,
             deferredQueue: [],
             isFlashing: false,
@@ -734,7 +730,6 @@ export const useGameStore = create<GameState>()(
           gauntletId: null,
           gameView: null,
           currentPrompt: null,
-          gameLog: [],
           protocolError: null,
           deferredQueue: [],
           isFlashing: false,
@@ -792,17 +787,6 @@ export const useGameStore = create<GameState>()(
           playerSlot: myPlayerSlot,
           directive: { type: "requestRestore", checkpointId },
         });
-      },
-      setSnapshotRecording: async (enabled) => {
-        usePreferencesStore.getState().setSnapshotRecording(enabled);
-        try {
-          await getSelectedGameRuntime().api.sendHostDirective({
-            type: "setSnapshotRecording",
-            enabled,
-          });
-        } catch (error) {
-          toast.error(error instanceof Error ? error.message : String(error));
-        }
       },
       voteRestore: async (voteId, accept) => {
         const { myPlayerSlot } = get();
