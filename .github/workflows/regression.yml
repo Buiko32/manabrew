@@ -29,7 +29,7 @@ concurrency:
 
 jobs:
   manabrew-engine-unit:
-    runs-on: [self-hosted, Linux]
+    runs-on: ${{ github.repository == 'witchesofthehill/manabrew' && fromJSON('["self-hosted", "Linux"]') || 'ubuntu-latest' }}
     timeout-minutes: 30
     steps:
       - name: Checkout
@@ -38,12 +38,22 @@ jobs:
           clean: true
           submodules: recursive
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "24"
+      - name: Set up Rust toolchain for fork runner
+        if: github.repository != 'witchesofthehill/manabrew'
+        uses: dtolnay/rust-toolchain@stable
 
-      - name: Run manabrew-engine unit tests
-        run: yarn test:manabrew-engine
+      - name: Set up mold linker for fork runner
+        if: github.repository != 'witchesofthehill/manabrew'
+        uses: rui314/setup-mold@v1
+
+      - name: Cargo cache for fork runner
+        if: github.repository != 'witchesofthehill/manabrew'
+        uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: engine
+
+      - name: Run manabrew-engine unit and card tests
+        run: cargo test --release -pmanabrew-engine --lib --test cards
 
   classify:
     # Splits regression.json into `new` (added or changed vs main) and `existing`

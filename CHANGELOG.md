@@ -1,5 +1,18 @@
 # Changelog
 
+## [3.65.3](https://github.com/witchesofthehill/manabrew/compare/v3.65.2...v3.65.3) (2026-10-27)
+
+### Fixes
+
+* **forge:** resolve commander aliases consistently ([#1122](https://github.com/witchesofthehill/manabrew/issues/1122)) ([30b6981](https://github.com/witchesofthehill/manabrew/commit/30b6981cf5a5721866fccc505c43da0927a3bcc6))
+* **ui:** restore desktop density while preserving touch sizing ([#1130](https://github.com/witchesofthehill/manabrew/issues/1130)) ([6c449bf](https://github.com/witchesofthehill/manabrew/commit/6c449bf9b5abd2546d822fc49f6041aa98cd45f6))
+
+## [3.65.2](https://github.com/witchesofthehill/manabrew/compare/v3.65.1...v3.65.2) (2026-10-27)
+
+### Fixes
+
+* **ui:** improve app-wide responsiveness ([#1123](https://github.com/witchesofthehill/manabrew/issues/1123)) ([178dda1](https://github.com/witchesofthehill/manabrew/commit/178dda1e6361a76cdcd9a71d9ee71b28ca7613cd))
+
 ## [3.65.1](https://github.com/witchesofthehill/manabrew/compare/v3.65.0...v3.65.1) (2026-10-26)
 
 ### Fixes
@@ -105,6 +118,8 @@
 
 ### Fixes
 
+* Increase wide-touch body and control text to 20px and metadata to 18px after iPad readability review, without scaling card artwork.
+* Improve app-wide tablet typography, touch targets, responsive workspace density and keyboard-visible dialogs without enlarging card sprites.
 * Allow combat damage to be divided freely among blockers under current Magic rules, while preserving lethal-damage requirements for trample.
 * Preserve each Room, split and aftermath half's frame color instead of inheriting the whole card's combined colors in hand and stack previews.
 * Highlight unlocked Room doors and the door represented on the stack in both card views, with outlines that include the collector strip.
