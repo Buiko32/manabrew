@@ -1,5 +1,23 @@
 # Changelog
 
+## [3.66.1](https://github.com/witchesofthehill/manabrew/compare/v3.66.0...v3.66.1) (2026-10-28)
+
+### Fixes
+
+* desktop scaling ([#1138](https://github.com/witchesofthehill/manabrew/issues/1138)) ([32067ad](https://github.com/witchesofthehill/manabrew/commit/32067ad7aa09fda186fab355b6ce36c03d09fb77))
+
+## [3.66.0](https://github.com/witchesofthehill/manabrew/compare/v3.65.4...v3.66.0) (2026-10-28)
+
+### Features
+
+* **ui:** use hide icon for minimized prompts ([#1133](https://github.com/witchesofthehill/manabrew/issues/1133)) ([d015b60](https://github.com/witchesofthehill/manabrew/commit/d015b60ffd6b91dac6f4fbe620a34e91379f6b74))
+
+## [3.65.4](https://github.com/witchesofthehill/manabrew/compare/v3.65.3...v3.65.4) (2026-10-27)
+
+### Fixes
+
+* windows death ([#1137](https://github.com/witchesofthehill/manabrew/issues/1137)) ([2895e83](https://github.com/witchesofthehill/manabrew/commit/2895e8353a1fa7f93375a6a98557baac3f01af51))
+
 ## [3.65.3](https://github.com/witchesofthehill/manabrew/compare/v3.65.2...v3.65.3) (2026-10-27)
 
 ### Fixes
