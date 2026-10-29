@@ -1,5 +1,23 @@
 # Changelog
 
+## [3.67.2](https://github.com/witchesofthehill/manabrew/compare/v3.67.1...v3.67.2) (2026-10-28)
+
+### Fixes
+
+* many audit fixes ([#1145](https://github.com/witchesofthehill/manabrew/issues/1145)) ([5ec73a7](https://github.com/witchesofthehill/manabrew/commit/5ec73a78c703ff867640ff6144260399f15b14b6))
+
+## [3.67.1](https://github.com/witchesofthehill/manabrew/compare/v3.67.0...v3.67.1) (2026-10-28)
+
+### Fixes
+
+* **ui:** inspect authorized face-down cards in forge games ([#1144](https://github.com/witchesofthehill/manabrew/issues/1144)) ([0b1904e](https://github.com/witchesofthehill/manabrew/commit/0b1904e0d457a259ac85751b2db7878ad6e40b96))
+
+## [3.67.0](https://github.com/witchesofthehill/manabrew/compare/v3.66.1...v3.67.0) (2026-10-28)
+
+### Features
+
+* brewies ([#1143](https://github.com/witchesofthehill/manabrew/issues/1143)) ([101d3c4](https://github.com/witchesofthehill/manabrew/commit/101d3c47cf03b392dfbe98491cea55e633808f8b))
+
 ## [3.66.1](https://github.com/witchesofthehill/manabrew/compare/v3.66.0...v3.66.1) (2026-10-28)
 
 ### Fixes

@@ -172,6 +172,7 @@ async function initializeGame({
     const launchForge = tauriForgeRoomAvailable ? startTauriForgeAiGame : startHostedAiGame;
     set({
       isGameActive: true,
+      activeEngine: "Forge",
       fatalError: null,
       engineCrash: null,
       gameView: null,
@@ -263,6 +264,7 @@ async function initializeGame({
   const runtime = getSelectedGameRuntime();
   set({
     isGameActive: true,
+    activeEngine: engine ?? null,
     fatalError: null,
     engineCrash: null,
     ironsmithDeckError: null,
@@ -346,6 +348,7 @@ export const useGameStore = create<GameState>()(
       currentPrompt: null,
       protocolError: null,
       isGameActive: false,
+      activeEngine: null,
       debugInfo: "",
       fatalError: null,
       engineCrash: null,
@@ -401,6 +404,7 @@ export const useGameStore = create<GameState>()(
           if (e instanceof GameLaunchCancelledError) return false;
           set({
             isGameActive: false,
+            activeEngine: null,
             gauntletId: null,
             debugInfo: `Start failed: ${e}`,
             isPrefetchingCards: false,
@@ -460,6 +464,7 @@ export const useGameStore = create<GameState>()(
         }
         set({
           isMultiplayer: true,
+          activeEngine: null,
           isHost: true,
           myPlayerSlot: localPlayerSlot,
           debugInfo: "Manual room host started.",
@@ -495,6 +500,7 @@ export const useGameStore = create<GameState>()(
         }
         set({
           isGameActive: true,
+          activeEngine: null,
           isMultiplayer: true,
           isHost: false,
           myPlayerSlot: localPlayerSlot,
@@ -553,6 +559,7 @@ export const useGameStore = create<GameState>()(
         try {
           set({
             isGameActive: true,
+            activeEngine: engine ?? server.currentRoom?.engine ?? null,
             isMultiplayer: true,
             isHost: localIsHost,
             myPlayerSlot: `player-${enginePlayerIndex}`,
@@ -612,6 +619,7 @@ export const useGameStore = create<GameState>()(
           if (launchGeneration !== gameLaunchGeneration) return false;
           set({
             isGameActive: false,
+            activeEngine: null,
             isMultiplayer: false,
             isHost: false,
             myPlayerSlot: null,
@@ -727,6 +735,7 @@ export const useGameStore = create<GameState>()(
         });
         set({
           isGameActive: false,
+          activeEngine: null,
           gauntletId: null,
           gameView: null,
           currentPrompt: null,
@@ -778,7 +787,14 @@ export const useGameStore = create<GameState>()(
         }
       },
       setMultiplayerState: (isMultiplayer, isHost, myPlayerSlot) => {
-        set({ isMultiplayer, isHost, myPlayerSlot });
+        set({
+          isMultiplayer,
+          isHost,
+          myPlayerSlot,
+          activeEngine: isMultiplayer
+            ? (useServerStore.getState().currentRoom?.engine ?? null)
+            : null,
+        });
       },
       requestRestore: async (checkpointId) => {
         const { myPlayerSlot } = get();
