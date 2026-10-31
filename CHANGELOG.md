@@ -1,5 +1,11 @@
 # Changelog
 
+## [3.68.2](https://github.com/witchesofthehill/manabrew/compare/v3.68.1...v3.68.2) (2026-10-31)
+
+### Fixes
+
+* misc controller issues ([#1158](https://github.com/witchesofthehill/manabrew/issues/1158)) ([cbcccdb](https://github.com/witchesofthehill/manabrew/commit/cbcccdb662b769be8f4eddf53e21da84fdb46143))
+
 ## [3.68.1](https://github.com/witchesofthehill/manabrew/compare/v3.68.0...v3.68.1) (2026-10-29)
 
 ### Fixes
