@@ -1,5 +1,11 @@
 # Changelog
 
+## [3.68.3](https://github.com/witchesofthehill/manabrew/compare/v3.68.2...v3.68.3) (2026-10-31)
+
+### Fixes
+
+* remove webkit check ([#1160](https://github.com/witchesofthehill/manabrew/issues/1160)) ([25cf85f](https://github.com/witchesofthehill/manabrew/commit/25cf85f7acf7f0530ac9ba51463729f080f66f1c))
+
 ## [3.68.2](https://github.com/witchesofthehill/manabrew/compare/v3.68.1...v3.68.2) (2026-10-31)
 
 ### Fixes
