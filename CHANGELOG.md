@@ -1,5 +1,18 @@
 # Changelog
 
+## [3.69.2](https://github.com/witchesofthehill/manabrew/compare/v3.69.1...v3.69.2) (2026-11-02)
+
+### Fixes
+
+* **ui:** restore hybrid desktop density and compact home layout ([#1140](https://github.com/witchesofthehill/manabrew/issues/1140)) ([e022b84](https://github.com/witchesofthehill/manabrew/commit/e022b84f5e7dfb10fee80a02b1fb9d39ff1db66e))
+
+## [3.69.1](https://github.com/witchesofthehill/manabrew/compare/v3.69.0...v3.69.1) (2026-11-02)
+
+### Fixes
+
+* update landing ([#1165](https://github.com/witchesofthehill/manabrew/issues/1165)) ([fa9ab5a](https://github.com/witchesofthehill/manabrew/commit/fa9ab5a08ea9b14a30c04c8dd4772bbc1ef037fa))
+* more harness bugs ([#1159](https://github.com/witchesofthehill/manabrew/issues/1159)) ([f081bc3](https://github.com/witchesofthehill/manabrew/commit/f081bc3cd8835dc670f19fb665c8aec838c7d86d))
+
 ## [3.69.0](https://github.com/witchesofthehill/manabrew/compare/v3.68.3...v3.69.0) (2026-10-31)
 
 ### Features
