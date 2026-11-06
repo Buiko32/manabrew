@@ -1,5 +1,11 @@
 # Changelog
 
+## [3.71.2](https://github.com/witchesofthehill/manabrew/compare/v3.71.1...v3.71.2) (2026-11-06)
+
+### Fixes
+
+* **limited:** preserve card names in cubecobra draft pools ([#1180](https://github.com/witchesofthehill/manabrew/issues/1180)) ([2c8b8ca](https://github.com/witchesofthehill/manabrew/commit/2c8b8ca974f1ea33ef76ed65688598bf158e1894))
+
 ## [3.71.1](https://github.com/witchesofthehill/manabrew/compare/v3.71.0...v3.71.1) (2026-11-04)
 
 ### Fixes
@@ -43,6 +49,8 @@
 
 ### Fixes
 
+- Preserve distinct card names in CubeCobra draft pools when imported cards have no collector numbers, instead of collapsing each set to its first card.
+- Preserve CubeCobra set and collector-number identifiers so imported printed and flavor names resolve through existing Scryfall batches, without per-card search fallbacks.
 - Specialize host Card Glint shaders before compilation with `GLINT_FINISH_KIND`, excluding unrelated finish code.
 - Await SDK printing/coating shader readiness before GPU preparation, flush host shader links before polling, and reuse completed Pixi programs without relinking; keep Heat source content visible while GPU resources are pending.
 - Render DOM foil overlays in bounded atlas pages before copying their output crops.
