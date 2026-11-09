@@ -1,5 +1,23 @@
 # Changelog
 
+## [3.74.0](https://github.com/witchesofthehill/manabrew/compare/v3.73.0...v3.74.0) (2026-11-07)
+
+### Features
+
+* **ui:** move phasebar to the side ([#1176](https://github.com/witchesofthehill/manabrew/issues/1176)) ([7a1509c](https://github.com/witchesofthehill/manabrew/commit/7a1509ce86e1b37d21afded18b490737d1014733))
+
+## [3.73.0](https://github.com/witchesofthehill/manabrew/compare/v3.72.0...v3.73.0) (2026-11-07)
+
+### Features
+
+* **observability:** retain diagnostic stacks and runtime context ([#1184](https://github.com/witchesofthehill/manabrew/issues/1184)) ([c3bb8fd](https://github.com/witchesofthehill/manabrew/commit/c3bb8fdd0894b623e341eb83231f6f4ef74c92bb))
+
+## [3.72.0](https://github.com/witchesofthehill/manabrew/compare/v3.71.2...v3.72.0) (2026-11-07)
+
+### Features
+
+* **observability:** add self-hosted frontend error reporting ([#1134](https://github.com/witchesofthehill/manabrew/issues/1134)) ([aea7a1c](https://github.com/witchesofthehill/manabrew/commit/aea7a1c84205182b5a89cb3ec1b2487ba30f66fc))
+
 ## [3.71.2](https://github.com/witchesofthehill/manabrew/compare/v3.71.1...v3.71.2) (2026-11-06)
 
 ### Fixes
