@@ -103,6 +103,11 @@ export function forgeWasmGate(): EngineGate {
   if (!window.crossOriginIsolated || typeof window.SharedArrayBuffer === "undefined") {
     return "isolation";
   }
+  const userAgent = navigator.userAgent;
+  const isIOS =
+    /iPad|iPhone|iPod/i.test(userAgent) ||
+    (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  if (isIOS) return "ios";
   const verdict = useForgeWasmVerdictStore.getState().verdict;
   if (verdict?.ok === false && !isRetryable(verdict)) {
     return verdict.failure === "timeout" ? "trial_timeout" : "trial_failed";
