@@ -193,7 +193,7 @@ async function playOneGame(
   startingLife: number,
 ): Promise<AiSimulationGameResult> {
   const orderedDecks = deckOrder.map((index) => decks[index]!);
-  const bots = orderedDecks.map(() => new WasmManabot());
+  const bots: WasmManabot[] = [];
   const seatStats = orderedDecks.map(() => blankSeatStats());
   const latencySamples: number[] = [];
   let finalView: GameViewSnapshot | null = null;
@@ -278,6 +278,7 @@ async function playOneGame(
     onError: (error: unknown) => finish({ reason: "engine_error", message: String(error) }),
   });
 
+  bots.push(...orderedDecks.map(() => new WasmManabot()));
   const abort = () => {
     engine.dispose();
     finish({ reason: "cancelled" });
