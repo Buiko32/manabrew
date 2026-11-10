@@ -1,5 +1,5 @@
 import init, { WasmManabot } from "../wasm/wasm";
-import { createForgeEngine } from "@manabrew/forge-wasm";
+import { createForgeEngine } from "@forge-wasm/forge.js";
 import type { Deck } from "../protocol/deck";
 import type { Prompt, PromptOutput, StateUpdate } from "../protocol";
 import type {
