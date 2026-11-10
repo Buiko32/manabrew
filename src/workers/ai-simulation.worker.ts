@@ -90,7 +90,7 @@ function aggregate(
     if (result.turns > 0) turns.push(result.turns);
     if (result.responseLatencyP50 > 0) latenciesP50.push(result.responseLatencyP50);
     if (result.responseLatencyP90 > 0) latenciesP90.push(result.responseLatencyP90);
-    if (result.responseLatencyP90 > 0) latenciesP99.push(result.responseLatencyP90);
+    if (result.responseLatencyP99 > 0) latenciesP99.push(result.responseLatencyP99);
 
     for (const seat of result.seats) {
       const total = deckTotals[seat.deckIndex];
@@ -110,7 +110,7 @@ function aggregate(
         total[key] += seat.stats[key];
       }
       for (const [key, value] of Object.entries(seat.stats.promptTypes)) {
-        increment(total.promptTypes, key);
+        total.promptTypes[key] = (total.promptTypes[key] ?? 0) + value;
       }
       for (const [key, value] of Object.entries(seat.stats.actionLabels)) {
         total.actionLabels[key] = (total.actionLabels[key] ?? 0) + value;
@@ -220,7 +220,7 @@ async function playOneGame(
     onState: (state: StateUpdate, playerSlot?: string) => {
       const index = seatIndex(playerSlot);
       const bot = bots[index];
-      if (bot) bot.observe_state(JSON.stringify(state));
+      if (bot) bot.observe_state?.(JSON.stringify(state));
       if (index === 0) {
         const view = (state as unknown as { gameView?: GameViewSnapshot }).gameView;
         if (view) {
@@ -298,7 +298,7 @@ async function playOneGame(
         decks: orderedDecks,
         playerNames: orderedDecks.map((_, index) => `Manabot ${index + 1}`),
         commanderNames: orderedDecks.map(
-          (deck) => deck.commanders?.[0]?.identity.name ?? null,
+          (deck) => deck.commanders?.[0]?.identity?.name ?? null,
         ),
         enginePlayerIndex: 0,
         botSeats: orderedDecks.map((_, index) => index).filter((index) => index !== 0),
@@ -326,6 +326,7 @@ async function playOneGame(
       durationMs: Math.round(performance.now() - startedAt),
       responseLatencyP50: percentile(latencySamples, 0.5),
       responseLatencyP90: percentile(latencySamples, 0.9),
+      responseLatencyP99: percentile(latencySamples, 0.99),
       seats: seatStats.map((stats, seat) => ({ deckIndex: deckOrder[seat]!, stats })),
     };
   } finally {
