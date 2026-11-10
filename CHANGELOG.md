@@ -1,5 +1,17 @@
 # Changelog
 
+## [3.79.0](https://github.com/witchesofthehill/manabrew/compare/v3.78.2...v3.79.0) (2026-11-09)
+
+### Features
+
+* brewy bot ([#1191](https://github.com/witchesofthehill/manabrew/issues/1191)) ([75e6b07](https://github.com/witchesofthehill/manabrew/commit/75e6b074768cf393f91674af9bff72e580df11a8))
+
+## [3.78.2](https://github.com/witchesofthehill/manabrew/compare/v3.78.1...v3.78.2) (2026-11-09)
+
+### Fixes
+
+* singleplayer button ([#1198](https://github.com/witchesofthehill/manabrew/issues/1198)) ([d281212](https://github.com/witchesofthehill/manabrew/commit/d28121203b1d01acd2ff5ad3251c2690b736d3f6))
+
 ## [3.78.1](https://github.com/witchesofthehill/manabrew/compare/v3.78.0...v3.78.1) (2026-11-09)
 
 ### Fixes
