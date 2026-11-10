@@ -201,7 +201,6 @@ async function playOneGame(
   const bots = orderedDecks.map(() => new WasmManabot());
   const seatStats = orderedDecks.map(() => blankSeatStats());
   const latencySamples: number[] = [];
-  let lastResponseAt: number | null = null;
   let finalView: GameViewSnapshot | null = null;
   let turns = 0;
   const startedAt = performance.now();
@@ -235,14 +234,15 @@ async function playOneGame(
       const bot = bots[index];
       const stats = seatStats[index];
       if (!bot || !stats) return;
-      if (lastResponseAt !== null) latencySamples.push(performance.now() - lastResponseAt);
       stats.prompts += 1;
       const input = prompt.input as unknown as {
         type?: string;
         actions?: Array<{ id?: string; type?: string; label?: string; description?: string }>;
       };
       increment(stats.promptTypes, input.type ?? "unknown");
+      const decisionStartedAt = performance.now();
       const raw = bot.decide(JSON.stringify(prompt));
+      latencySamples.push(performance.now() - decisionStartedAt);
       if (!raw) return;
       const parsed = JSON.parse(raw) as {
         output?: {
@@ -273,10 +273,9 @@ async function playOneGame(
       } else if (decision.type === "mulliganDecision" && !decision.keep) {
         stats.mulligans += 1;
       }
-      lastResponseAt = performance.now();
       engine.respond(prompt.promptId, parsed as unknown as PromptOutput, playerSlot);
     },
-    onEvent: (event: string, payload: unknown) => {
+    onEvent: (event: string, _payload: unknown) => {
       if (event === "game:over" || event === "game:forced_end") {
         finish({ reason: event });
       }
@@ -292,24 +291,30 @@ async function playOneGame(
   const timeout = setTimeout(() => finish({ reason: "timeout" }), 900_000);
 
   try {
-    if (cancelRequested) abort();
-    else {
-      await engine.startMultiplayerGame({
-        decks: orderedDecks,
-        playerNames: orderedDecks.map((_, index) => `Manabot ${index + 1}`),
-        commanderNames: orderedDecks.map(
-          (deck) => deck.commanders?.[0]?.identity?.name ?? null,
-        ),
-        enginePlayerIndex: 0,
-        botSeats: orderedDecks.map((_, index) => index).filter((index) => index !== 0),
-        startingLife,
-        seed,
-        snapshotRecording: false,
-        decisionJournal: false,
-        journalRewind: false,
-      });
+    let outcome: GameOutcome;
+    try {
+      if (cancelRequested) abort();
+      else {
+        await engine.startMultiplayerGame({
+          decks: orderedDecks,
+          playerNames: orderedDecks.map((_, index) => `Manabot ${index + 1}`),
+          commanderNames: orderedDecks.map(
+            (deck) => deck.commanders?.[0]?.identity?.name ?? null,
+          ),
+          enginePlayerIndex: 0,
+          botSeats: orderedDecks.map((_, index) => index).filter((index) => index !== 0),
+          startingLife,
+          seed,
+          snapshotRecording: false,
+          decisionJournal: false,
+          journalRewind: false,
+        });
+      }
+      outcome = await ended;
+    } catch (error) {
+      if (!cancelRequested) throw error;
+      outcome = { reason: "cancelled" };
     }
-    const outcome = await ended;
     const winnerId = finalView?.winnerId ?? null;
     const winnerSeat = winnerId?.startsWith("player-")
       ? Number(winnerId.slice("player-".length))
