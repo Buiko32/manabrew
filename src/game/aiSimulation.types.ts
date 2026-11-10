@@ -22,6 +22,8 @@ export interface AiSimulationGameResult {
   responseLatencyP50: number;
   responseLatencyP90: number;
   responseLatencyP99: number;
+  /** Raw decision durations used to calculate accurate aggregate percentiles. */
+  responseLatencies: number[];
   seats: Array<{ deckIndex: number; stats: AiSimulationSeatStats }>;
 }
 
