@@ -134,11 +134,13 @@ export function AiSimulationPanel({
 
           {summary && (
             <>
-              <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
                 <Stat label="Decided games" value={`${summary.decidedGames} / ${summary.completedGames}`} />
-                <Stat label="Average turns" value={summary.averageTurns} />
-                <Stat label="Median duration" value={formatDuration(summary.medianDurationMs)} />
-                <Stat label="Response p50 / p90 / p99" value={`${summary.responseLatencyP50} / ${summary.responseLatencyP90} / ${summary.responseLatencyP99} ms`} />
+                <Stat label="Non-results" value={summary.nonResults} />
+                <Stat label="Average / median turns" value={`${summary.averageTurns} / ${summary.medianTurns}`} />
+                <Stat label="Average game duration" value={formatDuration(summary.averageDurationMs)} />
+                <Stat label="Median game duration" value={formatDuration(summary.medianDurationMs)} />
+                <Stat label="Decision p50 / p90 / p99" value={`${summary.responseLatencyP50} / ${summary.responseLatencyP90} / ${summary.responseLatencyP99} ms`} />
               </div>
 
               <section className="space-y-2">
@@ -192,6 +194,8 @@ export function AiSimulationPanel({
                   const actions = Object.entries(deck.actionLabels)
                     .sort((left, right) => right[1] - left[1])
                     .slice(0, 8);
+                  const promptTypes = Object.entries(deck.promptTypes)
+                    .sort((left, right) => right[1] - left[1]);
                   return (
                     <div key={deck.deckIndex} className="rounded-lg border p-3">
                       <div className="font-medium">{deck.name}</div>
@@ -205,6 +209,15 @@ export function AiSimulationPanel({
                           {actions.map(([label, count]) => (
                             <span key={label} className="rounded-md bg-muted px-2 py-1 text-ui-meta">
                               {label}: {count}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                      {promptTypes.length > 0 && (
+                        <div className="mt-2 flex flex-wrap gap-2">
+                          {promptTypes.map(([type, count]) => (
+                            <span key={type} className="rounded-md border px-2 py-1 text-ui-meta text-muted-foreground">
+                              {type}: {count}
                             </span>
                           ))}
                         </div>
