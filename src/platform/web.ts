@@ -500,7 +500,7 @@ class WorkerBridge {
             performance.now(),
           );
         } catch (error) {
-          reportClientError(error, "bot-worker-state-mirror");
+          reportClientError(error, "bot-worker");
         }
         return;
       }
