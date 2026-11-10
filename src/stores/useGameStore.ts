@@ -169,6 +169,11 @@ async function initializeGame({
       forgeWasmStartError() ?? "Forge cannot start in this browser. Enable hosted Forge play.",
     );
   }
+  if (watchOnly && engine === "Forge" && webForgeRoute === "hosted") {
+    throw new Error(
+      "AI Lab spectator games require the local Forge WASM engine. Hosted Forge currently supports human-controlled seats only.",
+    );
+  }
   const useHostedForge =
     (platformType === "tauri" && !tauriForgeRoomAvailable) || webForgeRoute === "hosted";
   setErrorReportingEngine(null);
