@@ -466,10 +466,10 @@ export function DeckVsSelector({
     try {
       await onSimulate(
         [launch.playerDeck.sourceDeck, ...launch.opponentDecks],
-        launch.playerDeck.formatId,
+        launch.playerDeck.formatId ?? selectedFormat ?? "standard",
         simulationGames,
       );
-      const formatId = launch.playerDeck.formatId;
+      const formatId = launch.playerDeck.formatId ?? selectedFormat;
       if (formatId) usePreferencesStore.getState().setLastOfflineFormatId(formatId);
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Could not start simulation.");
