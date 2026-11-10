@@ -914,7 +914,19 @@ class WorkerBridge {
       let forgeWasm = this.worker ? this.workerIsForgeWasm : isForgeWasmHostingEnabled();
       if (startsGame) forgeWasm = args?.engine === "Forge";
       if (startsGame && this.worker && this.workerIsForgeWasm !== forgeWasm) {
+        // An AI Lab launch may switch the shared bridge from the default
+        // Manabrew worker to Forge WASM. terminate() must stop the old seat
+        // workers, but the new Forge worker still needs the bot-seat routing,
+        // spectator state mirroring, and pause buffer configured by startGame.
+        const botSetup = {
+          slots: [...this.localBotSlots],
+          spectatorMode: this.spectatorMode,
+          pauseControl: this.spectatorPauseControl,
+        };
         this.terminate();
+        this.localBotSlots = new Set(botSetup.slots);
+        this.spectatorMode = botSetup.spectatorMode;
+        this.spectatorPauseControl = botSetup.pauseControl;
       }
       await this.init(forgeWasm);
       if (startsGame && this.workerIsForgeWasm) {
