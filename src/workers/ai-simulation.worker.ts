@@ -196,7 +196,7 @@ async function playOneGame(
   const bots: WasmManabot[] = [];
   const seatStats = orderedDecks.map(() => blankSeatStats());
   const latencySamples: number[] = [];
-  let finalView: GameViewSnapshot | null = null;
+  const finalView = { current: null as GameViewSnapshot | null };
   let turns = 0;
   const startedAt = performance.now();
   let resolveOutcome!: (outcome: GameOutcome) => void;
@@ -218,7 +218,7 @@ async function playOneGame(
       if (index === 0) {
         const view = (state as unknown as { gameView?: GameViewSnapshot }).gameView;
         if (view) {
-          finalView = view;
+          finalView.current = view;
           turns = Math.max(turns, view.turn ?? 0);
         }
       }
@@ -268,7 +268,12 @@ async function playOneGame(
       } else if (decision.type === "mulliganDecision" && !decision.keep) {
         stats.mulligans += 1;
       }
-      engine.respond(prompt.promptId, parsed as unknown as PromptOutput, playerSlot);
+      const promptId = Number(prompt.promptId);
+      if (!Number.isSafeInteger(promptId)) {
+        finish({ reason: "invalid_prompt_id", message: "Forge returned a prompt without a numeric ID." });
+        return;
+      }
+      engine.respond(promptId, parsed as unknown as PromptOutput, playerSlot);
     },
     onEvent: (event: string, _payload: unknown) => {
       if (event === "game:over" || event === "game:forced_end") {
@@ -311,7 +316,7 @@ async function playOneGame(
       if (!cancelRequested) throw error;
       outcome = { reason: "cancelled" };
     }
-    const winnerId = finalView?.winnerId ?? null;
+    const winnerId = finalView.current?.winnerId ?? null;
     const winnerSeat = winnerId?.startsWith("player-")
       ? Number(winnerId.slice("player-".length))
       : null;
