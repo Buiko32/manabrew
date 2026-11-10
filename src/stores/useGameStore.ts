@@ -300,6 +300,7 @@ async function initializeGame({
     recording: { type: "off" },
     repeatVote: null,
     myPlayerSlot: "player-0",
+    isAiLabSpectator: watchOnly === true,
     selfConceded: false,
     gameConfig: { formatId: selectedFormatId, startingLife },
     gameDecks,
@@ -397,6 +398,7 @@ export const useGameStore = create<GameState>()(
       gameConfig: null,
       gauntletId: null,
       selfConceded: false,
+      isAiLabSpectator: false,
       isMultiplayer: false,
       isHost: false,
       myPlayerSlot: null,
@@ -440,6 +442,7 @@ export const useGameStore = create<GameState>()(
           set({
             isGameActive: false,
             activeEngine: null,
+            isAiLabSpectator: false,
             gauntletId: null,
             debugInfo: `Start failed: ${e}`,
             isPrefetchingCards: false,
@@ -595,6 +598,7 @@ export const useGameStore = create<GameState>()(
           set({
             isGameActive: true,
             activeEngine: engine ?? server.currentRoom?.engine ?? null,
+            isAiLabSpectator: false,
             isMultiplayer: true,
             isHost: localIsHost,
             myPlayerSlot: `player-${enginePlayerIndex}`,
@@ -776,6 +780,7 @@ export const useGameStore = create<GameState>()(
         set({
           isGameActive: false,
           activeEngine: null,
+          isAiLabSpectator: false,
           gauntletId: null,
           gameView: null,
           currentPrompt: null,
