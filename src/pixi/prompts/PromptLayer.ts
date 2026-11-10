@@ -1625,13 +1625,15 @@ export class PromptLayer extends PromptModalLayer {
     if (controls) {
       this.stopWaitingAnimation();
       const gap = 4;
-      const width = minimal ? 40 : availableWidth;
+      const width = availableWidth;
       const height = minimal ? 42 : (this.priorityViewHeight ?? 48);
       const buttonHeight = minimal ? 38 : Math.min(38, height - 6);
       const pauseWidth = minimal
-        ? 40
+        ? 44
         : Math.min(92, Math.max(64, width - 3 * 48 - gap * 3));
-      const speedWidth = minimal ? 0 : Math.max(48, (width - pauseWidth - gap * 3) / 3);
+      const speedWidth = minimal
+        ? Math.max(40, (width - pauseWidth - gap * 3) / 3)
+        : Math.max(48, (width - pauseWidth - gap * 3) / 3);
       const pauseButton = this.makeButton(controls.paused ? "Resume" : "Pause", controls.onTogglePause, {
         variant: controls.paused ? "primary" : "secondary",
         compact: true,
@@ -1647,10 +1649,10 @@ export class PromptLayer extends PromptModalLayer {
         fontSize: 11,
         fontWeight: "800",
       });
-      const rowWidth = minimal ? pauseButton.buttonWidth : pauseWidth + 3 * gap + speedWidth * 3;
+      const rowWidth = pauseWidth + 3 * gap + speedWidth * 3;
       pauseButton.position.set(0, (height - pauseButton.buttonHeight) / 2);
       container.addChild(pauseButton);
-      if (!minimal) {
+      {
         const speeds: Array<0.5 | 1 | 2> = [0.5, 1, 2];
         speeds.forEach((speed, index) => {
           const selected = controls.speed === speed;
