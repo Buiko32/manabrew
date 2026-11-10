@@ -321,7 +321,7 @@ public final class SabTransport implements InteractiveBridge {
         String result = null;
         for (int seat = 0; seat < seats; seat++) {
             JsonObject message;
-            do {
+            while (true) {
                 waitWhilePaused();
                 if (!awaitAnswer(seat, LANE_POLL_MS)) {
                     continue;
@@ -330,7 +330,8 @@ public final class SabTransport implements InteractiveBridge {
                 if (botSeats.contains(seat)) paceBotDecision();
                 waitWhilePaused();
                 message = readResponse(seat, promptJson);
-            } while (message == null);
+                if (message != null) break;
+            }
             if (result == null || message.has("directive")) {
                 result = decodeMessage(seat, message);
             }
