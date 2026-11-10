@@ -80,17 +80,12 @@ function aggregate(
   const seatWins = decks.map((_, seat) => ({ seat, wins: 0, games: 0 }));
   const turns: number[] = [];
   const durations: number[] = [];
-  const latenciesP50: number[] = [];
-  const latenciesP90: number[] = [];
-  const latenciesP99: number[] = [];
+  const responseLatencies = results.flatMap((result) => result.responseLatencies);
   let decidedGames = 0;
 
   for (const result of results) {
     durations.push(result.durationMs);
     if (result.turns > 0) turns.push(result.turns);
-    if (result.responseLatencyP50 > 0) latenciesP50.push(result.responseLatencyP50);
-    if (result.responseLatencyP90 > 0) latenciesP90.push(result.responseLatencyP90);
-    if (result.responseLatencyP99 > 0) latenciesP99.push(result.responseLatencyP99);
 
     for (const seat of result.seats) {
       const total = deckTotals[seat.deckIndex];
@@ -140,9 +135,9 @@ function aggregate(
       ? Math.round(durations.reduce((sum, value) => sum + value, 0) / durations.length)
       : 0,
     medianDurationMs: median(durations),
-    responseLatencyP50: median(latenciesP50),
-    responseLatencyP90: median(latenciesP90),
-    responseLatencyP99: median(latenciesP99),
+    responseLatencyP50: percentile(responseLatencies, 0.5),
+    responseLatencyP90: percentile(responseLatencies, 0.9),
+    responseLatencyP99: percentile(responseLatencies, 0.99),
     decks: decks.map((deck, deckIndex) => {
       const total = deckTotals[deckIndex]!;
       const average = (key: keyof typeof total) => {
@@ -332,6 +327,7 @@ async function playOneGame(
       responseLatencyP50: percentile(latencySamples, 0.5),
       responseLatencyP90: percentile(latencySamples, 0.9),
       responseLatencyP99: percentile(latencySamples, 0.99),
+      responseLatencies: latencySamples,
       seats: seatStats.map((stats, seat) => ({ deckIndex: deckOrder[seat]!, stats })),
     };
   } finally {
