@@ -21,6 +21,7 @@ export interface AiSimulationGameResult {
   durationMs: number;
   responseLatencyP50: number;
   responseLatencyP90: number;
+  responseLatencyP99: number;
   seats: Array<{ deckIndex: number; stats: AiSimulationSeatStats }>;
 }
 
