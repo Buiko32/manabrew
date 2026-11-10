@@ -44,7 +44,7 @@ function privateSourceMaps(): Plugin {
     configResolved(config) {
       outputDirectory = path.resolve(config.root, config.build.outDir);
     },
-    closeBundle() {
+    writeBundle() {
       execFileSync(
         process.execPath,
         [
