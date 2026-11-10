@@ -6,7 +6,7 @@ import type {
   AiSimulationWorkerMessage,
 } from "@/game/aiSimulation.types";
 
-interface AiSimulationPanelProps {
+export interface AiSimulationPanelProps {
   decks: Deck[];
   games: number;
   startingLife: number;

@@ -272,7 +272,7 @@ export default function Play() {
               )
             }
             onSimulate={
-              spectatorMode
+              __AI_SIMULATION_ENABLED__ && spectatorMode
                 ? (decks, formatId, games) => {
                     const selectedFormat = formatId || decks[0]?.format || "standard";
                     setSimulationRequest({
@@ -285,7 +285,7 @@ export default function Play() {
                 : undefined
             }
           />
-          {simulationRequest && (
+          {__AI_SIMULATION_ENABLED__ && simulationRequest && (
             <AiSimulationPanel
               decks={simulationRequest.decks}
               games={simulationRequest.games}

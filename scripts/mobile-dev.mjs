@@ -9,7 +9,7 @@ if (target !== "android" && target !== "ios") {
   process.exit(1);
 }
 
-const env = { ...process.env };
+const env = { ...process.env, APP_BUILD_TARGET: target };
 
 if (target === "ios" && args[0] === "build") {
   env.NODE_OPTIONS = `${env.NODE_OPTIONS || ""} --max-old-space-size=8192`.trim();
