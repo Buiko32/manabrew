@@ -151,7 +151,12 @@ export function useGamePrefetch(mode: GamePrefetchMode): void {
       useGameStore.setState({ isPrefetchingCards: false });
       renderDeckPools();
     });
-    if (waitForDeck) return;
+    if (waitForDeck) {
+      return () => {
+        cancelled = true;
+        cancelIdle();
+      };
+    }
     void prefetchCards(likelyCards).then(() => {
       if (cancelled) return;
       cancelIdle = scheduleIdle(() => {

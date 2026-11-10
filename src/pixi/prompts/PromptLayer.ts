@@ -304,7 +304,13 @@ export class PromptLayer extends PromptModalLayer {
       !sameGameOverPresentation(previousSpec?.gameOver, spec?.gameOver);
     const overrideChanged =
       previousSpec?.action.promptActionOverride !== spec?.action.promptActionOverride;
-    const presentationChanged = promptChanged || !samePromptPresentation(previousSpec, spec);
+    const previousAiControls = previousSpec?.action.aiLabControls;
+    const nextAiControls = spec?.action.aiLabControls;
+    const aiControlsChanged =
+      previousAiControls?.paused !== nextAiControls?.paused ||
+      previousAiControls?.speed !== nextAiControls?.speed;
+    const presentationChanged =
+      promptChanged || aiControlsChanged || !samePromptPresentation(previousSpec, spec);
     if (promptChanged) {
       this.resetLocalState(spec);
       if (spec?.currentPrompt && MODAL_TYPES.has(spec.currentPrompt.input.type)) {
@@ -1615,6 +1621,58 @@ export class PromptLayer extends PromptModalLayer {
 
   private buildNoActionView(availableWidth: number, minimal: boolean): ActionViewLayout {
     const container = new Container();
+    const controls = this.spec?.action.aiLabControls;
+    if (controls) {
+      this.stopWaitingAnimation();
+      const gap = 4;
+      const width = minimal ? 40 : availableWidth;
+      const height = minimal ? 42 : (this.priorityViewHeight ?? 48);
+      const buttonHeight = minimal ? 38 : Math.min(38, height - 6);
+      const pauseWidth = minimal
+        ? 40
+        : Math.min(92, Math.max(64, width - 3 * 48 - gap * 3));
+      const speedWidth = minimal ? 0 : Math.max(48, (width - pauseWidth - gap * 3) / 3);
+      const pauseButton = this.makeButton(controls.paused ? "Resume" : "Pause", controls.onTogglePause, {
+        variant: controls.paused ? "primary" : "secondary",
+        compact: true,
+        flat: true,
+        radius: ACTION_CONTROL_RADIUS,
+        width: pauseWidth,
+        height: buttonHeight,
+        icon: controls.paused ? "lucide-play" : "lucide-pause",
+        iconSize: 14,
+        labelPlacement: minimal ? "hidden" : "inline",
+        tooltip: minimal,
+        title: controls.paused ? "Resume AI game" : "Pause AI game",
+        fontSize: 11,
+        fontWeight: "800",
+      });
+      const rowWidth = minimal ? pauseButton.buttonWidth : pauseWidth + 3 * gap + speedWidth * 3;
+      pauseButton.position.set(0, (height - pauseButton.buttonHeight) / 2);
+      container.addChild(pauseButton);
+      if (!minimal) {
+        const speeds: Array<0.5 | 1 | 2> = [0.5, 1, 2];
+        speeds.forEach((speed, index) => {
+          const selected = controls.speed === speed;
+          const button = this.makeButton(`${speed}x`, () => controls.onSpeedChange(speed), {
+            variant: selected ? "primary" : "secondary",
+            compact: true,
+            flat: true,
+            radius: ACTION_CONTROL_RADIUS,
+            width: speedWidth,
+            height: buttonHeight,
+            title: `Set AI playback speed to ${speed}x`,
+            fontSize: 10,
+            fontWeight: selected ? "900" : "700",
+            backgroundAlpha: selected ? 0.95 : 0.55,
+          });
+          button.position.set(pauseWidth + gap + index * (speedWidth + gap), (height - button.buttonHeight) / 2);
+          container.addChild(button);
+        });
+      }
+      return { container, width: rowWidth, height };
+    }
+
     const width = minimal ? 30 : availableWidth;
     const height = minimal ? 48 : (this.priorityViewHeight ?? 48);
     const color = this.theme.appTheme["muted-foreground"];
