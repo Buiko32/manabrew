@@ -1626,14 +1626,17 @@ export class PromptLayer extends PromptModalLayer {
       this.stopWaitingAnimation();
       const gap = 4;
       const width = availableWidth;
-      const height = minimal ? 42 : (this.priorityViewHeight ?? 48);
-      const buttonHeight = minimal ? 38 : Math.min(38, height - 6);
-      const pauseWidth = minimal
-        ? 44
-        : Math.min(92, Math.max(64, width - 3 * 48 - gap * 3));
-      const speedWidth = minimal
-        ? Math.max(40, (width - pauseWidth - gap * 3) / 3)
-        : Math.max(48, (width - pauseWidth - gap * 3) / 3);
+      const minimumSpeedRowWidth = 3 * 54 + 2 * gap;
+      const stacked = minimal || width < 286;
+      const rowWidth = stacked ? Math.max(width, minimumSpeedRowWidth) : width;
+      const buttonHeight = minimal ? 40 : 38;
+      const height = stacked ? buttonHeight * 2 + gap : buttonHeight;
+      const pauseWidth = stacked
+        ? Math.min(112, Math.max(92, rowWidth * 0.56))
+        : Math.min(112, Math.max(88, rowWidth - 3 * 58 - gap * 3));
+      const speedWidth = stacked
+        ? (rowWidth - 2 * gap) / 3
+        : (rowWidth - pauseWidth - 3 * gap) / 3;
       const pauseButton = this.makeButton(controls.paused ? "Resume" : "Pause", controls.onTogglePause, {
         variant: controls.paused ? "primary" : "secondary",
         compact: true,
@@ -1643,35 +1646,48 @@ export class PromptLayer extends PromptModalLayer {
         height: buttonHeight,
         icon: controls.paused ? "lucide-play" : "lucide-pause",
         iconSize: 14,
-        labelPlacement: minimal ? "hidden" : "inline",
-        tooltip: minimal,
+        labelPlacement: "inline",
+        tooltip: false,
         title: controls.paused ? "Resume AI game" : "Pause AI game",
         fontSize: 11,
         fontWeight: "800",
+        paddingX: 8,
       });
-      const rowWidth = pauseWidth + 3 * gap + speedWidth * 3;
-      pauseButton.position.set(0, (height - pauseButton.buttonHeight) / 2);
+      pauseButton.position.set(
+        stacked ? (rowWidth - pauseWidth) / 2 : 0,
+        stacked ? 0 : (height - pauseButton.buttonHeight) / 2,
+      );
       container.addChild(pauseButton);
-      {
-        const speeds: Array<0.5 | 1 | 2> = [0.5, 1, 2];
-        speeds.forEach((speed, index) => {
-          const selected = controls.speed === speed;
-          const button = this.makeButton(`${speed}x`, () => controls.onSpeedChange(speed), {
-            variant: selected ? "primary" : "secondary",
-            compact: true,
-            flat: true,
-            radius: ACTION_CONTROL_RADIUS,
-            width: speedWidth,
-            height: buttonHeight,
-            title: `Set AI playback speed to ${speed}x`,
-            fontSize: 10,
-            fontWeight: selected ? "900" : "700",
-            backgroundAlpha: selected ? 0.95 : 0.55,
-          });
-          button.position.set(pauseWidth + gap + index * (speedWidth + gap), (height - button.buttonHeight) / 2);
-          container.addChild(button);
+      const speeds: Array<{ speed: 0.5 | 1 | 2; icon: string }> = [
+        { speed: 0.5, icon: "lucide-rewind" },
+        { speed: 1, icon: "lucide-play" },
+        { speed: 2, icon: "lucide-fast-forward" },
+      ];
+      speeds.forEach(({ speed, icon }, index) => {
+        const selected = controls.speed === speed;
+        const button = this.makeButton(`${speed}x`, () => controls.onSpeedChange(speed), {
+          variant: selected ? "primary" : "secondary",
+          compact: true,
+          flat: true,
+          radius: ACTION_CONTROL_RADIUS,
+          width: speedWidth,
+          height: buttonHeight,
+          icon,
+          iconSize: 12,
+          labelPlacement: "inline",
+          tooltip: false,
+          title: `Set AI playback speed to ${speed}x`,
+          fontSize: 10,
+          fontWeight: selected ? "900" : "700",
+          paddingX: 4,
+          backgroundAlpha: selected ? 0.95 : 0.55,
         });
-      }
+        button.position.set(
+          stacked ? index * (speedWidth + gap) : pauseWidth + gap + index * (speedWidth + gap),
+          stacked ? buttonHeight + gap : (height - button.buttonHeight) / 2,
+        );
+        container.addChild(button);
+      });
       return { container, width: rowWidth, height };
     }
 
