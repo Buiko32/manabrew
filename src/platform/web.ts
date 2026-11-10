@@ -1012,7 +1012,7 @@ class WebGameApi implements IGameApi {
   async startGame(params: StartGameParams): Promise<string> {
     assertForgeWasmCanStart(params.engine);
     const externalBotSeats =
-      params.engine === "Forge" && params.aiController !== "forge"
+      params.engine === "Forge" && (params.watchOnly || params.aiController !== "forge")
         ? (params.opponentDecks?.length ? params.opponentDecks : [params.deck]).map(
             (_, index) => `player-${index + 1}`,
           )
@@ -1030,9 +1030,12 @@ class WebGameApi implements IGameApi {
         opponentDecks: params.opponentDecks,
         engine: params.engine,
         watchOnly: this.watchOnly,
-        forgeAi: params.aiController === "forge",
-        decisionJournal: params.engine === "Forge" && params.aiController !== "forge",
-        journalRewind: params.engine === "Forge" && params.aiController !== "forge",
+        // AI Lab uses Manabot-driven seats so every decision is journaled
+        // and can be deterministically replayed, regardless of the normal
+        // single-player AI preference.
+        forgeAi: !this.watchOnly && params.aiController === "forge",
+        decisionJournal: params.engine === "Forge" && (this.watchOnly || params.aiController !== "forge"),
+        journalRewind: params.engine === "Forge" && (this.watchOnly || params.aiController !== "forge"),
         pauseControl: this.watchOnly ? this.bridge.getSpectatorPauseControl() : undefined,
       });
     } catch (error) {
