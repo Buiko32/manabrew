@@ -169,6 +169,9 @@ function supervise(command) {
 }
 
 function runGame(request, args) {
+  // The Forge WASM Java transport reads this shared control buffer to pause
+  // spectator games and apply the selected AI playback speed.
+  self.__forgePauseControl = args.pauseControl;
   self.__forgeRewindControl = args.rewindControl;
   self.__forgePromptOffset = args.promptOffset ?? 0;
   if (args.replaySnapshot) {
