@@ -8,7 +8,6 @@ import {
   Swords,
   Timer,
   Trophy,
-  Zap,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
