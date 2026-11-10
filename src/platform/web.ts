@@ -299,7 +299,7 @@ class WorkerBridge {
       if (this.localSeat) this.dropSeat(this.localSeat);
       this.localSeat = seat;
       if (this.localBotSlots.has("player-0")) {
-        this.startLocalBotWorker(payload.buffer, "player-0");
+        this.startLocalBotWorker(payload.buffer, "player-0", true);
         return;
       }
       if (DEBUG_TRANSPORT) console.log("[WorkerBridge] Received local SAB, starting reader");
@@ -475,14 +475,35 @@ class WorkerBridge {
     this.localBotSlots = new Set(slots);
   }
 
-  private startLocalBotWorker(buffer: SharedArrayBuffer, playerSlot: string): void {
+  private startLocalBotWorker(
+    buffer: SharedArrayBuffer,
+    playerSlot: string,
+    mirrorState = false,
+  ): void {
     this.localBotWorkers.get(playerSlot)?.terminate();
     const worker = new Worker(new URL("../workers/manabot.worker.ts", import.meta.url), {
       type: "module",
     });
     worker.onmessage = (
-      event: MessageEvent<{ type: string; message?: string; name?: string; stack?: string }>,
+      event: MessageEvent<{
+        type: string;
+        message?: string;
+        name?: string;
+        stack?: string;
+        json?: string;
+      }>,
     ) => {
+      if (event.data.type === "state" && mirrorState && event.data.json) {
+        try {
+          this.dispatchEngineMessage(
+            JSON.parse(event.data.json) as EngineMessage,
+            performance.now(),
+          );
+        } catch (error) {
+          reportClientError(error, "bot-worker-state-mirror");
+        }
+        return;
+      }
       if (event.data.type !== "error") return;
       const error = new Error(event.data.message ?? "Bot worker failed");
       error.name = event.data.name ?? "Error";
@@ -497,7 +518,7 @@ class WorkerBridge {
     };
     worker.onmessageerror = () =>
       reportClientError(new Error("Bot worker message could not be decoded"), "bot-worker");
-    worker.postMessage({ buffer, playerSlot });
+    worker.postMessage({ buffer, playerSlot, mirrorState });
     this.localBotWorkers.set(playerSlot, worker);
   }
 
