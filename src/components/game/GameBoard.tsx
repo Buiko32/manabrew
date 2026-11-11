@@ -39,7 +39,12 @@ import { usePhaseStopStore, DEFAULT_OPPONENT_STOPS } from "@/stores/usePhaseStop
 import type { PromptType } from "@/protocol";
 import { OPPONENT_SEATS } from "@/components/game/game.types";
 import { useTheme } from "@/hooks/useTheme";
-import { botAvatarUrl, manaAbilityInfos, relayAvatarUrl } from "@/components/game/game.utils";
+import {
+  botAvatarUrl,
+  isBotSeat,
+  manaAbilityInfos,
+  relayAvatarUrl,
+} from "@/components/game/game.utils";
 import { useHandScale } from "@/hooks/useHandScale";
 import { useIsMobileGame } from "@/hooks/useBreakpoints";
 import { useHandOrder } from "@/hooks/useHandOrder";
@@ -776,6 +781,7 @@ export function GameBoard({
   const defaultPlaymatSettings = usePreferencesStore((s) => s.defaultPlaymatSettings);
   const playerDecks = useServerStore((s) => s.playerDecks);
   const relayPlayers = useServerStore((s) => s.players);
+  const currentRoom = useServerStore((s) => s.currentRoom);
 
   const roomTableStyle = useServerStore((s) => s.currentRoom?.table_style);
   const boardBackgroundId = usePreferencesStore((s) => s.boardBackgroundId);
@@ -794,14 +800,15 @@ export function GameBoard({
   const avatarByPlayerId = useMemo(() => {
     const map = new Map<string, string>();
     if (myAvatar) map.set(me.id, myAvatar);
+    const bots = opponents.filter((op) => isBotSeat(op, currentRoom?.players));
     for (const op of opponents) {
       const avatarUrl =
         relayAvatarUrl(op.name, relayPlayers, playerDecks) ??
-        (op.isHuman ? null : botAvatarUrl(op.id, opponents));
+        (bots.includes(op) ? botAvatarUrl(op.id, bots) : null);
       if (avatarUrl) map.set(op.id, avatarUrl);
     }
     return map;
-  }, [myAvatar, playerDecks, relayPlayers, me.id, opponents]);
+  }, [myAvatar, playerDecks, relayPlayers, currentRoom?.players, me.id, opponents]);
   const combatEngagedIds = useMemo(() => {
     const controllerById = new Map(battlefield.map((c) => [c.id, c.controllerId]));
     const playerSet = new Set([me.id, ...opponents.map((o) => o.id)]);
@@ -849,7 +856,6 @@ export function GameBoard({
   // Pixi player HUD capsules: self bottom-left, opponents across the top of
   // their fields. Carries the life, mana pool, and active player/game badges.
   const devOverrides = useGameDevStore((s) => s.playerOverrides);
-  const currentRoom = useServerStore((s) => s.currentRoom);
   const playerBarSpecs = useMemo<PlayerHudSpec[]>(() => {
     const allPlayers = [me, ...opponents];
     const displayNames = displayPlayerNames(allPlayers, currentRoom?.players ?? []);
@@ -1187,6 +1193,7 @@ export function GameBoard({
         });
       }
       const incoming = incomingDamageFor(player);
+      const isBot = isBotSeat(player, currentRoom?.players);
       return {
         playerId: player.id,
         name: displayNameByPlayerId.get(player.id) ?? stripUsernameTag(player.name),
@@ -1194,7 +1201,7 @@ export function GameBoard({
         life: dev.life ?? player.life,
         color,
         avatarUrl: dev.forceBot || dev.forceNoAvatar ? undefined : avatarByPlayerId.get(player.id),
-        isBot: dev.forceBot ? true : player.isHuman === false,
+        isBot: dev.forceBot ? true : isBot,
         isActiveTurn: dev.forceActiveTurn ? true : activePlayerId === player.id,
         isPriorityPlayer: dev.forcePriority ? true : priorityPlayerId === player.id,
         isTargetable: dev.forceTargetable ? true : playerIsTargetable(player.id),
@@ -1205,7 +1212,7 @@ export function GameBoard({
         isEliminated: dev.forceEliminated ? true : player.status !== "playing",
         isDisconnected: dev.forceDisconnected
           ? true
-          : !isSelf && player.isHuman && roomByName.get(player.name)?.connected === false,
+          : !isSelf && !isBot && roomByName.get(player.name)?.connected === false,
         inCombat: dev.forceInCombat || dev.forceCombatLethal || combatEngagedIds.has(player.id),
         combatLethal:
           dev.forceCombatLethal || (incoming > 0 && incoming >= (dev.life ?? player.life)),
