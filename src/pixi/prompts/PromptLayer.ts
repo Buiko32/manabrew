@@ -20,7 +20,7 @@ import {
 import type { Theme } from "@/hooks/useTheme";
 import { readableTextColor, withAlpha } from "@/themes/gameTheme";
 import { hexToNum, mixNum } from "@/pixi/colorUtils";
-import { CardSprite } from "@/pixi/CardSprite";
+import { CardSprite, isRealisticOnlyCard } from "@/pixi/CardSprite";
 import {
   ACTION_DRAWER_BUMP_EVENT,
   AUTOPASS_DELAY_MAX_MS,
@@ -1634,25 +1634,27 @@ export class PromptLayer extends PromptModalLayer {
       const pauseWidth = stacked
         ? Math.min(112, Math.max(92, rowWidth * 0.56))
         : Math.min(112, Math.max(88, rowWidth - 3 * 58 - gap * 3));
-      const speedWidth = stacked
-        ? (rowWidth - 2 * gap) / 3
-        : (rowWidth - pauseWidth - 3 * gap) / 3;
-      const pauseButton = this.makeButton(controls.paused ? "Resume" : "Pause", controls.onTogglePause, {
-        variant: controls.paused ? "primary" : "secondary",
-        compact: true,
-        flat: true,
-        radius: ACTION_CONTROL_RADIUS,
-        width: pauseWidth,
-        height: buttonHeight,
-        icon: controls.paused ? "lucide-play" : "lucide-pause",
-        iconSize: 14,
-        labelPlacement: "inline",
-        tooltip: false,
-        title: controls.paused ? "Resume AI game" : "Pause AI game",
-        fontSize: 11,
-        fontWeight: "800",
-        paddingX: 8,
-      });
+      const speedWidth = stacked ? (rowWidth - 2 * gap) / 3 : (rowWidth - pauseWidth - 3 * gap) / 3;
+      const pauseButton = this.makeButton(
+        controls.paused ? "Resume" : "Pause",
+        controls.onTogglePause,
+        {
+          variant: controls.paused ? "primary" : "secondary",
+          compact: true,
+          flat: true,
+          radius: ACTION_CONTROL_RADIUS,
+          width: pauseWidth,
+          height: buttonHeight,
+          icon: controls.paused ? "lucide-play" : "lucide-pause",
+          iconSize: 14,
+          labelPlacement: "inline",
+          tooltip: false,
+          title: controls.paused ? "Resume AI game" : "Pause AI game",
+          fontSize: 11,
+          fontWeight: "800",
+          paddingX: 8,
+        },
+      );
       pauseButton.position.set(
         stacked ? (rowWidth - pauseWidth) / 2 : 0,
         stacked ? 0 : (height - pauseButton.buttonHeight) / 2,
@@ -2426,7 +2428,9 @@ export class PromptLayer extends PromptModalLayer {
     const container = new Container();
     const sprite = new CardSprite(card, "hand");
     sprite.onVisualChange = this.callbacks.onRenderRequested;
-    sprite.setHandRulesView(usePreferencesStore.getState().promptCardStyle === "rules");
+    sprite.setHandRulesView(
+      usePreferencesStore.getState().promptCardStyle === "rules" && !isRealisticOnlyCard(card),
+    );
     const place = () => {
       sprite.scale.set(1);
       const scale = Math.min(
