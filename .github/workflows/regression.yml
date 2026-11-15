@@ -40,7 +40,7 @@ jobs:
 
       - name: Set up Rust toolchain for fork runner
         if: github.repository != 'witchesofthehill/manabrew'
-        uses: dtolnay/rust-toolchain@stable
+        uses: dtolnay/rust-toolchain@1.100.0
 
       - name: Set up mold linker for fork runner
         if: github.repository != 'witchesofthehill/manabrew'
