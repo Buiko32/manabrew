@@ -21,10 +21,12 @@ export const FORGE_WASM_URL = forgeEngineUrls["../../packages/forge-wasm/forgeha
 // itself failed is permanent.
 export const TRIAL_RETRY_AFTER_MS = 24 * 60 * 60 * 1000;
 export const MAX_TRIAL_ATTEMPTS = 3;
+export const VERDICT_VERSION = 2;
 
 type ForgeWasmFailure = "timeout" | "engine";
 
 interface ForgeWasmVerdict {
+  v?: number;
   url: string;
   ok: boolean | null;
   failure?: ForgeWasmFailure;
@@ -38,7 +40,7 @@ function storedVerdict(): ForgeWasmVerdict | null {
   try {
     const raw = localStorage.getItem(STORAGE_KEYS.FORGE_WASM_VALIDATION);
     const verdict = raw ? (JSON.parse(raw) as ForgeWasmVerdict) : null;
-    if (verdict?.url !== FORGE_WASM_URL) return null;
+    if (verdict?.url !== FORGE_WASM_URL || verdict.v !== VERDICT_VERSION) return null;
     // A trial that began and never recorded an outcome took the page with it,
     // which is the slow-download case, not a verdict on the browser.
     return verdict.ok === null
@@ -76,6 +78,7 @@ export function recordForgeWasmVerdict(
 ): void {
   const previous = useForgeWasmVerdictStore.getState().verdict;
   const verdict: ForgeWasmVerdict = {
+    v: VERDICT_VERSION,
     url: FORGE_WASM_URL,
     ok,
     failure: ok ? undefined : failure,
@@ -90,10 +93,11 @@ export function recordForgeWasmVerdict(
 export function beginForgeWasmTrial(): void {
   const previous = useForgeWasmVerdictStore.getState().verdict;
   const pending: ForgeWasmVerdict = {
+    v: VERDICT_VERSION,
     url: FORGE_WASM_URL,
     ok: null,
     at: Date.now(),
-    attempts: previous?.attempts ?? 0,
+    attempts: (previous?.attempts ?? 0) + 1,
   };
   localStorage.setItem(STORAGE_KEYS.FORGE_WASM_VALIDATION, JSON.stringify(pending));
 }

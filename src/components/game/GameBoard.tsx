@@ -403,6 +403,7 @@ export function GameBoard({
       )
       .map(([blockerId, attackerId]) => ({ blockerId, attackerId }));
   }, [combatAssignments, blockAssignments, attackingCardIdSet, oppCombatAttackerIds]);
+  const ignoredCardIds = useGameStore((s) => s.ignoredCardIds);
   const chooseActionActions = chooseActionPrompt?.input.actions;
   const promptActions = chooseActionActions ?? payManaCostPrompt?.input.actions;
   const manaAbilityOptions = promptActions ? manaAbilityInfos(promptActions) : undefined;
@@ -545,6 +546,7 @@ export function GameBoard({
         promptType === "chooseAttackers"
           ? (selectableBattlefieldCardIds ?? []).filter((id) => hostileAttackTargetIds.has(id))
           : undefined,
+      ignoredCardIds,
     }),
     [
       myPermanents,
@@ -563,6 +565,7 @@ export function GameBoard({
       waterbentCardIds,
       hostileTargeting,
       hostileAttackTargetIds,
+      ignoredCardIds,
     ],
   );
   const battlefieldAutoSort = usePreferencesStore((s) => s.battlefieldAutoSort);
@@ -577,6 +580,7 @@ export function GameBoard({
     (): import("@/pixi/types").HandState => ({
       cards: orderedHand,
       playableIds,
+      ignoredIds: ignoredCardIds,
       draggingCardId,
       reorderingCardId: isOverHand ? draggingCardId : undefined,
       draggingIsPermanent,
@@ -587,6 +591,7 @@ export function GameBoard({
     [
       orderedHand,
       playableIds,
+      ignoredCardIds,
       draggingCardId,
       isOverHand,
       draggingIsPermanent,
