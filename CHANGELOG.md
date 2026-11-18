@@ -1,5 +1,36 @@
 # Changelog
 
+## [3.84.1](https://github.com/witchesofthehill/manabrew/compare/v3.84.0...v3.84.1) (2026-11-17)
+
+### Fixes
+
+* **combat:** preselect attacks that satisfy engine requirements ([#1232](https://github.com/witchesofthehill/manabrew/issues/1232)) ([2f035f3](https://github.com/witchesofthehill/manabrew/commit/2f035f3d200059a3649cd0acbab9385fb8a63cd7))
+* river pull and sink into stupor ([#1239](https://github.com/witchesofthehill/manabrew/issues/1239)) ([f8102be](https://github.com/witchesofthehill/manabrew/commit/f8102beb65bb0f3f3decd50b1645f9b50aa454cd))
+
+## [3.84.0](https://github.com/witchesofthehill/manabrew/compare/v3.83.0...v3.84.0) (2026-11-17)
+
+### Features
+
+* **ironsmith:** keep a game running when its host leaves ([#1237](https://github.com/witchesofthehill/manabrew/issues/1237)) ([3040806](https://github.com/witchesofthehill/manabrew/commit/30408066510b9ef1b8154e7bf179ac6d9d6390ed))
+
+## [3.83.0](https://github.com/witchesofthehill/manabrew/compare/v3.82.1...v3.83.0) (2026-11-17)
+
+### Features
+
+* **ironsmith:** update ironsmith-wasm to 0.9.1 ([#1234](https://github.com/witchesofthehill/manabrew/issues/1234)) ([845658e](https://github.com/witchesofthehill/manabrew/commit/845658e66022ba0a759b90bb959d33310ac12962))
+
+## [3.82.1](https://github.com/witchesofthehill/manabrew/compare/v3.82.0...v3.82.1) (2026-11-17)
+
+### Fixes
+
+* **lobby:** reconcile room membership after leaving games ([#1231](https://github.com/witchesofthehill/manabrew/issues/1231)) ([bc25e0c](https://github.com/witchesofthehill/manabrew/commit/bc25e0ce5cc62809c7941ff23d81fb8c6c1d8194))
+
+## [3.82.0](https://github.com/witchesofthehill/manabrew/compare/v3.81.0...v3.82.0) (2026-11-17)
+
+### Features
+
+* **ui:** enable chat during multiplayer games ([#1230](https://github.com/witchesofthehill/manabrew/issues/1230)) ([b1eecd6](https://github.com/witchesofthehill/manabrew/commit/b1eecd61849065f35ebe244301a661bc09a123c5))
+
 ## [3.81.0](https://github.com/witchesofthehill/manabrew/compare/v3.80.3...v3.81.0) (2026-11-15)
 
 ### Features

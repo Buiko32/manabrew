@@ -862,7 +862,14 @@ export default function Game({ exitTo }: GameProps = {}) {
     if (must.length === 0) return null;
     const nameOf = (id: string) =>
       gameView?.battlefield.find((c) => c.id === id)?.identity.name ?? `A creature`;
-    return `Must attack if able — ${must.map((a) => nameOf(a.attackerId)).join(", ")}`;
+    return `Must attack if able — ${must
+      .map((a) => {
+        const target = chooseAttackersInput?.attackTargets.find(
+          (t) => t.id === a.suggestedTargetId,
+        );
+        return target ? `${nameOf(a.attackerId)} → ${target.label}` : nameOf(a.attackerId);
+      })
+      .join(", ")}`;
   }, [chooseAttackersInput, gameView?.battlefield]);
   const blockRestrictionHint = useMemo<string | null>(() => {
     const attackers = chooseBlockersInput?.attackers ?? [];
@@ -2803,6 +2810,7 @@ export default function Game({ exitTo }: GameProps = {}) {
       {manualApi && <ManualTabletopControls gameView={gameView} api={manualApi} />}
 
       <RightActionPanel
+        showChat={isMultiplayer}
         collapsed={isActionPanelCollapsed}
         onLeftEdgeChange={setRightPanelLeft}
         onToggleCollapse={toggleActionPanel}
