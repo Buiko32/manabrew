@@ -1,5 +1,35 @@
 # Changelog
 
+## [3.84.6](https://github.com/witchesofthehill/manabrew/compare/v3.84.5...v3.84.6) (2026-11-18)
+
+### Fixes
+
+* **ironsmith:** run engine and bots in a web worker ([#1249](https://github.com/witchesofthehill/manabrew/issues/1249)) ([aae20cc](https://github.com/witchesofthehill/manabrew/commit/aae20cc7caa05be30613a975ba0e1ecf3bc5aa67))
+
+## [3.84.5](https://github.com/witchesofthehill/manabrew/compare/v3.84.4...v3.84.5) (2026-11-18)
+
+### Fixes
+
+* disable perf mode ([#1248](https://github.com/witchesofthehill/manabrew/issues/1248)) ([801aeb8](https://github.com/witchesofthehill/manabrew/commit/801aeb8bf76d5a624a35c1a778726440902ef267))
+
+## [3.84.4](https://github.com/witchesofthehill/manabrew/compare/v3.84.3...v3.84.4) (2026-11-18)
+
+### Fixes
+
+* **ironsmith:** connect manabot and keep hosting on humans ([#1240](https://github.com/witchesofthehill/manabrew/issues/1240)) ([691a794](https://github.com/witchesofthehill/manabrew/commit/691a794ca297a5bfe601878014f54fb574730cc6))
+
+## [3.84.3](https://github.com/witchesofthehill/manabrew/compare/v3.84.2...v3.84.3) (2026-11-18)
+
+### Fixes
+
+* blight and optional cost ([#1245](https://github.com/witchesofthehill/manabrew/issues/1245)) ([c8ae2ca](https://github.com/witchesofthehill/manabrew/commit/c8ae2cad6b79ccb55b5ae81673e2fa89cf22a39b))
+
+## [3.84.2](https://github.com/witchesofthehill/manabrew/compare/v3.84.1...v3.84.2) (2026-11-18)
+
+### Fixes
+
+* remove CL ([#1244](https://github.com/witchesofthehill/manabrew/issues/1244)) ([36d826a](https://github.com/witchesofthehill/manabrew/commit/36d826a02027d428cc3e10912a27e8e2896d3b13))
+
 ## [3.84.1](https://github.com/witchesofthehill/manabrew/compare/v3.84.0...v3.84.1) (2026-11-17)
 
 ### Fixes
