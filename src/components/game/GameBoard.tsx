@@ -7,6 +7,7 @@ import { validCardIdsInCards, type BoardTargetBuckets } from "@/lib/boardTargets
 import type { PreviewFlipOptions, PreviewPointerInput } from "@/lib/cardPreview";
 import { stripUsernameTag } from "@/lib/username";
 import { displayPlayerNames } from "@/lib/playerDisplayNames";
+import { gameBotAvatarUrls } from "@/lib/botAvatars";
 import { hiddenZoneCard } from "@/lib/gameCard";
 import { nextHandOrderMode } from "@/lib/handOrder";
 import { type ZonePanelItem } from "@/stores/usePreferencesStore";
@@ -39,12 +40,7 @@ import { usePhaseStopStore, DEFAULT_OPPONENT_STOPS } from "@/stores/usePhaseStop
 import type { PromptType } from "@/protocol";
 import { OPPONENT_SEATS } from "@/components/game/game.types";
 import { useTheme } from "@/hooks/useTheme";
-import {
-  botAvatarUrl,
-  isBotSeat,
-  manaAbilityInfos,
-  relayAvatarUrl,
-} from "@/components/game/game.utils";
+import { isBotSeat, manaAbilityInfos, relayAvatarUrl } from "@/components/game/game.utils";
 import { useHandScale } from "@/hooks/useHandScale";
 import { useIsMobileGame } from "@/hooks/useBreakpoints";
 import { useHandOrder } from "@/hooks/useHandOrder";
@@ -805,15 +801,14 @@ export function GameBoard({
   const avatarByPlayerId = useMemo(() => {
     const map = new Map<string, string>();
     if (myAvatar) map.set(me.id, myAvatar);
-    const bots = opponents.filter((op) => isBotSeat(op, currentRoom?.players));
+    const botAvatars = gameBotAvatarUrls([me, ...opponents], currentRoom?.players);
     for (const op of opponents) {
       const avatarUrl =
-        relayAvatarUrl(op.name, relayPlayers, playerDecks) ??
-        (bots.includes(op) ? botAvatarUrl(op.id, bots) : null);
+        botAvatars.get(op.name) ?? relayAvatarUrl(op.name, relayPlayers, playerDecks);
       if (avatarUrl) map.set(op.id, avatarUrl);
     }
     return map;
-  }, [myAvatar, playerDecks, relayPlayers, currentRoom?.players, me.id, opponents]);
+  }, [myAvatar, playerDecks, relayPlayers, currentRoom?.players, me, opponents]);
   const combatEngagedIds = useMemo(() => {
     const controllerById = new Map(battlefield.map((c) => [c.id, c.controllerId]));
     const playerSet = new Set([me.id, ...opponents.map((o) => o.id)]);
