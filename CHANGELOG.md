@@ -1,5 +1,32 @@
 # Changelog
 
+## [3.87.5](https://github.com/witchesofthehill/manabrew/compare/v3.87.4...v3.87.5) (2026-11-22)
+
+### Fixes
+
+* fix end screen ([#1269](https://github.com/witchesofthehill/manabrew/issues/1269)) ([7326d5e](https://github.com/witchesofthehill/manabrew/commit/7326d5e31c903ca8ff2475cba0bc532928c737fa))
+
+## [3.87.4](https://github.com/witchesofthehill/manabrew/compare/v3.87.3...v3.87.4) (2026-11-22)
+
+### Fixes
+
+* **telemetry:** record solo games started with play again ([#1266](https://github.com/witchesofthehill/manabrew/issues/1266)) ([60d3408](https://github.com/witchesofthehill/manabrew/commit/60d3408215ca4ded97abb4423afb56223830cd5b))
+
+## [3.87.3](https://github.com/witchesofthehill/manabrew/compare/v3.87.2...v3.87.3) (2026-11-21)
+
+### Fixes
+
+* **ironsmith:** find the local seat by slot, not isHuman ([#1261](https://github.com/witchesofthehill/manabrew/issues/1261)) ([764e39d](https://github.com/witchesofthehill/manabrew/commit/764e39d31bdb5618a7d875b45280bb7b4c062da9))
+
+## [3.87.2](https://github.com/witchesofthehill/manabrew/compare/v3.87.1...v3.87.2) (2026-11-21)
+
+### Fixes
+
+* topdeck bug 1255 ([#1262](https://github.com/witchesofthehill/manabrew/issues/1262)) ([52605b4](https://github.com/witchesofthehill/manabrew/commit/52605b49aa7a0ac74f3b372ceae0567d32f1e7fa))
+* autoanswer on cancellable targets ([#1263](https://github.com/witchesofthehill/manabrew/issues/1263)) ([332525a](https://github.com/witchesofthehill/manabrew/commit/332525a95c101c69bccb82ce456087091bdcc455))
+* 1110, 1220, 1190 ([#1264](https://github.com/witchesofthehill/manabrew/issues/1264)) ([db3f401](https://github.com/witchesofthehill/manabrew/commit/db3f4015fcdb2b2676d5e5d24dba9c439821a0d8))
+* waiting for ([#1265](https://github.com/witchesofthehill/manabrew/issues/1265)) ([94bb328](https://github.com/witchesofthehill/manabrew/commit/94bb3281685569f17d9cec895c8f51037b848e76))
+
 ## [3.87.1](https://github.com/witchesofthehill/manabrew/compare/v3.87.0...v3.87.1) (2026-11-20)
 
 ### Fixes

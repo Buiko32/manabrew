@@ -619,7 +619,6 @@ export default function Game({ exitTo }: GameProps = {}) {
     }
     return map;
   }, [promptActions]);
-  const tappableLandIdSet = useMemo(() => new Set(tappableLandIds), [tappableLandIds]);
   const applyManualAction = useCallback(
     async (action: Parameters<typeof applyManualTabletopAction>[1]) => {
       if (!manualApi) return;
@@ -673,13 +672,6 @@ export default function Game({ exitTo }: GameProps = {}) {
     (card: CardDto): HandActionOption[] => castOptionsByCardId.get(card.id) ?? [],
     [castOptionsByCardId],
   );
-  const getHandActionOptions = useCallback(
-    (card: CardDto): HandActionOption[] =>
-      manualApi
-        ? getManualCardActions(card)
-        : [...castOptions(card), ...(abilitiesByCardId.get(card.id) ?? [])],
-    [manualApi, getManualCardActions, castOptions, abilitiesByCardId],
-  );
   const getBattlefieldAbilityOptions = useCallback(
     (card: CardDto): HandActionOption[] => [
       ...castOptions(card).filter((action) => action.mode?.type === "unlockDoor"),
@@ -704,13 +696,11 @@ export default function Game({ exitTo }: GameProps = {}) {
         return options;
       }
       if (promptType !== "chooseAction") return [];
-      const abilities = [...(abilitiesByCardId.get(card.id) ?? [])];
-      const manaAbilities = manaAbilitiesByCardId.get(card.id) ?? [];
-      const isManaSource = tappableLandIdSet.has(card.id);
-      if (isManaSource && manaAbilities.length > 0) {
-        abilities.unshift(...manaAbilities);
-      }
-      return [...castOptions(card), ...abilities];
+      return [
+        ...castOptions(card),
+        ...(manaAbilitiesByCardId.get(card.id) ?? []),
+        ...(abilitiesByCardId.get(card.id) ?? []),
+      ];
     },
     [
       manualApi,
@@ -720,7 +710,6 @@ export default function Game({ exitTo }: GameProps = {}) {
       abilitiesByCardId,
       manaAbilitiesByCardId,
       waterbendActionIdByCardId,
-      tappableLandIdSet,
     ],
   );
   const respondHandAction = (option: HandActionOption): boolean => {
@@ -773,7 +762,7 @@ export default function Game({ exitTo }: GameProps = {}) {
       preview.showSticky(card, e?.clientX, e?.clientY);
       return null;
     }
-    const actions = getHandActionOptions(card);
+    const actions = getCardActions(card);
     if (actions.length === 0) {
       if (playableIds.has(card.id)) handleCastSpell(card.id);
       return null;
@@ -805,7 +794,7 @@ export default function Game({ exitTo }: GameProps = {}) {
     handleHandCardInspect(card, e);
   };
   const handleHandCardDragStart = (card: CardDto, e: HandDragStart) => {
-    const actions = getHandActionOptions(card);
+    const actions = getCardActions(card);
     const canCast =
       !manualApi &&
       playableIds.has(card.id) &&
@@ -1081,7 +1070,10 @@ export default function Game({ exitTo }: GameProps = {}) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activePrompt, isWaitingForResponse, promptType, tappableLandIds, untappableLandIds]);
   const _earlyMyPlayerId =
-    gameView?.players?.find((p) => p.isHuman)?.id ?? gameView?.players?.[0]?.id ?? "";
+    myPlayerSlot ??
+    gameView?.players?.find((p) => p.isHuman)?.id ??
+    gameView?.players?.[0]?.id ??
+    "";
   const { unifiedPass, unifiedPassEndTurn } = usePromptEffects({
     currentPrompt: activePrompt,
     gameView,
@@ -1556,7 +1548,7 @@ export default function Game({ exitTo }: GameProps = {}) {
       : viewingZone?.mode === "cost"
         ? delveSourceIds
         : viewingZone?.mode === "cast" || viewingZone?.mode === "browse"
-          ? [...castOptionsByCardId.keys(), ...abilitiesByCardId.keys()]
+          ? liveZoneCards.filter((card) => getCardActions(card).length > 0).map((card) => card.id)
           : viewingZone?.mode === "manual"
             ? liveZoneCards.map((card) => card.id)
             : [];
@@ -2496,6 +2488,19 @@ export default function Game({ exitTo }: GameProps = {}) {
     activeFlash?.kind === "turn"
       ? gameView.players.find((player) => player.id === activeFlash.playerId)
       : undefined;
+  const seatAvatarUrl = (player: ClientPlayerDto) =>
+    player.id === me.id
+      ? (useAuthStore.getState().account?.avatarUrl ?? null)
+      : (botAvatars.get(player.name) ??
+        relayAvatarUrl(
+          player.name,
+          useServerStore.getState().players,
+          useServerStore.getState().playerDecks,
+        ));
+  const decidingPlayer =
+    gameView.decidingPlayerId !== me.id
+      ? gameView.players.find((player) => player.id === gameView.decidingPlayerId)
+      : undefined;
   const promptOverlaySpec: PromptOverlaySpec = {
     currentPrompt: activePrompt,
     localPlayerId: me.id,
@@ -2513,15 +2518,7 @@ export default function Game({ exitTo }: GameProps = {}) {
               activeFlash.playerId === me.id && !isAiLabSpectator
                 ? "Your turn"
                 : `${stripUsernameTag(turnHandoffPlayer.name)}'s turn`,
-            avatarUrl:
-              activeFlash.playerId === me.id
-                ? (useAuthStore.getState().account?.avatarUrl ?? null)
-                : (botAvatars.get(turnHandoffPlayer.name) ??
-                  relayAvatarUrl(
-                    turnHandoffPlayer.name,
-                    useServerStore.getState().players,
-                    useServerStore.getState().playerDecks,
-                  )),
+            avatarUrl: seatAvatarUrl(turnHandoffPlayer),
           }
         : null,
     sourceDeckCard: promptSourceDeckCard,
@@ -2530,7 +2527,9 @@ export default function Game({ exitTo }: GameProps = {}) {
       promptActionOverride,
       isWaitingForResponse,
       isWaitingForOthers:
-        relinquishedPriority || (isWaitingForResponse && gameView.priorityPlayerId !== me.id),
+        relinquishedPriority ||
+        (isWaitingForResponse &&
+          (gameView.priorityPlayerId !== me.id || promptType === "mulligan")),
       aiLabControls:
         isAiLabSpectator && !gameView.gameOver
           ? {
@@ -2540,6 +2539,13 @@ export default function Game({ exitTo }: GameProps = {}) {
               onSpeedChange: (speed) => void changeAiLabSpeed(speed),
             }
           : undefined,
+      waitingFor: decidingPlayer
+        ? {
+            name: stripUsernameTag(decidingPlayer.name),
+            color: playerColorMap.get(decidingPlayer.id) ?? themeColors.playerColors.self,
+            avatarUrl: seatAvatarUrl(decidingPlayer),
+          }
+        : null,
       availableAttackerIds:
         chooseAttackersInput?.attackers.map((attacker) => attacker.attackerId) ?? [],
       pendingAttackers,
@@ -2594,7 +2600,7 @@ export default function Game({ exitTo }: GameProps = {}) {
             sourceCard: promptSourceDeckCard,
             manaCost: payManaCostInput.manaCost,
             description: payManaCostInput.presentation.text,
-            manaPool: gameView.players.find((player) => player.isHuman)?.manaPool ?? {},
+            manaPool: me?.manaPool ?? {},
             canConfirmFromPool: payManaCostInput.canConfirmFromPool,
             delveCount: delvedCardIds.length,
             delveAvailable: delveSourceIds.length > 0,
@@ -2649,6 +2655,7 @@ export default function Game({ exitTo }: GameProps = {}) {
             engineCrash,
             statusMessage: postGame.statusMessage,
             playerStatuses: postGame.playerStatuses,
+            rematchRequests: postGame.rematchRequests,
             ready: postGame.ready,
             busy: postGame.busy,
             onPlayAgain: postGame.onPlayAgain,
@@ -2799,7 +2806,7 @@ export default function Game({ exitTo }: GameProps = {}) {
             });
           }}
           onHandHoverChange={setHandCardLifted}
-          getHandActions={getHandActionOptions}
+          getHandActions={getCardActions}
           onSelectHandAction={handlePreviewAction}
           onFlipCard={handleFlipPreview}
           onBattlefieldClick={(card) => {
