@@ -40,5 +40,6 @@ jobs:
           src/lib/appInit.test.ts
           src/lib/forgeWasm.test.ts
           src/game/aiSimulationBatch.test.ts
+          src/components/game/opponentHandVisibility.test.ts
           src/lib/webSocketHandshake.test.ts
           src/stores/useScryfallStore.localization.test.ts
