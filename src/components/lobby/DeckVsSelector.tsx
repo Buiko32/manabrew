@@ -7,7 +7,7 @@ import { AppSelect, AppSelectOption } from "@/components/ui/AppSelect";
 import { FormatBadge } from "@/components/game/FormatBadge";
 import { TablePickerDialog } from "@/components/lobby/TablePickerDialog";
 import { DeckSelectionCard } from "./DeckSelectionCard";
-import { useIsShortScreen, useIsTouch } from "@/hooks/useBreakpoints";
+import { useIsMobileGame, useIsShortScreen, useIsTouch } from "@/hooks/useBreakpoints";
 import { useTheme } from "@/hooks/useTheme";
 import { cn, pickRandom } from "@/lib/utils";
 import { toast } from "sonner";
@@ -72,7 +72,8 @@ export function DeckVsSelector({
 }: DeckVsSelectorProps) {
   const denseDecks = useIsShortScreen();
   const isTouch = useIsTouch();
-  const shortTouch = isTouch;
+  const phoneLayout = useIsMobileGame();
+  const shortTouch = isTouch && (denseDecks || phoneLayout);
   const currentDeck = useDeckStore((state) => state.currentDeck);
   const savedDecks = useOwnedDecks();
   const preSelectedSavedDeck = savedDecks.find((saved) => saved.id === preSelectedDeckId);
@@ -128,7 +129,8 @@ export function DeckVsSelector({
     selectedFormat === null ? null : (getFormat(selectedFormat)?.deckFormat ?? selectedFormat);
   const [deckSearch, setDeckSearch] = useState("");
   const [starting, setStarting] = useState(false);
-  const [simulationGames, setSimulationGames] = useState(10);
+  // Start with a smaller batch on phones to reduce peak WebAssembly memory use.
+  const [simulationGames, setSimulationGames] = useState(phoneLayout ? 3 : 10);
   const [tableDialogOpen, setTableDialogOpen] = useState(false);
   const [loadingHubDeckId, setLoadingHubDeckId] = useState<string | null>(null);
   const [loadingSeatId, setLoadingSeatId] = useState<string | null>(null);
@@ -507,24 +509,26 @@ export function DeckVsSelector({
   );
 
   return (
-    <div className="flex h-full min-h-0 flex-col overflow-y-auto pb-[max(0px,calc(100dvh-var(--visual-viewport-height)-var(--visual-viewport-top)))]">
+    <div className="flex h-full min-h-0 flex-col overflow-hidden">
       {shortTouch ? (
-        <div className="flex shrink-0 items-center gap-2 border-b bg-muted/5 px-4 py-1.5">
-          {leadingControl}
-          <AppSelect
-            aria-label="Filter decks by format"
-            value={selectedFormat ?? ""}
-            onValueChange={(value) => changeFormat(value || null)}
-            className="min-h-11 max-w-44 shrink-0 text-ui-label font-medium"
-          >
-            <AppSelectOption value="">All formats</AppSelectOption>
-            {GAME_FORMATS.map((format) => (
-              <AppSelectOption key={format.id} value={format.id}>
-                <FormatBadge formatId={format.id} />
-                <span className="truncate">{format.name}</span>
-              </AppSelectOption>
-            ))}
-          </AppSelect>
+        <div className="flex shrink-0 flex-col gap-2 border-b bg-muted/5 px-3 py-2 sm:flex-row sm:items-center sm:px-4">
+          <div className="flex min-w-0 items-center gap-2">
+            {leadingControl}
+            <AppSelect
+              aria-label="Filter decks by format"
+              value={selectedFormat ?? ""}
+              onValueChange={(value) => changeFormat(value || null)}
+              className="min-h-11 min-w-0 flex-1 text-ui-label font-medium"
+            >
+              <AppSelectOption value="">All formats</AppSelectOption>
+              {GAME_FORMATS.map((format) => (
+                <AppSelectOption key={format.id} value={format.id}>
+                  <FormatBadge formatId={format.id} />
+                  <span className="truncate">{format.name}</span>
+                </AppSelectOption>
+              ))}
+            </AppSelect>
+          </div>
           {searchControl}
         </div>
       ) : (
@@ -565,8 +569,8 @@ export function DeckVsSelector({
 
       <div
         className={cn(
-          "min-h-0 flex-1 space-y-6 overflow-y-auto px-4 pb-4 sm:px-6 lg:px-8",
-          shortTouch && "space-y-3 pb-2",
+          "min-h-0 flex-1 space-y-6 overflow-y-auto overscroll-contain px-4 pb-4 sm:px-6 lg:px-8",
+          shortTouch && "space-y-3 px-3 pb-3",
         )}
       >
         <div>
@@ -756,9 +760,8 @@ export function DeckVsSelector({
 
       <div
         className={cn(
-          "grid shrink-0 gap-2 border-t bg-muted/10 px-4 py-2 xl:flex xl:items-center xl:justify-between sm:gap-3 sm:px-6 sm:py-3 lg:px-8",
-          shortTouch && "sm:px-4 sm:py-1.5",
-          denseDecks && "flex items-center",
+          "grid shrink-0 gap-3 border-t bg-background/95 px-4 py-3 sm:gap-3 sm:px-6 sm:py-3 lg:px-8 xl:flex xl:items-center xl:justify-between",
+          shortTouch && "max-h-[min(53dvh,22rem)] grid-cols-1 overflow-y-auto overscroll-contain px-3 py-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] shadow-[0_-8px_22px_-14px_rgba(0,0,0,0.35)]",
         )}
       >
         <OfflineRoster
@@ -768,7 +771,7 @@ export function DeckVsSelector({
           loadingSeatId={loadingSeatId}
           multiplayer={isCommander || spectator}
           spectator={spectator}
-          compact={denseDecks}
+          compact={denseDecks || phoneLayout}
           disabled={starting}
           randomAvailable={!!selectedFormat}
           onSelect={(seatId) => {
@@ -791,7 +794,7 @@ export function DeckVsSelector({
         />
         <div className="flex w-full shrink-0 flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
           {spectator && onSimulate && (
-            <div className="flex items-center gap-2">
+            <div className="grid w-full min-w-0 grid-cols-[auto_5.5rem_minmax(0,1fr)] items-center gap-2 sm:flex sm:w-auto">
               <label htmlFor="ai-simulation-games" className="text-ui-meta text-muted-foreground">
                 Games
               </label>
@@ -803,7 +806,7 @@ export function DeckVsSelector({
                 disabled={starting}
                 className="min-h-11 rounded-md border bg-background px-2 text-ui-label"
               >
-                {[5, 10, 25, 50, 100].map((count) => (
+                {[1, 3, 5, 10, 25, 50, 100].map((count) => (
                   <option key={count} value={count}>
                     {count}
                   </option>
@@ -814,7 +817,7 @@ export function DeckVsSelector({
                 size="lg"
                 onClick={() => void startSimulation()}
                 disabled={!isReady || starting}
-                className="min-h-14 gap-2 px-4 text-ui-body font-semibold"
+                className="min-h-12 w-full min-w-0 gap-2 px-3 text-ui-body font-semibold sm:min-h-14 sm:w-auto sm:px-4"
               >
                 Simulate
               </Button>
@@ -826,11 +829,16 @@ export function DeckVsSelector({
             onClick={handleFight}
             disabled={!isReady || starting}
             aria-busy={starting}
-            className="min-h-14 w-full gap-2 px-10 text-ui-body font-bold sm:w-auto sm:min-w-48"
+            className="min-h-12 w-full gap-2 px-4 text-ui-body font-bold sm:min-h-14 sm:min-w-48 sm:px-10"
           >
             {starting ? <Loader2 className="size-5 animate-spin" /> : <Swords className="size-5" />}
             {starting ? `Starting\u2026` : spectator ? `Watch AI game` : `Fight!`}
           </Button>
+          {spectator && onSimulate && !isReady && (
+            <p className="text-ui-meta text-muted-foreground" role="status">
+              Select a valid deck for each AI player to enable simulation.
+            </p>
+          )}
         </div>
       </div>
       <TablePickerDialog
