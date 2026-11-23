@@ -9,6 +9,10 @@ import { stripUsernameTag } from "@/lib/username";
 import { displayPlayerNames } from "@/lib/playerDisplayNames";
 import { gameBotAvatarUrls } from "@/lib/botAvatars";
 import { hiddenZoneCard } from "@/lib/gameCard";
+import {
+  opponentHandFanCards,
+  opponentVisibleHandCards,
+} from "@/components/game/opponentHandVisibility";
 import { nextHandOrderMode } from "@/lib/handOrder";
 import { type ZonePanelItem } from "@/stores/usePreferencesStore";
 import { type BoardCanvasLayout, type BoardCanvasRegion } from "@/pixi/BoardCanvas";
@@ -106,6 +110,7 @@ function graveyardCardTypeCount(cards: CardDto[]): number {
 }
 
 interface GameBoardProps {
+  isAiLabSpectator: boolean;
   me: ClientPlayerDto;
   opponents: ClientPlayerDto[];
   myPermanents: CardDto[];
@@ -233,6 +238,7 @@ interface GameBoardProps {
   boardSurfaceRef?: (el: HTMLDivElement | null) => void;
 }
 export function GameBoard({
+  isAiLabSpectator,
   me,
   opponents,
   myPermanents,
@@ -1099,7 +1105,7 @@ export function GameBoard({
             ringLevel: dev.ringLevel ?? player.ringLevel,
             speed: dev.speed ?? player.speed,
             handCount: dev.handCount ?? player.handCount,
-            revealedHand: isSelf ? [] : player.hand,
+            revealedHand: isSelf ? [] : opponentVisibleHandCards(player, isAiLabSpectator),
           },
           gameTheme.badges,
         ),
@@ -1265,6 +1271,7 @@ export function GameBoard({
     currentRoom,
     myPermanents,
     opponentPermanentsByPlayer,
+    isAiLabSpectator,
   ]);
   // Shared open-handlers for the local player's command / graveyard / exile
   // zones. Used by BOTH the on-grid Pixi tiles and the React panel so the
@@ -1567,12 +1574,10 @@ export function GameBoard({
       new Map(
         opponents.map((op) => [
           op.id,
-          opponentHandFan === "always" || (opponentHandFan === "revealed" && op.hand.length > 0)
-            ? handWithHiddenCards(op)
-            : [],
+          opponentHandFanCards(op, opponentHandFan, isAiLabSpectator),
         ]),
       ),
-    [opponents, opponentHandFan],
+    [opponents, opponentHandFan, isAiLabSpectator],
   );
   const unifiedRegions = useMemo((): BoardCanvasRegion[] => {
     const rowFields = (combatRow?: CombatRow): Partial<BattlefieldState> => ({
@@ -1702,7 +1707,9 @@ export function GameBoard({
                         ? () =>
                             onOpenZone(
                               `${sheetPlayer.name}'s hand`,
-                              handWithHiddenCards(sheetPlayer),
+                              sheetPlayer.id === me.id || isAiLabSpectator
+                                ? handWithHiddenCards(sheetPlayer)
+                                : opponentHandFanCards(sheetPlayer, "always", false),
                             )
                         : badge.onTap,
                   }
