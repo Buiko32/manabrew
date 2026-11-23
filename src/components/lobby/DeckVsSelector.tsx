@@ -15,6 +15,7 @@ import { ROUTES } from "@/lib/constants";
 import { resolveAiOpponent } from "@/lib/aiOpponent";
 import { getDeckFingerprint } from "@/lib/decks";
 import { reportPublishedDeckPlay } from "@/lib/deckPlayEvidence";
+import { trackClientUiAction } from "@/lib/clientAnalyticsFunnel";
 import { GAME_FORMATS, getFormat, validateDeckSections } from "@/lib/formats";
 import { resolveOfflineEngine } from "@/lib/offlineEngine";
 import { hubEntryEngines, supportsEngine } from "@/lib/engines";
@@ -318,6 +319,7 @@ export function DeckVsSelector({
   }
   function changeFormat(formatId: PlayFormatId | null) {
     if (formatId === selectedFormat) return;
+    trackClientUiAction("setup_format");
     invalidateHubSelection();
     dispatchRoster({ type: "reset" });
     setSelectedFormat(formatId);
@@ -335,6 +337,7 @@ export function DeckVsSelector({
     dispatchRoster({ type: "assign", seatId, deck: selected });
   }
   function selectDeck(deck: Deck) {
+    trackClientUiAction("setup_deck_preset");
     const formatId = deck.format ?? "standard";
     if (!selectedFormat) setSelectedFormat(formatId);
     const sourceId = deck.id ?? deck.name;
@@ -352,6 +355,7 @@ export function DeckVsSelector({
     });
   }
   async function selectHubDeck(summary: DeckHubEntrySummary) {
+    trackClientUiAction("setup_deck_community");
     const seatId = roster.activeSeatId ?? PLAYER_SEAT_ID;
     const requestId = ++hubSelectionRequestIdRef.current;
     setLoadingHubDeckId(summary.id);
@@ -393,11 +397,13 @@ export function DeckVsSelector({
     }
   }
   function selectUserDeck(entry: SelectedDeck) {
+    trackClientUiAction("setup_deck_owned");
     if (!selectedFormat && entry.formatId) setSelectedFormat(entry.formatId);
     assignDeck(entry);
   }
   function handleRandomOpponent(seatId: string) {
     if (!deckFormat) return;
+    trackClientUiAction("setup_random_opponent");
     const candidates = [
       ...formatFilteredPresets.map(
         (deck): SelectedDeck => ({
@@ -421,10 +427,12 @@ export function DeckVsSelector({
   }
   function handleFight() {
     if (!isReady || starting) return;
+    trackClientUiAction("setup_fight");
     setTableDialogOpen(true);
   }
 
   function handleTableChosen() {
+    trackClientUiAction("setup_table_start");
     setTableDialogOpen(false);
     void startFight();
   }
@@ -777,19 +785,23 @@ export function DeckVsSelector({
           disabled={starting}
           randomAvailable={!!selectedFormat}
           onSelect={(seatId) => {
+            trackClientUiAction("setup_seat");
             invalidateHubSelection();
             dispatchRoster({ type: "select", seatId });
           }}
           onClear={(seatId) => {
+            trackClientUiAction("setup_seat_clear");
             invalidateHubSelection();
             dispatchRoster({ type: "clear", seatId });
           }}
           onRemove={(seatId) => {
+            trackClientUiAction("setup_seat_remove");
             invalidateHubSelection();
             dispatchRoster({ type: "remove", seatId });
           }}
           onRandom={handleRandomOpponent}
           onAdd={() => {
+            trackClientUiAction("setup_seat_add");
             invalidateHubSelection();
             dispatchRoster({ type: "add" });
           }}
@@ -846,9 +858,15 @@ export function DeckVsSelector({
       <TablePickerDialog
         open={tableDialogOpen}
         background={boardBackground}
-        onBackgroundChange={setBoardBackground}
+        onBackgroundChange={(background) => {
+          trackClientUiAction("setup_table_background");
+          setBoardBackground(background);
+        }}
         onStart={handleTableChosen}
-        onCancel={() => setTableDialogOpen(false)}
+        onCancel={() => {
+          trackClientUiAction("setup_table_cancel");
+          setTableDialogOpen(false);
+        }}
         maxPlayers={roster.seats.length}
         players={roster.seats.map((seat, index) => ({
           username: assignments[index].label,
