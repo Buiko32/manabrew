@@ -10,8 +10,10 @@ import { initializeLocalization } from "./i18n/runtime";
 import { waitForStartupTask } from "./lib/appBootstrap";
 import { DISPLAY_FONT_FAMILY, UI_FONT_FAMILY } from "@/themes/typography";
 import { initializeErrorReporting, reportClientError } from "@/lib/errorReporting";
+import { initializeClientAnalytics } from "@/lib/clientAnalytics";
 
 initializeErrorReporting();
+initializeClientAnalytics();
 
 const LOCALIZATION_STARTUP_BUDGET_MS = 5_000;
 

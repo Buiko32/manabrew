@@ -1,5 +1,7 @@
 import { beginGame, noteAnswerSent } from "@/lib/engineTelemetry";
 import { setErrorReportingEngine } from "@/lib/errorReporting";
+import { relayUsername } from "@/lib/relayUsername";
+import { clientMultiplayerSource, trackClientMatchRequested } from "@/lib/clientAnalyticsFunnel";
 import {
   engineReportGameId,
   forgeHostLabel,
@@ -400,6 +402,9 @@ export const useGameStore = create<GameState>()(
       currentPrompt: null,
       protocolError: null,
       isGameActive: false,
+      gamePurpose: null,
+      gameLaunchReady: false,
+      gameLaunchHandle: null,
       activeEngine: null,
       debugInfo: "",
       fatalError: null,
@@ -446,6 +451,7 @@ export const useGameStore = create<GameState>()(
       setGameConfig: (config) => set({ gameConfig: config }),
       dismissIronsmithDeckError: () => set({ ironsmithDeckError: null }),
       startGame: async (
+        purpose,
         deck,
         formatId,
         commanderName,
@@ -463,6 +469,13 @@ export const useGameStore = create<GameState>()(
         }
         const launchGeneration = ++gameLaunchGeneration;
         gameLaunchInFlight = launchGeneration;
+        if (purpose === "match")
+          trackClientMatchRequested(gauntletId ? "gauntlet" : "offline_setup");
+        set({
+          gamePurpose: purpose,
+          gameLaunchReady: false,
+          gameLaunchHandle: relayUsername(),
+        });
         const runtimeKind =
           setup?.runtimeKind ??
           (engine === "Ironsmith" ? "ironsmith" : getSelectedGameRuntimeKind());
@@ -506,12 +519,14 @@ export const useGameStore = create<GameState>()(
             get,
             isLaunchCurrent: () => launchGeneration === gameLaunchGeneration,
           });
+          set({ gameLaunchReady: true });
           return true;
         } catch (e) {
           if (e instanceof GameLaunchCancelledError) return false;
           setErrorReportingEngine(null);
           set({
             isGameActive: false,
+            gameLaunchReady: false,
             activeEngine: null,
             isAiLabSpectator: false,
             gauntletId: null,
@@ -531,6 +546,7 @@ export const useGameStore = create<GameState>()(
       },
       restartGame: async () => {
         const { singlePlayerSetup, isRestartingGame } = get();
+        const purpose = get().gamePurpose ?? "match";
         if (!singlePlayerSetup || isRestartingGame || gameLaunchInFlight !== null) return false;
         set({ isRestartingGame: true });
         chainNextOfflineGame(true);
@@ -543,6 +559,7 @@ export const useGameStore = create<GameState>()(
               (singlePlayerSetup.engine === "Ironsmith" ? "ironsmith" : "manabrew"),
           );
           return await get().startGame(
+            purpose,
             player.sourceDeck,
             singlePlayerSetup.formatId,
             player.commanderName,
@@ -559,6 +576,7 @@ export const useGameStore = create<GameState>()(
       startManualTabletopGame: async (deck, formatId, commanderName) => {
         selectGameRuntime("manual-tabletop");
         const started = await get().startGame(
+          "manual",
           deck,
           formatId ?? deck.format ?? "standard",
           commanderName,
@@ -637,6 +655,9 @@ export const useGameStore = create<GameState>()(
         }
         set({
           isGameActive: true,
+          gamePurpose: "manual",
+          gameLaunchReady: false,
+          gameLaunchHandle: null,
           activeEngine: null,
           isMultiplayer: true,
           singlePlayerSetup: null,
@@ -687,6 +708,12 @@ export const useGameStore = create<GameState>()(
             ? (session?.gauntletId ?? null)
             : null;
         set({ gauntletId });
+        trackClientMatchRequested(clientMultiplayerSource(server.currentRoom, server.username));
+        set({
+          gamePurpose: "match",
+          gameLaunchReady: false,
+          gameLaunchHandle: relayUsername(),
+        });
         if (server.currentRoom) {
           armActiveGameSession({
             roomId: server.currentRoom.room_id,
@@ -700,6 +727,7 @@ export const useGameStore = create<GameState>()(
           set({
             isGameActive: true,
             activeEngine: engine ?? server.currentRoom?.engine ?? null,
+            fatalError: null,
             isAiLabSpectator: false,
             isMultiplayer: true,
             singlePlayerSetup: null,
@@ -760,13 +788,14 @@ export const useGameStore = create<GameState>()(
             await runtime.api.endGame();
             return false;
           }
-          set({ debugInfo: "Multiplayer game started." });
+          set({ gameLaunchReady: true, debugInfo: "Multiplayer game started." });
           return true;
         } catch (e) {
           if (launchGeneration !== gameLaunchGeneration) return false;
           setErrorReportingEngine(null);
           set({
             isGameActive: false,
+            gameLaunchReady: false,
             activeEngine: null,
             isMultiplayer: false,
             isHost: false,
@@ -859,6 +888,7 @@ export const useGameStore = create<GameState>()(
         if (gameTeardownInFlight) return gameTeardownInFlight;
         const teardown = (async () => {
           gameLaunchGeneration += 1;
+          set({ gameLaunchReady: false });
           const activeSession = peekActiveGameSession();
           if (!options?.preserveRoom) clearActiveGameSession();
           const runtime = getSelectedGameRuntime();
@@ -886,7 +916,10 @@ export const useGameStore = create<GameState>()(
           setErrorReportingEngine(null);
           set({
             isGameActive: false,
-          isAiLabSpectator: false,
+            gamePurpose: null,
+            gameLaunchReady: false,
+            gameLaunchHandle: null,
+            isAiLabSpectator: false,
             singlePlayerSetup: options?.preserveRoom ? get().singlePlayerSetup : null,
             isRestartingGame:
               options?.preserveRoom || (get().isRestartingGame && get().isGameActive),
