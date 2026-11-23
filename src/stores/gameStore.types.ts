@@ -105,6 +105,7 @@ export interface GameState {
   /** True only while this client is spectating an offline AI Lab game. */
   isAiLabSpectator: boolean;
   isMultiplayer: boolean;
+  isSpectator: boolean;
   isHost: boolean;
   myPlayerSlot: string | null;
   /** Active game's decks keyed by player slot id ("player-0", "player-1", ...).
