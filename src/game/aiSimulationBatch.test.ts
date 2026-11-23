@@ -23,7 +23,7 @@ describe("AI simulation job scheduling", () => {
 
     expect(peak).toBe(2);
     expect(active).toBe(0);
-    expect(completed.toSorted((a, b) => a - b)).toEqual([0, 1, 2, 3, 4, 5]);
+    expect([...completed].sort((a, b) => a - b)).toEqual([0, 1, 2, 3, 4, 5]);
   });
 
   it("keeps phone simulations sequential", async () => {
