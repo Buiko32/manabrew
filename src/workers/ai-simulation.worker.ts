@@ -1,5 +1,6 @@
 import init, { WasmManabot } from "../wasm/wasm";
 import { createForgeEngine } from "@forge-wasm/forge.js";
+import { runJobsConcurrently } from "../game/aiSimulationBatch";
 import type { Deck } from "../protocol/deck";
 import type { Prompt, PromptOutput, StateUpdate } from "../protocol";
 import type {
@@ -15,6 +16,7 @@ interface StartRequest {
   games: number;
   startingLife: number;
   seedBase: number;
+  parallelGames?: number;
 }
 
 type WorkerRequest = StartRequest | { type: "cancel" };
@@ -195,7 +197,7 @@ function seatIndex(playerSlot?: string): number {
 
 let cancelRequested = false;
 let running = false;
-let cancelActiveGame: (() => void) | null = null;
+const cancelActiveGames = new Set<() => void>();
 
 function post(message: AiSimulationWorkerMessage): void {
   self.postMessage(message);
@@ -313,7 +315,7 @@ async function playOneGame(
     engine.dispose();
     finish({ reason: "cancelled" });
   };
-  cancelActiveGame = abort;
+  cancelActiveGames.add(abort);
   const timeout = setTimeout(() => finish({ reason: "timeout" }), 900_000);
 
   try {
@@ -363,7 +365,7 @@ async function playOneGame(
     };
   } finally {
     clearTimeout(timeout);
-    cancelActiveGame = null;
+    cancelActiveGames.delete(abort);
     engine.dispose();
     for (const bot of bots) bot.free();
   }
@@ -379,45 +381,59 @@ async function runSimulation(request: StartRequest): Promise<void> {
     // Let the UI distinguish a slow first game from a failed WASM download.
     post({ type: "ready" });
     const games = Math.max(1, Math.min(250, Math.floor(request.games)));
+    // Desktop runs two isolated Forge games in parallel; phones run one.
+    // Do not trust arbitrary values from the UI: cap concurrency at two.
+    const parallelGames = request.parallelGames === 2 ? 2 : 1;
     const results: AiSimulationGameResult[] = [];
-    for (let index = 0; index < games; index += 1) {
-      if (cancelRequested) break;
-      const rotation = index % request.decks.length;
-      const deckOrder = request.decks.map((_, at) => (at + rotation) % request.decks.length);
-      const result = await playOneGame(
-        request.decks,
-        deckOrder,
-        index + 1,
-        request.seedBase + index,
-        request.startingLife,
-      );
-      if (result.outcome === "cancelled") break;
-      results.push(result);
-      post({
-        type: "progress",
-        completed: results.length,
-        total: games,
-        lastGame: result,
-      });
-    }
+    await runJobsConcurrently(
+      games,
+      parallelGames,
+      () => cancelRequested,
+      (index) => {
+        const rotation = index % request.decks.length;
+        const deckOrder = request.decks.map((_, at) => (at + rotation) % request.decks.length);
+        return playOneGame(
+          request.decks,
+          deckOrder,
+          index + 1,
+          request.seedBase + index,
+          request.startingLife,
+        );
+      },
+      (result) => {
+        if (result.outcome === "cancelled") return;
+        results.push(result);
+        post({
+          type: "progress",
+          completed: results.length,
+          total: games,
+          lastGame: result,
+        });
+      },
+    );
+    // Concurrent games finish out of order. Keep the game log chronological,
+    // with the original seed and seat rotation for every numbered game.
+    results.sort((a, b) => a.game - b.game);
     const summary = aggregate(request.decks, games, results);
     if (cancelRequested) post({ type: "cancelled", summary });
     else post({ type: "complete", summary });
   } catch (error) {
+    // An engine failure must stop the other in-flight game as well.
+    cancelRequested = true;
+    for (const abort of [...cancelActiveGames]) abort();
     post({
       type: "error",
       message: error instanceof Error ? error.message : String(error),
     });
   } finally {
     running = false;
-    cancelActiveGame = null;
   }
 }
 
 self.onmessage = (event: MessageEvent<WorkerRequest>) => {
   if (event.data.type === "cancel") {
     cancelRequested = true;
-    cancelActiveGame?.();
+    for (const abort of [...cancelActiveGames]) abort();
     return;
   }
   void runSimulation(event.data);
