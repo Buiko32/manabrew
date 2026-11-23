@@ -2717,6 +2717,7 @@ export default function Game({ exitTo }: GameProps = {}) {
       <LandscapeGate />
       <DevViewportFrame>
         <GameBoard
+          isAiLabSpectator={isAiLabSpectator}
           boardSceneRef={boardSceneRef}
           onLayoutChange={setBoardLayout}
           boardSurfaceRef={setBoardSurfaceEl}
