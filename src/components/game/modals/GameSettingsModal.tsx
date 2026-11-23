@@ -238,8 +238,8 @@ export function GameSettingsModal({
             label="Show opponent hand fan"
             value={prefs.opponentHandFan}
             options={[
-              { value: "always", label: "Always" },
-              { value: "revealed", label: "Only when revealed" },
+              { value: "always", label: "Card backs in matches" },
+              { value: "revealed", label: "AI Lab spectator only" },
               { value: "never", label: "Never" },
             ]}
             onChange={prefs.setOpponentHandFan}
