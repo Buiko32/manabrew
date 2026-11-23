@@ -33,7 +33,8 @@ export function OfflinePlayShell({ children }: OfflinePlayShellProps) {
   const navigate = useNavigate();
   const shortScreen = useIsShortScreen();
   const isTouch = useIsTouch();
-  const compact = isTouch && (shortScreen || useIsMobileGame());
+  const mobileGame = useIsMobileGame();
+  const compact = isTouch && (shortScreen || mobileGame);
 
   const modeToggle = compact ? (
     <AppSelect
