@@ -376,6 +376,8 @@ async function runSimulation(request: StartRequest): Promise<void> {
   try {
     if (request.decks.length < 2) throw new Error("Choose at least two decks.");
     await init();
+    // Let the UI distinguish a slow first game from a failed WASM download.
+    post({ type: "ready" });
     const games = Math.max(1, Math.min(250, Math.floor(request.games)));
     const results: AiSimulationGameResult[] = [];
     for (let index = 0; index < games; index += 1) {
