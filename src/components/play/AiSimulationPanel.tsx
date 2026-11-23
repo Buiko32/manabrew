@@ -99,15 +99,42 @@ export function AiSimulationPanel({
   const [summary, setSummary] = useState<AiSimulationSummary | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [cancelRequested, setCancelRequested] = useState(false);
+  const [attempt, setAttempt] = useState(0);
+  const [initializing, setInitializing] = useState(true);
 
   useEffect(() => {
-    const worker = new Worker(new URL("../../workers/ai-simulation.worker.ts", import.meta.url), {
-      type: "module",
-    });
+    // Forge uses a SharedArrayBuffer transport; silently starting without
+    // cross-origin isolation leaves mobile browsers stuck on "Preparing".
+    if (!globalThis.crossOriginIsolated || typeof SharedArrayBuffer === "undefined") {
+      setInitializing(false);
+      setError(
+        "The game engine requires a cross-origin isolated page (COOP/COEP and SharedArrayBuffer). Open the site in a current browser over HTTPS, or check the proxy headers.",
+      );
+      return;
+    }
+    if (typeof Worker === "undefined") {
+      setInitializing(false);
+      setError("This browser does not support background workers required for AI simulation.");
+      return;
+    }
+
+    let worker: Worker;
+    try {
+      worker = new Worker(new URL("../../workers/ai-simulation.worker.ts", import.meta.url), {
+        type: "module",
+      });
+    } catch (cause) {
+      setInitializing(false);
+      setError(cause instanceof Error ? cause.message : "Unable to launch the simulation worker.");
+      return;
+    }
     workerRef.current = worker;
     worker.onmessage = (event: MessageEvent<AiSimulationWorkerMessage>) => {
       const message = event.data;
-      if (message.type === "progress") {
+      if (message.type === "ready") {
+        setInitializing(false);
+      } else if (message.type === "progress") {
+        setInitializing(false);
         setCompleted(message.completed);
         setTotal(message.total);
         setLastGame(
@@ -116,70 +143,99 @@ export function AiSimulationPanel({
             : `Game ${message.lastGame.game}: ${decks[message.lastGame.winnerDeckIndex]?.name ?? "Unknown deck"} won`,
         );
       } else if (message.type === "complete" || message.type === "cancelled") {
+        setInitializing(false);
         setSummary(message.summary);
         setCompleted(message.summary.completedGames);
         setTotal(message.summary.requestedGames);
         setCancelRequested(message.type === "cancelled");
       } else {
+        setInitializing(false);
         setError(message.message);
       }
     };
-    worker.onerror = (event) => setError(event.message || "The simulation worker failed.");
-    worker.postMessage({
-      type: "start",
-      decks,
-      games,
-      startingLife,
-      seedBase: Math.floor(Date.now() / 1000),
-    });
-    return () => {
-      worker.postMessage({ type: "cancel" });
-      worker.terminate();
-      workerRef.current = null;
+    worker.onerror = (event) => {
+      event.preventDefault();
+      setInitializing(false);
+      setError(event.message || "The simulation worker could not load. Check the WASM assets.");
     };
-  }, [decks, games, startingLife]);
+    worker.onmessageerror = () => {
+      setInitializing(false);
+      setError("The simulation worker sent an invalid message.");
+    };
+    try {
+      worker.postMessage({
+        type: "start",
+        decks,
+        games,
+        startingLife,
+        seedBase: Math.floor(Date.now() / 1000),
+      });
+    } catch (cause) {
+      setInitializing(false);
+      setError(cause instanceof Error ? cause.message : "Could not send decks to the worker.");
+    }
+    return () => {
+      worker.terminate();
+      if (workerRef.current === worker) workerRef.current = null;
+    };
+  }, [decks, games, startingLife, attempt]);
 
   function cancel(): void {
     setCancelRequested(true);
-    workerRef.current?.postMessage({ type: "cancel" });
+    try {
+      workerRef.current?.postMessage({ type: "cancel" });
+    } catch {
+      workerRef.current?.terminate();
+    }
+  }
+
+  function retry(): void {
+    setSummary(null);
+    setError(null);
+    setCompleted(0);
+    setTotal(games);
+    setLastGame("");
+    setCancelRequested(false);
+    setInitializing(true);
+    setAttempt((value) => value + 1);
   }
 
   const running = !summary && !error;
   const progress = total ? Math.min(100, Math.round((completed / total) * 100)) : 0;
 
   return (
-    <div className="fixed inset-0 z-[120] flex items-center justify-center bg-background/90 p-3 backdrop-blur-sm sm:p-6">
+    <div className="fixed inset-0 z-[120] flex items-stretch justify-center bg-background/95 p-0 backdrop-blur-sm sm:items-center sm:p-6">
       <section
         role="dialog"
         aria-modal="true"
         aria-labelledby="ai-simulation-title"
-        className="flex max-h-full w-full max-w-6xl flex-col overflow-hidden rounded-2xl border bg-background shadow-2xl"
+        className="flex h-[100dvh] w-full min-w-0 max-w-6xl flex-col overflow-hidden bg-background shadow-2xl sm:h-auto sm:max-h-[min(90dvh,900px)] sm:rounded-2xl sm:border"
       >
-        <header className="flex shrink-0 items-center justify-between gap-4 border-b px-4 py-3 sm:px-6">
+        <header className="flex shrink-0 items-start justify-between gap-2 border-b px-3 pb-3 pt-[max(0.75rem,env(safe-area-inset-top))] sm:items-center sm:gap-4 sm:px-6 sm:py-3">
           <div className="min-w-0">
             <div className="flex items-center gap-2">
               <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
                 <BarChart3 className="h-4 w-4" />
               </span>
-              <h2 id="ai-simulation-title" className="text-lg font-semibold">
+              <h2 id="ai-simulation-title" className="text-base font-semibold leading-tight sm:text-lg">
                 AI simulation report
               </h2>
             </div>
-            <p className="mt-1 pl-10 text-ui-meta text-muted-foreground">
+            <p className="mt-1 text-ui-meta text-muted-foreground sm:pl-10">
               {games} games · {decks.length} decks · {startingLife} starting life
             </p>
           </div>
-          <Button variant="outline" size="sm" onClick={onClose}>
+          <Button variant="outline" size="sm" onClick={onClose} className="min-h-10 shrink-0">
             Close
           </Button>
         </header>
 
-        <div className="min-h-0 flex-1 space-y-6 overflow-y-auto p-4 sm:p-6">
+        <div className="min-h-0 flex-1 space-y-5 overflow-y-auto overscroll-contain p-3 sm:space-y-6 sm:p-6">
           <section className="rounded-xl border bg-card/60 p-3 sm:p-4">
             <div className="flex items-center justify-between gap-3 text-ui-label">
               <div className="flex items-center gap-2 font-semibold">
                 <Activity className="h-4 w-4 text-primary" />
-                <span>{summary ? "Simulation completed" : cancelRequested ? "Cancelling simulation…" : "Running simulation"}</span>
+                <span>{error ? "Simulation unavailable" : summary ? "Simulation completed" : cancelRequested ? "Cancelling simulation…" : initializing ? "Loading game engine…" : "Running simulation"}</span>
               </div>
               <span className="shrink-0 font-semibold tabular-nums">{completed} / {total}</span>
             </div>
@@ -197,9 +253,14 @@ export function AiSimulationPanel({
             </div>
             <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
               <p className="text-ui-meta text-muted-foreground">
-                {lastGame || (running ? "Preparing the first game…" : "Results are ready")}
+                {lastGame || (error ? "Check the error below." : running ? initializing ? "Starting WebAssembly worker…" : "Preparing the first game…" : "Results are ready")}
               </p>
-              {error && <p className="text-sm font-medium text-destructive">{error}</p>}
+              {error && (
+                <div role="alert" className="flex w-full flex-wrap items-center justify-between gap-3 rounded-lg border border-destructive/30 bg-destructive/5 p-3">
+                  <p className="min-w-0 flex-1 break-words text-sm font-medium text-destructive">{error}</p>
+                  <Button variant="outline" size="sm" onClick={retry}>Retry</Button>
+                </div>
+              )}
             </div>
           </section>
 
@@ -453,7 +514,26 @@ export function AiSimulationPanel({
                   <span>Game log <span className="ml-1 text-ui-meta font-normal text-muted-foreground">({summary.results.length} games)</span></span>
                   <span className="text-ui-meta text-muted-foreground transition-transform group-open:rotate-180">⌄</span>
                 </summary>
-                <div className="overflow-x-auto border-t">
+                <div className="divide-y border-t sm:hidden">
+                  {summary.results.map((game) => (
+                    <div key={game.game} className="flex items-start justify-between gap-3 px-3 py-3 text-sm">
+                      <div className="min-w-0">
+                        <p className="font-semibold">Game {game.game}</p>
+                        <p className="break-words text-muted-foreground">
+                          {game.winnerDeckIndex !== null
+                            ? summary.decks[game.winnerDeckIndex]?.name ?? "Winner unknown"
+                            : "No winner"}
+                        </p>
+                        <p className="text-ui-meta text-muted-foreground">{game.outcome}</p>
+                      </div>
+                      <div className="shrink-0 text-right text-ui-meta tabular-nums">
+                        <p>{game.turns} turns</p>
+                        <p>{formatDuration(game.durationMs)}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <div className="hidden overflow-x-auto border-t sm:block">
                   <table className="w-full min-w-[560px] text-left text-sm">
                     <thead className="bg-muted/60 text-ui-meta text-muted-foreground">
                       <tr>
@@ -487,13 +567,13 @@ export function AiSimulationPanel({
           )}
         </div>
 
-        <footer className="flex shrink-0 justify-end gap-2 border-t px-4 py-3 sm:px-6">
+        <footer className="flex shrink-0 justify-end gap-2 border-t px-3 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:px-6 sm:py-3">
           {running && (
-            <Button variant="outline" onClick={cancel} disabled={cancelRequested}>
+            <Button variant="outline" onClick={cancel} disabled={cancelRequested} className="min-h-11 flex-1 sm:flex-none">
               Cancel simulation
             </Button>
           )}
-          <Button variant="primary" onClick={onClose} disabled={running && !cancelRequested}>
+          <Button variant="primary" onClick={onClose} disabled={running && !cancelRequested} className="min-h-11 flex-1 sm:flex-none">
             {running ? "Running…" : "Close"}
           </Button>
         </footer>
