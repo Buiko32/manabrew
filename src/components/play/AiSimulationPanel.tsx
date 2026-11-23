@@ -101,6 +101,14 @@ export function AiSimulationPanel({
   const [cancelRequested, setCancelRequested] = useState(false);
   const [attempt, setAttempt] = useState(0);
   const [initializing, setInitializing] = useState(true);
+  // Two concurrent games on desktop; phone/tablet browsers keep one game
+  // to avoid doubling the WASM engine's memory footprint.
+  const parallelGamesRef = useRef(
+    typeof window !== "undefined" &&
+      window.matchMedia("(min-width: 768px) and (pointer: fine)").matches
+      ? 2
+      : 1,
+  );
 
   useEffect(() => {
     // Forge uses a SharedArrayBuffer transport; silently starting without
@@ -169,6 +177,7 @@ export function AiSimulationPanel({
         games,
         startingLife,
         seedBase: Math.floor(Date.now() / 1000),
+        parallelGames: parallelGamesRef.current,
       });
     } catch (cause) {
       setInitializing(false);
@@ -222,7 +231,7 @@ export function AiSimulationPanel({
               </h2>
             </div>
             <p className="mt-1 text-ui-meta text-muted-foreground sm:pl-10">
-              {games} games · {decks.length} decks · {startingLife} starting life
+              {games} games · {decks.length} decks · {startingLife} starting life · {parallelGamesRef.current === 2 ? "2 at a time" : "1 at a time"}
             </p>
           </div>
           <Button variant="outline" size="sm" onClick={onClose} className="min-h-10 shrink-0">

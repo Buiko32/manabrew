@@ -42,13 +42,13 @@ export function OfflineRoster({
     <div
       className={cn(
         "min-w-0 gap-2",
-        compact ? "flex min-w-0 flex-1 snap-x snap-mandatory overflow-x-auto pb-1" : "grid grid-cols-2 sm:flex xl:flex-1",
+        compact ? "flex min-w-0 flex-1 snap-x snap-mandatory overflow-x-auto pb-1" : "grid grid-cols-2 sm:flex sm:w-full sm:flex-wrap",
       )}
     >
       {roster.seats.map((seat, index) => (
         <div
           key={seat.id}
-          className={cn("min-w-0", compact ? "w-[min(70vw,16rem)] shrink-0 snap-start" : "sm:flex-1 sm:basis-0")}
+          className={cn("min-w-0", compact ? "w-[min(70vw,16rem)] shrink-0 snap-start" : "sm:min-w-[12rem] sm:flex-1 sm:basis-0")}
         >
           <OfflineDeckSlot
             seat={seat}
