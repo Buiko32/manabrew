@@ -760,8 +760,10 @@ export function DeckVsSelector({
 
       <div
         className={cn(
-          "grid shrink-0 gap-3 border-t bg-background/95 px-4 py-3 sm:gap-3 sm:px-6 sm:py-3 lg:px-8 xl:flex xl:items-center xl:justify-between",
-          shortTouch && "max-h-[min(53dvh,22rem)] grid-cols-1 overflow-y-auto overscroll-contain px-3 py-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] shadow-[0_-8px_22px_-14px_rgba(0,0,0,0.35)]",
+          // Keep the action buttons on their own row: a wide AI roster must
+          // never squeeze or cover "Simulate" on desktop.
+          "flex shrink-0 flex-col gap-3 border-t bg-background/95 px-4 py-3 sm:px-6 lg:px-8",
+          shortTouch && "max-h-[min(53dvh,22rem)] overflow-y-auto overscroll-contain px-3 py-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] shadow-[0_-8px_22px_-14px_rgba(0,0,0,0.35)]",
         )}
       >
         <OfflineRoster
@@ -792,9 +794,9 @@ export function DeckVsSelector({
             dispatchRoster({ type: "add" });
           }}
         />
-        <div className="flex w-full shrink-0 flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
+        <div className="flex w-full min-w-0 shrink-0 flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:justify-end">
           {spectator && onSimulate && (
-            <div className="grid w-full min-w-0 grid-cols-[auto_5.5rem_minmax(0,1fr)] items-center gap-2 sm:flex sm:w-auto">
+            <div className="grid w-full min-w-0 grid-cols-[auto_5.5rem_minmax(0,1fr)] items-center gap-2 sm:flex sm:w-auto sm:flex-none">
               <label htmlFor="ai-simulation-games" className="text-ui-meta text-muted-foreground">
                 Games
               </label>
@@ -817,7 +819,7 @@ export function DeckVsSelector({
                 size="lg"
                 onClick={() => void startSimulation()}
                 disabled={!isReady || starting}
-                className="min-h-12 w-full min-w-0 gap-2 px-3 text-ui-body font-semibold sm:min-h-14 sm:w-auto sm:px-4"
+                className="min-h-12 w-full min-w-0 gap-2 px-3 text-ui-body font-semibold sm:min-h-14 sm:w-auto sm:shrink-0 sm:px-4"
               >
                 Simulate
               </Button>
@@ -829,7 +831,7 @@ export function DeckVsSelector({
             onClick={handleFight}
             disabled={!isReady || starting}
             aria-busy={starting}
-            className="min-h-12 w-full gap-2 px-4 text-ui-body font-bold sm:min-h-14 sm:min-w-48 sm:px-10"
+            className="min-h-12 w-full gap-2 px-4 text-ui-body font-bold sm:min-h-14 sm:w-auto sm:min-w-48 sm:shrink-0 sm:px-10"
           >
             {starting ? <Loader2 className="size-5 animate-spin" /> : <Swords className="size-5" />}
             {starting ? `Starting\u2026` : spectator ? `Watch AI game` : `Fight!`}
