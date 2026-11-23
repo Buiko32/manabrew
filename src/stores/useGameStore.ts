@@ -428,6 +428,7 @@ export const useGameStore = create<GameState>()(
       selfConceded: false,
       isAiLabSpectator: false,
       isMultiplayer: false,
+      isSpectator: false,
       isHost: false,
       myPlayerSlot: null,
       gameDecks: {},
@@ -694,6 +695,7 @@ export const useGameStore = create<GameState>()(
           );
           return false;
         }
+        const isSpectator = enginePlayerIndex < 0;
         const launchGeneration = ++gameLaunchGeneration;
         gameLaunchInFlight = launchGeneration;
         const gameDecks: Record<string, Deck> = {};
@@ -720,6 +722,7 @@ export const useGameStore = create<GameState>()(
             gameId: server.gameId,
             gauntletId: gauntletId ?? undefined,
             isHost: localIsHost,
+            spectator: isSpectator,
             username: server.username ?? "",
           });
         }
@@ -733,8 +736,9 @@ export const useGameStore = create<GameState>()(
             singlePlayerSetup: null,
             isRestartingGame: false,
             gameInstanceId: server.gameId || crypto.randomUUID(),
+            isSpectator,
             isHost: localIsHost,
-            myPlayerSlot: `player-${enginePlayerIndex}`,
+            myPlayerSlot: isSpectator ? null : `player-${enginePlayerIndex}`,
             ironsmithDeckError: null,
             engineCrash: null,
             gameView: null,
@@ -754,6 +758,11 @@ export const useGameStore = create<GameState>()(
             isRenderingCards: false,
             gameDecks,
           });
+          if (isSpectator) {
+            resetSelectedGameRuntime();
+            set({ debugInfo: "Watching live game." });
+            return true;
+          }
           const limited = useMultiplayerLimitedStore.getState();
           if (limited.matchReturn && limited.matchReturn.roomId === server.currentRoom?.room_id) {
             useMultiplayerLimitedStore.setState({
@@ -798,6 +807,7 @@ export const useGameStore = create<GameState>()(
             gameLaunchReady: false,
             activeEngine: null,
             isMultiplayer: false,
+            isSpectator: false,
             isHost: false,
             myPlayerSlot: null,
             debugInfo: `Multiplayer start failed: ${e}`,
@@ -817,6 +827,7 @@ export const useGameStore = create<GameState>()(
         }
       },
       respond: async (output) => {
+        if (get().isSpectator) return;
         if (get().isMultiplayer && useServerStore.getState().reconnect.phase !== "idle") {
           console.warn(`[store] respond(${output.type}) ignored — reconnecting`);
           return;
@@ -866,6 +877,7 @@ export const useGameStore = create<GameState>()(
         }
       },
       concede: async () => {
+        if (get().isSpectator) return;
         const runtime = getSelectedGameRuntime();
         if (runtime.capabilities.concedeBehavior === "end-session") {
           await get().endGame();
@@ -893,26 +905,32 @@ export const useGameStore = create<GameState>()(
           if (!options?.preserveRoom) clearActiveGameSession();
           const runtime = getSelectedGameRuntime();
           const wasMultiplayer = get().isMultiplayer || (get().isRestartingGame && !!activeSession);
+          const wasSpectator = get().isSpectator;
           if (peekGauntletMatch() && !get().gameView?.gameOver) await clearGauntletMatch();
           // Before the state is cleared: how the engine performed. A game the
           // relay knows about is reported to it; anything else goes to the hub.
           // Never throws, never blocks the teardown.
-          reportEngineStats({
-            multiplayer: wasMultiplayer,
-            seats: Object.keys(get().gameDecks).length || 2,
-            format: get().gameConfig?.formatId ?? null,
-            endReason: get().engineCrash ? "error" : get().gameView?.gameOver ? "gameOver" : "left",
-            gameId: engineReportGameId(
-              wasMultiplayer && !activeSession?.relayHost,
-              useServerStore.getState().gameId,
-              currentOfflineGameId(),
-            ),
-            send: wasMultiplayer
-              ? async (stats, gameId) => {
-                  await getPlatform().server?.reportEngineStats(stats, gameId);
-                }
-              : undefined,
-          });
+          if (!wasSpectator)
+            reportEngineStats({
+              multiplayer: wasMultiplayer,
+              seats: Object.keys(get().gameDecks).length || 2,
+              format: get().gameConfig?.formatId ?? null,
+              endReason: get().engineCrash
+                ? "error"
+                : get().gameView?.gameOver
+                  ? "gameOver"
+                  : "left",
+              gameId: engineReportGameId(
+                wasMultiplayer && !activeSession?.relayHost,
+                useServerStore.getState().gameId,
+                currentOfflineGameId(),
+              ),
+              send: wasMultiplayer
+                ? async (stats, gameId) => {
+                    await getPlatform().server?.reportEngineStats(stats, gameId);
+                  }
+                : undefined,
+            });
           setErrorReportingEngine(null);
           set({
             isGameActive: false,
@@ -938,6 +956,7 @@ export const useGameStore = create<GameState>()(
             selfConceded: false,
             engineCrash: null,
             isMultiplayer: false,
+            isSpectator: false,
             isHost: false,
             myPlayerSlot: null,
             gameDecks: {},
@@ -975,7 +994,7 @@ export const useGameStore = create<GameState>()(
             }
           }
           try {
-            await withTimeout(runtime.api.endGame(), "runtime.endGame()");
+            if (!wasSpectator) await withTimeout(runtime.api.endGame(), "runtime.endGame()");
           } catch (e) {
             console.warn("runtime.endGame() failed:", e);
           }
