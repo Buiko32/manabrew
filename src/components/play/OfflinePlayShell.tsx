@@ -4,7 +4,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { AppSelect, AppSelectOption } from "@/components/ui/AppSelect";
 import { ROUTES } from "@/lib/constants";
 import { cn } from "@/lib/utils";
-import { useIsShortScreen, useIsTouch } from "@/hooks/useBreakpoints";
+import { useIsMobileGame, useIsShortScreen, useIsTouch } from "@/hooks/useBreakpoints";
 interface OfflinePlayShellProps {
   children: ReactNode | ((modeToggle: ReactNode) => ReactNode);
 }
@@ -33,14 +33,15 @@ export function OfflinePlayShell({ children }: OfflinePlayShellProps) {
   const navigate = useNavigate();
   const shortScreen = useIsShortScreen();
   const isTouch = useIsTouch();
-  const compact = shortScreen && isTouch;
+  const mobileGame = useIsMobileGame();
+  const compact = isTouch && (shortScreen || mobileGame);
 
   const modeToggle = compact ? (
     <AppSelect
       aria-label="Offline play mode"
       value={location.pathname}
       onValueChange={(value) => navigate(value, { replace: true })}
-      className="min-h-11 shrink-0 text-ui-label font-medium"
+      className="min-h-11 min-w-0 flex-1 text-ui-label font-medium"
     >
       {TABS.map(({ to, label, icon: Icon }) => (
         <AppSelectOption key={to} value={to}>

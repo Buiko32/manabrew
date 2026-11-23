@@ -59,6 +59,7 @@ export interface AiSimulationSummary {
 }
 
 export type AiSimulationWorkerMessage =
+  | { type: "ready" }
   | { type: "progress"; completed: number; total: number; lastGame: AiSimulationGameResult }
   | { type: "complete"; summary: AiSimulationSummary }
   | { type: "cancelled"; summary: AiSimulationSummary }
