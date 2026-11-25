@@ -1,5 +1,35 @@
 # Changelog
 
+## [3.96.0](https://github.com/witchesofthehill/manabrew/compare/v3.95.0...v3.96.0) (2026-11-25)
+
+### Features
+
+* **matchmaking:** group Find a game decks by bracket ([#1287](https://github.com/witchesofthehill/manabrew/issues/1287)) ([ad8c052](https://github.com/witchesofthehill/manabrew/commit/ad8c052712c7709275b44d0960c89e78ee3cf461))
+
+## [3.95.0](https://github.com/witchesofthehill/manabrew/compare/v3.94.0...v3.95.0) (2026-11-25)
+
+### Features
+
+* **matchmaking:** choose Manabot fill before searching ([#1284](https://github.com/witchesofthehill/manabrew/issues/1284)) ([73781b5](https://github.com/witchesofthehill/manabrew/commit/73781b5d064d8e66022cf20c84803978dda58dd5))
+
+## [3.94.0](https://github.com/witchesofthehill/manabrew/compare/v3.93.0...v3.94.0) (2026-11-25)
+
+### Features
+
+* **ui:** retire manabrew engine gameplay ([#1276](https://github.com/witchesofthehill/manabrew/issues/1276)) ([1b12fa0](https://github.com/witchesofthehill/manabrew/commit/1b12fa006f65d20e19aee7da25d8ab344a907925))
+
+## [3.93.0](https://github.com/witchesofthehill/manabrew/compare/v3.92.1...v3.93.0) (2026-11-24)
+
+### Features
+
+* **ironsmith:** carry private traffic over the peer-to-peer plane ([#1283](https://github.com/witchesofthehill/manabrew/issues/1283)) ([9cc86a5](https://github.com/witchesofthehill/manabrew/commit/9cc86a5a3730750f97aeedbaa2db9eb17a9ae936))
+
+## [3.92.1](https://github.com/witchesofthehill/manabrew/compare/v3.92.0...v3.92.1) (2026-11-24)
+
+### Fixes
+
+* **ironsmith:** stop sync retries flooding the host and recover lost entries ([#1282](https://github.com/witchesofthehill/manabrew/issues/1282)) ([818d428](https://github.com/witchesofthehill/manabrew/commit/818d428aaa40fa815c5e55aa94caec2e0b8a7413))
+
 ## [3.92.0](https://github.com/witchesofthehill/manabrew/compare/v3.91.1...v3.92.0) (2026-11-24)
 
 ### Features
