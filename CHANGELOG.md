@@ -1,5 +1,23 @@
 # Changelog
 
+## [3.96.5](https://github.com/witchesofthehill/manabrew/compare/v3.96.4...v3.96.5) (2026-11-26)
+
+### Fixes
+
+* **forge:** finish hybrid mana payments from the pool ([#1302](https://github.com/witchesofthehill/manabrew/issues/1302)) ([88068ee](https://github.com/witchesofthehill/manabrew/commit/88068eed68072d3c8fc5138cee3fc49db7153764))
+
+## [3.96.4](https://github.com/witchesofthehill/manabrew/compare/v3.96.3...v3.96.4) (2026-11-26)
+
+### Fixes
+
+* **ironsmith:** update ironsmith-wasm to 1.0.4 ([#1301](https://github.com/witchesofthehill/manabrew/issues/1301)) ([9243dfd](https://github.com/witchesofthehill/manabrew/commit/9243dfdc4b2fff7bc113dd76c91fa44b6252e8b3))
+
+## [3.96.3](https://github.com/witchesofthehill/manabrew/compare/v3.96.2...v3.96.3) (2026-11-26)
+
+### Fixes
+
+* **ironsmith:** stop Commander games freezing, start seats together, stop the guest hand blinking ([#1300](https://github.com/witchesofthehill/manabrew/issues/1300)) ([6eb573a](https://github.com/witchesofthehill/manabrew/commit/6eb573accc2db0ddfe322e868aaa68f9b5ff91ff))
+
 ## [3.96.2](https://github.com/witchesofthehill/manabrew/compare/v3.96.1...v3.96.2) (2026-11-25)
 
 ### Fixes
